@@ -94,8 +94,8 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @foreach ($patients as $patient)
                                 <tr>
-                                    @foreach ($patients as $patient)
                                         <td>{{ $patient->id }}</td>
                                         <td>{{ $patient->file_no }}</td>
                                         <td>
@@ -116,7 +116,7 @@
                                         <td>{{ $patient->mobile_no }}</td>
                                         <td>5</td>
                                         <td>
-                                            <a href="{{ url('patients') . '/' . $patient->id . '/edit' }}" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">View Details</a>
+                                            <a href="{{ url('patients') . '/' . $patient->id}}" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">View Details</a>
                                             <a href="{{ url('add-bill') . '/'.$patient->id }}" class="btn btn-success btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">Add Bill</a>
                                 </tr>
                                 @endforeach

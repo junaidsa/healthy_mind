@@ -433,7 +433,6 @@
             const page_no = $('#lastPageNumber').val();
             const note = $('#note').val();
             const bill_no = $('#bill_no').val();
-            alert(bill_no);
             const patient_id = $('#patient_id').val();
             var totalPrice = $('#total-price').text();
             $.ajax({

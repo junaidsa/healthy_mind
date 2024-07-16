@@ -307,10 +307,10 @@ class PatientController extends Controller
     public function docUpload(Request $request)
     {
         // dd($request->all());
-        $request->validate([
-            'file' => 'required|file|mimes:jpg,jpeg,png,pdf,docx|max:2048'
+        $validated = $request->validate([
+            'file' => 'required|file|mimes:jpg,jpeg,png,pdf,txt,docx|max:2048'
         ]);
-
+        if ($validated) {
         if ($request->hasFile('file')) {
             $document = $request->file('file');
             $patient_id = $request->input('patient_id');
@@ -329,6 +329,9 @@ class PatientController extends Controller
         } else {
             return back()->with('error', 'Document not upload.');
         }
+    } else {
+        return redirect()->back()->withErrors($validated)->withInput();
+    }
     }
     public function deletedoc($id)
     {
@@ -380,11 +383,9 @@ class PatientController extends Controller
                     'errors' => $validator->errors(),
                 ]);
             }
-
             $print = $request->input('print');
-            // dd($print);
             $pageNo = $request->input('page_no');
-            $bill_No = $request->input('page_no');
+            $bill_No = $request->input('bill_no');
             $patientId = $request->input('patient_id');
             $note = $request->input('note');
             $total = $request->input('totalPrice');
