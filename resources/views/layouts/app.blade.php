@@ -335,12 +335,12 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
                                         <span key="t-layouts">Dispense</span>
                                     </a>
                                 </li>
-                                <li>
-                                    <a href="chat.html" class="waves-effect">
+                                <li class="{{ Request::is('billbook') || Request::is('billbook/create') || Request::is('billbook/*') ? 'mm-active' : '' }}">
+                                    <a href="{{ url('billbook') }}" class="waves-effect">
                                         <i class="bx bx-layout"></i>
                                         <span key="t-chat">Bill Book</span>
                                     </a>
-                                </li>
+                                </li >
                                 <li class="{{ Request::is('stockbook') || Request::is('stockbook/create') || Request::is('stockbook/*') ? 'mm-active' : '' }}">
                                     <a href="{{ url('stockbook') }}" class="waves-effect">
                                         <i class="bx bx-layout"></i>

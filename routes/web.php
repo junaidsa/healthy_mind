@@ -56,5 +56,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/dispense/pdf', [HomeController::class,'dispense_pdf']);
     Route::get('/dispense/excel', [HomeController::class,'dispense_excel']);
     Route::get('/stockbook', [HomeController::class,'stockBook_view']);
+    Route::get('/stock/pdf', [HomeController::class,'stockbook_pdf']);
+    Route::get('/stock/excel', [HomeController::class,'stockbook_excel']);
+    Route::get('/billbook', [HomeController::class,'billbook_view']);
+    Route::get('/delete-bill/{id}', [HomeController::class,'deleteBill']);
 });
 require __DIR__.'/auth.php';
