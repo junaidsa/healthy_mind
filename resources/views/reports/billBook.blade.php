@@ -63,13 +63,17 @@
             padding: .45rem .75rem;
         }
     </style>
-    <div class="page-content" style="min-height: 570px;">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <div class="page-content" style="min-height: 600px;">
         <div class="container-fluid">
             <!-- end page title -->
             <div class="card" style="border-radius: 20px">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <input type="text" class="form-control form-control-sm" id="date_range" style="width: 200px">
+                        <form id="range-form" action="{{ url()->current() }}">
+                            <input type="hidden" name="search" value="{{ @$_GET['search'] }}">
+                            <input type="text" class="form-control form-control-sm" id="date_range" name="date" value="{{ @$_GET['date'] }}" style="width: 200px">
+                        </form>
                         <div class="d-flex align-items-center fw-bold">
                             PRINT BILL <input type="text" class="form-control form-control-sm ms-2 me-2"
                                 name="start_bill" style="width: 100px"> TO <input type="text"
@@ -84,12 +88,11 @@
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex">
-                            <a href="{{ url('stock/pdf') }}@if (request()->has('date')) ?date={{ request()->get('date') }} @endif
-                        @if (request()->has('search')) {{ request()->has('date') ? '&' : '?' }}search={{ request()->get('search') }} @endif"
+                            <a href="{{ url('billbook/pdf') }}{{ request()->has('date') ? '?date=' . request()->get('date') : '' }}{{ request()->has('search') ? (request()->has('date') ? '&' : '?') . 'search=' . request()->get('search') : '' }}"
                                 class="btn btn-success me-3">
                                 PDF
                             </a>
-                            <a href="{{ url('stock/excel') }}@if (request()->has('date')) ?date={{ request()->get('date') }} @endif
+                            <a href="{{ url('billbook/excel') }}@if (request()->has('date')) ?date={{ request()->get('date') }} @endif
                         @if (request()->has('search')) {{ request()->has('date') ? '&' : '?' }}search={{ request()->get('search') }} @endif"
                                 class="btn btn-success">
                                 Excel
@@ -100,7 +103,8 @@
 
                             </div>
 
-                            <form action="{{ url()->current() }}{{ isset($_GET['date']) ? '?date=' . $_GET['date'] : '' }}" method="get">
+                            <form action="{{ url()->current() }}" method="get">
+                                <input type="hidden" name="date" value="{{ @$_GET['date'] }}">
                                 <div class="search-container">
                                     <button class="search-a">
                                         <i class="fa fa-search" class="search-a"></i>
@@ -168,7 +172,7 @@
                                                         class="btn btn-success btn-sm waves-effect waves-light mb-2 mb-md-0 me-2"
                                                         data-id="{{ @$row->id }}">Edit</a><a href="javascript:void();"
                                                         class="btn btn-primary btn-sm btn-rounded me-2 waves-effect waves-light mb-2 mb-md-0"
-                                                        data-id="{{ @$row->id }}">View Details</a> <a href="{{ url('delete-bill'.'/'. @$row->id) }}"><i class="fas fa-times text-danger"></i></a></td>
+                                                        data-id="{{ @$row->id }}">View Details</a> <a href="{{ url('delete-bill'.'/'. @$row->id) }}" onclick="return confirm('Are you sure?')"><i class="fas fa-times text-danger"></i></a></td>
                                             </tr>
                                         @endforeach
 
@@ -187,7 +191,22 @@
     <!-- end main content-->
 @endsection
 @section('customJs')
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
+        flatpickr("#date_range", {
+        mode: "range",
+        onClose: function(selectedDates, dateStr, instance) {
+            // Format the date range as "DD/MM/YYYY - DD/MM/YYYY"
+            // if (selectedDates.length > 1) {
+            //     const startDate = selectedDates[0];
+            //     const endDate = selectedDates[1];
+            //     const formattedStartDate = instance.formatDate(startDate, "d/m/Y");
+            //     const formattedEndDate = instance.formatDate(endDate, "d/m/Y");
+            //     instance.input.value = `${formattedStartDate} - ${formattedEndDate}`;
+            // }
+            $('#range-form').submit();
+        }
+    });
         var datepicker = $('#datepicker6').datepicker({
             format: 'dd M yyyy',
             autoclose: true

@@ -38,19 +38,24 @@ class HomeController extends Controller
                     ->orWhere('p.file_no','like','%'. $search .'%');
                 }
             })
+            ->where('pb.updated_at', 'LIKE', '%' . $cond . '%')
             ->orderBy('pb.id', 'desc')
             ->get();
         return view('reports.dispense', compact('data'));
     }
-    public function billbook_view()
+    public function billbook_view(Request $request)
     {
+        $start_date = '';
+        $end_date = '';
         $search = @$_GET['search'];
 
         $date = @$_GET['date'];
         if (isset($date)) {
-            $cond = date('Y-m-d', strtotime($date));
-        } else {
-            $cond = date('Y-m-d');
+            $date_part = explode(' to ', $date);
+            // dd($date_part);
+
+            $start_date = date('Y-m-d', strtotime($date_part[0]));
+            $end_date = date('Y-m-d', strtotime($date_part[1]));
         }
 
         $data = DB::table('patient_bills as pb')
@@ -64,10 +69,17 @@ class HomeController extends Controller
                     ->orWhere('p.first_name','like','%'. $search .'%')
                     ->orWhere('p.father_name','like','%'. $search .'%')
                     ->orWhere('p.other_id','like','%'. $search .'%')
+                    ->orWhere('p.date_of_birth','like','%'. $search .'%')
+                    ->orWhere('pb.total_amount','like','%'. $search .'%')
                     ->orWhere('p.file_no','like','%'. $search .'%');
                 }
             })
-            ->where('pb.updated_at', 'LIKE', '%' . $cond . '%')
+            ->where(function($q) use ($date,$start_date,$end_date){
+                if(!empty($date)){
+                    $q->where('pb.updated_at','>=', $start_date.' 00:00:00')
+                    ->where('pb.updated_at','<=', $end_date.' 23:59:59');
+                }
+            })
             ->orderBy('pb.id', 'desc')
             ->get();
         return view('reports.billbook', compact('data'));
@@ -472,5 +484,195 @@ class HomeController extends Controller
         }
         DB::table('patient_bills')->where('id',$id)->delete();
         return redirect()->back()->with('success','Bill Deleted');
+    }
+
+
+    public function billbook_pdf()
+    {
+        $start_date = '';
+        $end_date = '';
+        $search = @$_GET['search'];
+
+        $date = @$_GET['date'];
+        if (isset($date)) {
+            $date_part = explode(' to ', $date);
+            // dd($date_part);
+
+            $start_date = date('Y-m-d', strtotime($date_part[0]));
+            $end_date = date('Y-m-d', strtotime($date_part[1]));
+        }
+
+        $data = DB::table('patient_bills as pb')
+            ->select('pb.*', 'p.file_no', 'p.first_name', 'p.father_name','p.other_id','p.Image','p.date_of_birth')
+            ->join('patients as p', function ($join) {
+                $join->on('p.id', 'pb.patient_id');
+            })
+            ->where(function($q) use ($search){
+                if(!empty($search)){
+                    $q->where('pb.bill_no','like','%'. $search .'%')
+                    ->orWhere('p.first_name','like','%'. $search .'%')
+                    ->orWhere('p.father_name','like','%'. $search .'%')
+                    ->orWhere('p.other_id','like','%'. $search .'%')
+                    ->orWhere('p.date_of_birth','like','%'. $search .'%')
+                    ->orWhere('pb.total_amount','like','%'. $search .'%')
+                    ->orWhere('p.file_no','like','%'. $search .'%');
+                }
+            })
+            ->where(function($q) use ($date,$start_date,$end_date){
+                if(!empty($date)){
+                    $q->where('pb.updated_at','>=', $start_date.' 00:00:00')
+                    ->where('pb.updated_at','<=', $end_date.' 23:59:59');
+                }
+            })
+            ->orderBy('pb.id', 'desc')
+            ->get();
+        $html = '<!DOCTYPE html>
+    <html>
+    <head>
+        <title>Dispense Report</title>
+        <style>
+            body {
+                font-size: 12px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+            }
+            table, th, td {
+                border: 1px solid black;
+            }
+            th, td {
+                padding: 8px;
+                text-align: left;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Bill Book Report</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Bill No.</th>
+                                            <th>File No.</th>
+                                            <th>Name</th>
+                                            <th>Father\'s Name</th>
+                                            <th>Age</th>
+                                            <th>Aadhar Number</th>
+                                            <th>Medicine</th>
+                                            <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>';
+        $sr = 1;
+        foreach ($data as $row) {
+            $bill_items = DB::table('bill_items')
+                ->where('bill_id', $row->id)
+                ->orderBy('medicine_id')
+                ->orderBy('batch_no')
+                ->get();
+            $med_qty = $bill_items->sum('qty');
+            $html .= '<tr>
+                        <td>' .@$row->bill_no . '</td>
+                        <td>' . @$row->file_no . '</td>
+                        <td>' . @$row->first_name . '</td>
+                        <td>' . @$row->father_name . '</td>
+                        <td>' . @$row->date_of_birth . '</td>
+                        <td>' . @$row->other_id . '</td>
+                        <td>' . @$med_qty . '</td>
+                        <td>' . @$row->total_amount . '</td>
+                    </tr>';
+        }
+        $html .= '</tbody>
+        </table>
+    </body>
+    </html>';
+
+        $pdf = PDF::loadHTML($html);
+        return $pdf->stream('Billbook.pdf');
+    }
+
+    public function billbook_excel()
+    {
+        $start_date = '';
+        $end_date = '';
+        $search = @$_GET['search'];
+
+        $date = @$_GET['date'];
+        if (isset($date)) {
+            $date_part = explode(' to ', $date);
+            // dd($date_part);
+
+            $start_date = date('Y-m-d', strtotime($date_part[0]));
+            $end_date = date('Y-m-d', strtotime($date_part[1]));
+        }
+
+        $data = DB::table('patient_bills as pb')
+            ->select('pb.*', 'p.file_no', 'p.first_name', 'p.father_name','p.other_id','p.Image','p.date_of_birth')
+            ->join('patients as p', function ($join) {
+                $join->on('p.id', 'pb.patient_id');
+            })
+            ->where(function($q) use ($search){
+                if(!empty($search)){
+                    $q->where('pb.bill_no','like','%'. $search .'%')
+                    ->orWhere('p.first_name','like','%'. $search .'%')
+                    ->orWhere('p.father_name','like','%'. $search .'%')
+                    ->orWhere('p.other_id','like','%'. $search .'%')
+                    ->orWhere('p.date_of_birth','like','%'. $search .'%')
+                    ->orWhere('pb.total_amount','like','%'. $search .'%')
+                    ->orWhere('p.file_no','like','%'. $search .'%');
+                }
+            })
+            ->where(function($q) use ($date,$start_date,$end_date){
+                if(!empty($date)){
+                    $q->where('pb.updated_at','>=', $start_date.' 00:00:00')
+                    ->where('pb.updated_at','<=', $end_date.' 23:59:59');
+                }
+            })
+            ->orderBy('pb.id', 'desc')
+            ->get();
+
+
+        // Define CSV file name
+        $filename = 'billbook_' . date('YmdHis') . '.csv';
+
+        // Define CSV headers
+        $headers = [
+            'Bill No.',
+            'File No.',
+            'Name',
+            'Father\'s Name',
+            'Age',
+            'Aadhar Number',
+            'Medicine',
+            'Amount',
+        ];
+
+        // Prepare CSV content
+        $csvContent = implode(',', $headers) . "\n"; // Add headers as the first line
+
+        // Prepare CSV rows
+        $sr = 1;
+        foreach ($data as $row) {
+            $bill_items = DB::table('bill_items')
+                ->where('bill_id', $row->id)
+                ->orderBy('medicine_id')
+                ->orderBy('batch_no')
+                ->get();
+            $med_qty = $bill_items->sum('qty');
+
+            // Add main row for each patient bill
+            $csvContent .= '"' . $row->bill_no . '","' . $row->file_no . '","' . $row->first_name . '","' . $row->father_name . '","' . $row->date_of_birth . '","' . $row->other_id . '","' . $med_qty . '","' . $row->total_amount . ' ₹"';
+
+
+            $csvContent .= "\n";
+        }
+        // Set headers for CSV download
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+
+        // Output CSV content
+    echo $csvContent;
+    exit;
     }
 }
