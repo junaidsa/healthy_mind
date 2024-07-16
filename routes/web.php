@@ -53,5 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/print/{id}', [PatientController::class, 'showPrint']);
     Route::get('/demo/delete-row/{id}', [PatientController::class, 'rowdeleted']);
     Route::get('/dispense', [HomeController::class,'dispense_view']);
+    Route::get('/dispense/pdf', [HomeController::class,'dispense_pdf']);
+    Route::get('/dispense/excel', [HomeController::class,'dispense_excel']);
 });
 require __DIR__.'/auth.php';

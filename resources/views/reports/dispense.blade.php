@@ -59,7 +59,7 @@
             padding-bottom: 0px;
         }
     </style>
-    <div class="page-content">
+    <div class="page-content" style="min-height: 570px;">
         <div class="container">
             <div class="row">
                 <div class="col-12">
@@ -83,16 +83,19 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-9 d-flex align-items-center" style="font-size: 16px;">
-                            <b class="mr-4 pb-2">Date</b>&nbsp;&nbsp; &nbsp;<span class="pl-4 pb-2"><b style="cursor: pointer;" id="datepicker6" data-date-format="dd M yyyy" data-date-autoclose="true" data-provide="datepicker" data-date-container="#datepicker6">{{ date('d M Y') }}</b></span>
+                            <b class="mr-4 pb-2">Date</b>&nbsp;&nbsp; &nbsp;<span class="pl-4 pb-2"><b
+                                    style="cursor: pointer;" id="datepicker6" data-date-format="dd M yyyy"
+                                    data-date-autoclose="true" data-provide="datepicker"
+                                    data-date-container="#datepicker6">{{ isset($_GET['date']) ? $_GET['date'] : date('d M Y') }}</b></span>
                         </div>
                         <div class="col-3 text-end mb-2">
-                            <a href="" class="btn btn btn-success">
+                            <a href="{{ url('dispense/pdf') }}@if(isset($_GET['date']))?date={{ $_GET['date'] }}@endif" class="btn btn btn-success">
                                 PDF
                             </a>
-                            <a href="javascript: void(0);" class="btn btn btn-success">
+                            <a href="{{ url('dispense/excel') }}@if(isset($_GET['date']))?date={{ $_GET['date'] }}@endif" class="btn btn btn-success">
                                 Excel
                             </a>
-                            <a href="javascript: void(0);" class="btn btn btn-success">
+                            <a href="{{ url('dispense/print') }}@if(isset($_GET['date']))?date={{ $_GET['date'] }}@endif" class="btn btn btn-success">
                                 Print
                             </a>
                         </div>
@@ -117,8 +120,8 @@
                                     <tbody>
                                     <tbody>
                                         @php
-        $last_batches = []; // Initialize outside the loop to keep track globally
-    @endphp
+                                            $last_batches = []; // Initialize outside the loop to keep track globally
+                                        @endphp
                                         @foreach ($data as $row)
                                             @php
                                                 // $bill_items = DB::table('bill_items')->where('bill_id', $row->id)->get();
@@ -137,7 +140,9 @@
                                                         isset($last_batches[$item->medicine_id]) &&
                                                         $last_batches[$item->medicine_id] != $item->batch_no
                                                     ) {
-                                                        $med_name = DB::table('medicines')->where('id',$item->medicine_id)->first();
+                                                        $med_name = DB::table('medicines')
+                                                            ->where('id', $item->medicine_id)
+                                                            ->first();
                                                         $batch_notifications[] = [
                                                             'medicine_name' => $med_name->name,
                                                             'batch_no' => $item->batch_no,
@@ -161,8 +166,8 @@
                                                 <td class="text-center">{{ @$row->file_no }}</td>
                                                 <td class="text-center">{{ @$row->first_name }}</td>
                                                 <td class="text-center">{{ @$row->father_name }}</td>
-                                                <td class="text-center">1252 2512 5232</td>
-                                                <td class="text-center">{{ $med_qty }}</td>
+                                                <td class="text-center">{{ @$row->other_id }}</td>
+                                                <td class="text-center">{{ @$med_qty }}</td>
                                                 <td class="text-center"><a href=""
                                                         class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0"
                                                         data-id="{{ @$row->id }}">View Details</a></td>
@@ -280,6 +285,7 @@
             var newUrl = currentUrl + '?date=' + encodeURIComponent(selectedDate);
             window.location.href = newUrl;
         });
+
         function parseQueryString(url) {
             var params = {};
             var queryString = url.split('?')[1];
