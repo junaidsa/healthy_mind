@@ -116,16 +116,8 @@
                                         <td>{{ $patient->mobile_no }}</td>
                                         <td>5</td>
                                         <td>
-                                            <button
-                                                    class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0"><a href="{{ url('patients') . '/' . $patient->id . '/edit' }}" style="
-                                                        color: #fff;
-                                                    ">View
-                                                    Details</a></button>
-                                            <button
-                                                class="btn btn-success btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0 "><a href="{{ url('add-bill') . '/'.$patient->id }}" style="
-                                                    color: #fff;
-                                                ">Add
-                                                Bill</a></button>
+                                            <a href="{{ url('patients') . '/' . $patient->id . '/edit' }}" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">View Details</a>
+                                            <a href="{{ url('add-bill') . '/'.$patient->id }}" class="btn btn-success btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">Add Bill</a>
                                 </tr>
                                 @endforeach
                             </tbody>

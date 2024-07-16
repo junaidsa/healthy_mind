@@ -24,8 +24,10 @@ class PatientController extends Controller
     {
         $keywords = request('keywords');
         $patients = Patient::where('first_name', 'like', "%$keywords%")
-            ->orWhere('father_name', 'like', "%$keywords%")
-            ->orWhere('uid_number', 'like', "%$keywords%")->paginate(10);
+        ->orWhere('father_name', 'like', "%$keywords%")
+        ->orWhere('uid_number', 'like', "%$keywords%")
+        ->orderBy('id', 'desc')
+        ->paginate(10);
         return view('patient.view', compact('patients'));
     }
     public function create()
@@ -133,11 +135,6 @@ class PatientController extends Controller
 
         $medicineId = $request->input('medicine');
         $requestedQty = $request->qty;
-        // $batches = Batche::where('medicine_id', $medicineId)
-        //                 ->where('quantity', '>', 0)
-        //                 ->orderBy('created_at')
-        //                 ->get();
-
         $batch = DB::table('batches')
             ->where('medicine_id', $medicineId)
             ->where('quantity', '>', 0)

@@ -1,11 +1,7 @@
 @extends('layouts.app');
 @section('main')
     <style>
-        .hr-boader {
-            height: 1px;
-            background-color: #474747;
-            margin-top:0;
-        }
+ a
 
         #profile_display {
             display: block;
@@ -26,7 +22,12 @@
             border-radius: 20px;
             padding: 20px;
         }
-
+        #camera-preview.d-none {
+      display: none;
+    }
+    #countdown.d-none {
+      display: none;
+    }
         .btn-font {
             font-size: 1rem;
         }
@@ -44,6 +45,9 @@
             height: 100%;
             object-fit: cover;
         }
+        #captured-image {
+      display: none;
+    }
     </style>
     <div class="page-content">
     <form id="createpatientForm" action="{{url('/patients')}}" method="POST" enctype="multipart/form-data">
@@ -102,7 +106,7 @@
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Date Of Birth <span class="text-danger">*</span></label>
                         <div class="input-daterange input-group @error('date_of_birth') is-invalid @enderror"id="datepicker6" data-date-format="dd M, yyyy" data-date-autoclose="true" data-provide="datepicker" data-date-container="#datepicker6">
-                             <input type="text" class="form-control" name="data_of_birth">
+                             <input type="text" class="form-control" name="data_of_birth" autocomplete="off">
                                 @error('date_of_birth')
                                 <div class=" invalid-feedback">{{ $message }}</div>
                                      @enderror
@@ -166,11 +170,14 @@
                         <div class="box" id="imagePreview"></div>
                     </div>
                     <div class="d-flex justify-content-center">
-                        <a href="#" style="display: block; width:85%;" type="button"
-                            class="btn btn-success mt-2 pl-4 align-items-center" data-bs-target="#capturePhotoModal"
-                            data-bs-toggle="modal">
-                            Upload
-                        </a>
+                        {{-- <button  id="captureBtn" style="display: block; width:85%;"  type="button"
+                            class="btn btn-success mt-2 pl-4 align-items-center">
+                            Capture
+                        </button> --}}
+                        <button type="button" class="btn btn-success mt-2 waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#staticBackdrop" >
+                            Capture
+                        </button>
+
                     </div>
                     <input type="file" id="photo" name="photo" style="display: none;" accept="image/*">
                 </div>
@@ -186,29 +193,82 @@
     </form>
     </div>
     </div>
+    <!-- Static Backdrop Modal -->
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Capture Photo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-center">
+                        <canvas id="captured-image"></canvas>
+                        <video id="camera-preview" width="500" height="300" autoplay></video>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="captureBtn">Capture</button>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
 @endsection
 @section('customJs')
 <script>
-     document.querySelector('.btn-success').addEventListener('click', function (e) {
-            e.preventDefault();
-            document.getElementById('photo').click();
-        });
+    var imageData = '';
 
-        document.getElementById('photo').addEventListener('change', function (event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    const imagePreview = document.getElementById('imagePreview');
-                    imagePreview.innerHTML = '';
-                    imagePreview.appendChild(img);
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+$('#staticBackdrop').on('shown.bs.modal', function () {
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(function(stream) {
+        var video = document.getElementById('camera-preview');
+        video.srcObject = stream;
+        video.play();
+      })
+      .catch(function(error) {
+        console.log('Error accessing the camera:', error);
+      });
+  } else {
+    console.log('getUserMedia is not supported');
+  }
+});
+
+$('#captureBtn').on('click', function(e) {
+  e.preventDefault();
+
+  var video = document.getElementById('camera-preview');
+
+  var canvas = document.getElementById('captured-image');
+  var context = canvas.getContext('2d');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // Save the image data
+  imageData = canvas.toDataURL('image/png');
+
+  // Set the image preview
+  var imagePreview = document.getElementById('imagePreview');
+  imagePreview.innerHTML = '<img src="' + imageData + '" alt="Captured Image">';
+  var byteString = atob(imageData.split(',')[1]);
+  var mimeString = imageData.split(',')[0].split(':')[1].split(';')[0];
+  var ab = new ArrayBuffer(byteString.length);
+  var ia = new Uint8Array(ab);
+  for (var i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  var blob = new Blob([ab], { type: mimeString });
+  var file = new File([blob], "photo.png", { type: mimeString });
+
+  // Set the file input
+  var photoInput = document.getElementById('photo');
+  var dataTransfer = new DataTransfer();
+  dataTransfer.items.add(file);
+  photoInput.files = dataTransfer.files;
+});
         $(document).ready(function() {
         $('#createpatientForm').submit(function(event) {
             $(".is-invalid").removeClass('is-invalid');

@@ -170,11 +170,9 @@
                         </div>
                     </div>
                     <div class="d-flex justify-content-center">
-                        <a href="#" style="display: block; width:85%;" type="button"
-                            class="btn btn-success mt-2 pl-4 align-items-center" data-bs-target="#capturePhotoModal"
-                            data-bs-toggle="modal">
-                            Upload
-                        </a>
+                        <button type="button" class="btn btn-primary mt-2 waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#capimage">
+                            Capture
+                          </button>
                     </div>
                     <input type="file" id="photo" name="photo" style="display: none;" accept="image/*">
                 </div>
@@ -189,7 +187,7 @@
                     </div>
                 </div>
             </div>
-            <div class="table-responsive">
+            {{-- <div class="table-responsive">
                 <table class="table mb-0">
 @php
         $docs = DB::table('documents')
@@ -245,8 +243,8 @@
         </div>
     </form>
     </div>
-    </div>
-    <div class="modal fade transaction-detailModal" tabindex="-1" role="dialog" aria-labelledby="transaction-detailModalLabel" aria-hidden="true">
+    </div> --}}
+    {{-- <div class="modal fade transaction-detailModal" tabindex="-1" role="dialog" aria-labelledby="transaction-detailModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -268,11 +266,81 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
+    <div class="modal fade" id="capimage" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Capture photo</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-center">
+                    <canvas id="captured-image" class="d-none"></canvas>
+                    <video id="camera-preview" width="500" height="300" autoplay></video>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" id="captureBtn">Capture</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 @endsection
 @section('customJs')
 <script>
+    var imageData = '';
+$('#capimage').on('shown.bs.modal', function () {
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(function(stream) {
+        var video = document.getElementById('camera-preview');
+        video.srcObject = stream;
+        video.play();
+      })
+      .catch(function(error) {
+        console.log('Error accessing the camera:', error);
+      });
+  } else {
+    console.log('getUserMedia is not supported');
+  }
+});
+
+$('#captureBtn').on('click', function(e) {
+  e.preventDefault();
+
+  var video = document.getElementById('camera-preview');
+
+  var canvas = document.getElementById('captured-image');
+  var context = canvas.getContext('2d');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // Save the image data
+  imageData = canvas.toDataURL('image/png');
+
+  // Set the image preview
+  var imagePreview = document.getElementById('imagePreview');
+  imagePreview.innerHTML = '<img src="' + imageData + '" alt="Captured Image">';
+  var byteString = atob(imageData.split(',')[1]);
+  var mimeString = imageData.split(',')[0].split(':')[1].split(';')[0];
+  var ab = new ArrayBuffer(byteString.length);
+  var ia = new Uint8Array(ab);
+  for (var i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  var blob = new Blob([ab], { type: mimeString });
+  var file = new File([blob], "photo.png", { type: mimeString });
+
+  // Set the file input
+  var photoInput = document.getElementById('photo');
+  var dataTransfer = new DataTransfer();
+  dataTransfer.items.add(file);
+  photoInput.files = dataTransfer.files;
+});
         $("body").on('click', '.delete-btn', function () {
         var id = $(this).attr('id')
         if (confirm('Are you sure you want to delete this record?')) {
@@ -294,75 +362,75 @@
                 reader.readAsDataURL(file);
             }
         });
-        $(document).ready(function() {
-        $('#createpatientForm').submit(function(event) {
-            $(".is-invalid").removeClass('is-invalid');
-            $(".invalid-feedback").html('');
-            var file_no = $("#file_no").val().trim();
-            var registration_date = $("#registration_date").val().trim();
-            var first_name = $("#first_name").val().trim();
-            var uid_number = $("#uid_number").val().trim();
-            var mobile_no = $("#mobile_no").val().trim();
-            var address = $("#address").val().trim();
-            var gender = document.getElementById("gender").value.trim();
-            var photo = $("#photo").prop('files')[0]; // Get the file object
+    //     $(document).ready(function() {
+    //     $('#createpatientForm').submit(function(event) {
+    //         $(".is-invalid").removeClass('is-invalid');
+    //         $(".invalid-feedback").html('');
+    //         var file_no = $("#file_no").val()
+    //         var registration_date = $("#registration_date").val()
+    //         var first_name = $("#first_name").val().trim();
+    //         var uid_number = $("#uid_number").val().trim();
+    //         var mobile_no = $("#mobile_no").val().trim();
+    //         var address = $("#address").val().trim();
+    //         var gender = document.getElementById("gender").value.trim();
+    //         var photo = $("#photo").prop('files')[0]; // Get the file object
 
-            // var isValid = true;
-            if (file_no === '') {
-                $("#file_no").addClass('is-invalid').siblings('.invalid-feedback').html('File No. is required.');
-                isValid = false;
-            }
-            if (registration_date === '') {
-                $("#registration_date").addClass('is-invalid').siblings('.invalid-feedback').html('Registration Date & Time is required.');
-                isValid = false;
-            }
+    //         // var isValid = true;
+    //         if (file_no === '') {
+    //             $("#file_no").addClass('is-invalid').siblings('.invalid-feedback').html('File No. is required.');
+    //             isValid = false;
+    //         }
+    //         if (registration_date === '') {
+    //             $("#registration_date").addClass('is-invalid').siblings('.invalid-feedback').html('Registration Date & Time is required.');
+    //             isValid = false;
+    //         }
 
-            if (first_name === '') {
-                $("#first_name").addClass('is-invalid').siblings('.invalid-feedback').html('First Name is required.');
-                isValid = false;
-            }
+    //         if (first_name === '') {
+    //             $("#first_name").addClass('is-invalid').siblings('.invalid-feedback').html('First Name is required.');
+    //             isValid = false;
+    //         }
 
-            if (uid_number === '') {
-                $("#uid_number").addClass('is-invalid').siblings('.invalid-feedback').html('UID No. is required.');
-                isValid = false;
-            }
-            if (uid_number === '') {
-                $("#uid_number").addClass('is-invalid').siblings('.invalid-feedback').html('UID No. is required.');
-                isValid = false;
-            }
-            if (mobile_no === '') {
-                $("#mobile_no").addClass('is-invalid').siblings('.invalid-feedback').html('Mobile No. is required.');
-                isValid = false;
-            }
-            if (gender === '') {
-                $("#gender").addClass('is-invalid').siblings('.invalid-feedback').html('Gender is required.');
-                isValid = false;
-            }
+    //         if (uid_number === '') {
+    //             $("#uid_number").addClass('is-invalid').siblings('.invalid-feedback').html('UID No. is required.');
+    //             isValid = false;
+    //         }
+    //         if (uid_number === '') {
+    //             $("#uid_number").addClass('is-invalid').siblings('.invalid-feedback').html('UID No. is required.');
+    //             isValid = false;
+    //         }
+    //         if (mobile_no === '') {
+    //             $("#mobile_no").addClass('is-invalid').siblings('.invalid-feedback').html('Mobile No. is required.');
+    //             isValid = false;
+    //         }
+    //         if (gender === '') {
+    //             $("#gender").addClass('is-invalid').siblings('.invalid-feedback').html('Gender is required.');
+    //             isValid = false;
+    //         }
 
-            if (address === '') {
-                $("#address").addClass('is-invalid').siblings('.invalid-feedback').html('Address is required.');
-                isValid = false;
-            }
-            if (photo) {
-                var fileSize = photo.size;
-                var fileType = photo.type;
-                var validExtensions = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/svg'];
+    //         if (address === '') {
+    //             $("#address").addClass('is-invalid').siblings('.invalid-feedback').html('Address is required.');
+    //             isValid = false;
+    //         }
+    //         if (photo) {
+    //             var fileSize = photo.size;
+    //             var fileType = photo.type;
+    //             var validExtensions = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/svg'];
 
-                if ($.inArray(fileType, validExtensions) == -1) {
-                    $("#photo").addClass('is-invalid').siblings('.invalid-feedback').html('Invalid file type. Please upload an image file.');
-                    isValid = false;
-                }
+    //             if ($.inArray(fileType, validExtensions) == -1) {
+    //                 $("#photo").addClass('is-invalid').siblings('.invalid-feedback').html('Invalid file type. Please upload an image file.');
+    //                 isValid = false;
+    //             }
 
-                if (fileSize > 2048000) { // Max size in bytes (2MB)
-                    $("#photo").addClass('is-invalid').siblings('.invalid-feedback').html('File size exceeds the limit of 2MB.');
-                    isValid = false;
-                }
-            }
-            if (!isValid) {
-                event.preventDefault(); // Prevent form submission
-            }
-        });
-    });
+    //             if (fileSize > 2048000) { // Max size in bytes (2MB)
+    //                 $("#photo").addClass('is-invalid').siblings('.invalid-feedback').html('File size exceeds the limit of 2MB.');
+    //                 isValid = false;
+    //             }
+    //         }
+    //         if (!isValid) {
+    //             event.preventDefault(); // Prevent form submission
+    //         }
+    //     });
+    // });
 
 </script>
 @endsection
