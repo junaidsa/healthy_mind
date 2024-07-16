@@ -53,10 +53,12 @@ class HomeController extends Controller
         $date = @$_GET['date'];
         if (isset($date)) {
             $date_part = explode(' to ', $date);
-            // dd($date_part);
 
             $start_date = date('Y-m-d', strtotime($date_part[0]));
-            $end_date = date('Y-m-d', strtotime($date_part[1]));
+            $end_date = isset($date_part[1]) ? date('Y-m-d', strtotime($date_part[1])) : '';
+            if(empty($end_date)){
+                $end_date =  $start_date;
+            }
         }
 
         $data = DB::table('patient_bills as pb')

@@ -221,7 +221,9 @@
                 //     const formattedEndDate = instance.formatDate(endDate, "d/m/Y");
                 //     instance.input.value = `${formattedStartDate} - ${formattedEndDate}`;
                 // }
+                if (selectedDates.length === 2) {
                 $('#range-form').submit();
+        }
             }
         });
 
