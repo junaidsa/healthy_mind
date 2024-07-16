@@ -111,6 +111,7 @@ class PatientController extends Controller
             return redirect()->back()->withErrors($validated)->withInput();
         }
     }
+
     public function show(string $id)
     {
     }
