@@ -48,7 +48,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/medicines/{id}', [MedicineController::class,'update'])->name('medicines.update');
     Route::get('/medicine/dropdown/{id}', [MedicineController::class,'getdropdown'])->name('medicines.update');
     Route::post('/demo/create', [PatientController::class,'create_demo']);
-    Route::post('/bill/create', [PatientController::class,'create_bill']);
+    Route::post('/bill/create', [PatientController::class,'store_bill']);
     Route::get('/demo/get-row/{id}', [PatientController::class, 'getRow']);
     Route::get('/print/{id}', [PatientController::class, 'showPrint']);
     Route::get('/demo/delete-row/{id}', [PatientController::class, 'rowdeleted']);
