@@ -68,13 +68,16 @@
 
                         </div>
 
-                        <div class="search-container">
-                            <button class="search-a">
-                                <i class="fa fa-search" class="search-a"></i>
-                            </button>
-                            <input type="text" placeholder="Search..." class="search-input" id="searchInput"
-                                value="{{ Request::get('keywords') }}">
-                        </div>
+                        <form action="{{ url()->current() }}{{ isset($_GET['date']) ? '?date=' . $_GET['date'] : '' }}" method="get">
+                            <div class="search-container">
+                                <button class="search-a">
+                                    <i class="fa fa-search" class="search-a"></i>
+                                </button>
+                                <input type="text" placeholder="Search..." class="search-input" id="search" name="search"
+                                    value="{{ Request::get('search') }}">
+
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -89,13 +92,16 @@
                                     data-date-container="#datepicker6">{{ isset($_GET['date']) ? $_GET['date'] : date('d M Y') }}</b></span>
                         </div>
                         <div class="col-3 text-end mb-2">
-                            <a href="{{ url('dispense/pdf') }}@if(isset($_GET['date']))?date={{ $_GET['date'] }}@endif" class="btn btn btn-success">
+                            <a href="{{ url('dispense/pdf') }}@if (isset($_GET['date']))?date={{ $_GET['date'] }} @endif"
+                                class="btn btn btn-success">
                                 PDF
                             </a>
-                            <a href="{{ url('dispense/excel') }}@if(isset($_GET['date']))?date={{ $_GET['date'] }}@endif" class="btn btn btn-success">
+                            <a href="{{ url('dispense/excel') }}@if (isset($_GET['date']))?date={{ $_GET['date'] }} @endif"
+                                class="btn btn btn-success">
                                 Excel
                             </a>
-                            <a href="{{ url('dispense/print') }}@if(isset($_GET['date']))?date={{ $_GET['date'] }}@endif" class="btn btn btn-success">
+                            <a href="{{ url('dispense/print') }}@if (isset($_GET['date']))?date={{ $_GET['date'] }} @endif"
+                                class="btn btn btn-success">
                                 Print
                             </a>
                         </div>
@@ -283,6 +289,10 @@
             // Reload the current URL with the selected date as a query parameter
             var currentUrl = window.location.href.split('?')[0]; // Remove existing query parameters
             var newUrl = currentUrl + '?date=' + encodeURIComponent(selectedDate);
+            var searchParam = new URLSearchParams(window.location.search).get('search');
+if (searchParam) {
+    newUrl += '&search=' + encodeURIComponent(searchParam);
+}
             window.location.href = newUrl;
         });
 

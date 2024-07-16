@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
+// https://github.com/niklasravnsborg/laravel-pdf
+use PDF;
 
-use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -14,7 +15,36 @@ class HomeController extends Controller
     }
     public function dispense_view()
     {
+        $search = @$_GET['search'];
 
+        $date = @$_GET['date'];
+        if (isset($date)) {
+            $cond = date('Y-m-d', strtotime($date));
+        } else {
+            $cond = date('Y-m-d');
+        }
+
+        $data = DB::table('patient_bills as pb')
+            ->select('pb.*', 'p.file_no', 'p.first_name', 'p.father_name','p.other_id')
+            ->join('patients as p', function ($join) {
+                $join->on('p.id', 'pb.patient_id');
+            })
+            ->where(function($q) use ($search){
+                if(!empty($search)){
+                    $q->where('pb.bill_no','like','%'. $search .'%')
+                    ->orWhere('p.first_name','like','%'. $search .'%')
+                    ->orWhere('p.father_name','like','%'. $search .'%')
+                    ->orWhere('p.other_id','like','%'. $search .'%')
+                    ->orWhere('p.file_no','like','%'. $search .'%');
+                }
+            })
+            ->where('pb.updated_at', 'LIKE', '%' . $cond . '%')
+            ->orderBy('pb.id', 'desc')
+            ->get();
+        return view('reports.dispense', compact('data'));
+    }
+    public function stockBook_view()
+    {
         $date = @$_GET['date'];
         if (isset($date)) {
             $cond = date('Y-m-d', strtotime($date));
@@ -30,7 +60,9 @@ class HomeController extends Controller
             ->where('pb.updated_at', 'LIKE', '%' . $cond . '%')
             ->orderBy('pb.id', 'desc')
             ->get();
-        return view('reports.dispense', compact('data'));
+
+            $medicnes = DB::table('medicines')->whereNull('deleted_at')->get();
+        return view('reports.stockBook', compact('data','medicnes'));
     }
     public function dispense_pdf()
     {
@@ -45,7 +77,7 @@ class HomeController extends Controller
             ->where('pb.updated_at', 'LIKE', '%' . $cond . '%')
             ->orderBy('pb.id', 'desc')
             ->get();
-
+            $pdf_date = isset($date) ? date('d M Y', strtotime($date)) : date('d M Y');
         $html = '<!DOCTYPE html>
     <html>
     <head>
@@ -69,7 +101,7 @@ class HomeController extends Controller
         </style>
     </head>
     <body>
-        <h2>Dispense Report for ' . $date . '</h2>
+        <h2>Dispense Report for: ' . $pdf_date . '</h2>
         <table>
             <thead>
                 <tr>
@@ -80,7 +112,6 @@ class HomeController extends Controller
                                             <th>Father\'s Name</th>
                                             <th>Aadhar Number</th>
                                             <th>Medicine</th>
-                                            <th>Options</th>
                 </tr>
             </thead>
             <tbody>';
@@ -111,7 +142,7 @@ class HomeController extends Controller
             $med_qty = $bill_items->sum('qty');
             foreach ($batch_notifications as $change) {
                 $html .=  '<tr class="batch-info">
-                                                    <td class="text-center" colspan="8"><b>
+                                                    <td colspan="7" style="text-align: center;"><b>
                                                             ' . $change['medicine_name'] . ' Batch Changed:
                                                             ' . $change['batch_no'] . '</b></td>
                                                 </tr>';

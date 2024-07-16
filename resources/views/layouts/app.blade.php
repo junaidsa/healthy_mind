@@ -1,3 +1,20 @@
+@php
+$medicne = DB::table('medicines')->whereNull('deleted_at')->get();
+ foreach($medicne as $key => $med){
+     $opening_stock = DB::table('stock_history')->where('medicine_id', $med->id)->where('type', 'opening')->where('date', date('Y-m-d'))->first();
+        if (!isset($opening_stock)){
+            $stock = DB::table('batches')->where('quantity', '>' , '0')->where('medicine_id', $med->id)->sum('quantity');
+            DB::table('stock_history')->insert([
+                'type' => 'opening',
+                'medicine_id' => $med->id,
+                'qty' => $stock,
+                'date' => date('Y-m-d'),
+        ]);
+        }
+
+ }
+@endphp
+
 <!doctype html>
 <html lang="en">
 
@@ -324,8 +341,8 @@
                                         <span key="t-chat">Bill Book</span>
                                     </a>
                                 </li>
-                                <li>
-                                    <a href="chat.html" class="waves-effect">
+                                <li class="{{ Request::is('stockbook') || Request::is('stockbook/create') || Request::is('stockbook/*') ? 'mm-active' : '' }}">
+                                    <a href="{{ url('stockbook') }}" class="waves-effect">
                                         <i class="bx bx-layout"></i>
                                         <span key="t-chat">Stock Book</span>
                                     </a>
