@@ -114,6 +114,8 @@ class PatientController extends Controller
 
     public function show(string $id)
     {
+        $patient = Patient::find($id);
+        return view('patient.details', compact('patient'));
     }
     public function create_demo(Request $request)
     {
