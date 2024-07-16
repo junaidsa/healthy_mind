@@ -454,6 +454,8 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
                     <!-- form repeater js -->
                 <script src="{{ asset('public') }}/assets/libs/jquery.repeater/jquery.repeater.min.js"></script>
                  <script src="{{ asset('public') }}/assets/js/pages/form-repeater.int.js"></script>
+                 <script src="{{ asset('public') }}/assets/libs/chart.js/Chart.bundle.min.js"></script>
+                <script src="{{ asset('public') }}/assets/js/pages/chartjs.init.js"></script>
          <!-- Sweet Alerts js -->
         <script src="{{ asset('public') }}/assets/libs/sweetalert2/sweetalert2.min.js"></script>
         <script src="{{ asset('public') }}/assets/js/pages/sweet-alerts.init.js"></script>
