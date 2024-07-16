@@ -72,15 +72,17 @@
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <form id="range-form" action="{{ url()->current() }}">
                             <input type="hidden" name="search" value="{{ @$_GET['search'] }}">
-                            <input type="text" class="form-control form-control-sm" id="date_range" name="date" value="{{ @$_GET['date'] }}" style="width: 200px">
+                            <input type="text" class="form-control form-control-sm" id="date_range" name="date"
+                                value="{{ @$_GET['date'] }}" style="width: 200px">
                         </form>
                         <div class="d-flex align-items-center fw-bold">
                             PRINT BILL <input type="text" class="form-control form-control-sm ms-2 me-2"
-                                name="start_bill" style="width: 100px"> TO <input type="text"
-                                class=" ms-2 me-2 form-control form-control-sm" name="end_bill" style="width: 100px">
+                                name="start_bill" id="start_bill" style="width: 100px"> TO <input type="text"
+                                class=" ms-2 me-2 form-control form-control-sm" name="end_bill" id="end_bill"
+                                style="width: 100px">
                             <label>
 
-                                <input type="checkbox" id="duplicateCheck" class="float-end  ms-2 me-2" />
+                                <input type="checkbox" id="duplicateCheck" class="float-end ms-2 me-2" />
                                 <span class="fw-bold">DUPLICATE</span>
                             </label> <button class="btn btn-primary btn-sm btn-print  ms-2 me-2">Print</button> <button
                                 class="ms-2 me-2 btn btn-primary btn-sm btn-download">Download</button>
@@ -109,8 +111,8 @@
                                     <button class="search-a">
                                         <i class="fa fa-search" class="search-a"></i>
                                     </button>
-                                    <input type="text" placeholder="Search..." class="search-input" id="search" name="search"
-                                        value="{{ Request::get('search') }}">
+                                    <input type="text" placeholder="Search..." class="search-input" id="search"
+                                        name="search" value="{{ Request::get('search') }}">
 
                                 </div>
                             </form>
@@ -161,7 +163,10 @@
                                                         data-id="{{ @$row->id }}"></td>
                                                 <td class="text-center">{{ @$row->bill_no }}</td>
                                                 <td class="text-center">{{ @$row->file_no }}</td>
-                                                <td class="text-center"><img src="{{ asset('public') }}/media/photos/{{ @$row->Image }}" alt="" width="40" height="40" class="d-block rounded"></td>
+                                                <td class="text-center"><img
+                                                        src="{{ asset('public') }}/media/photos/{{ @$row->Image }}"
+                                                        alt="" width="40" height="40"
+                                                        class="d-block rounded"></td>
                                                 <td class="text-center">{{ @$row->first_name }}</td>
                                                 <td class="text-center">{{ @$row->father_name }}</td>
                                                 <td class="text-center">{{ @$row->date_of_birth }}</td>
@@ -172,7 +177,10 @@
                                                         class="btn btn-success btn-sm waves-effect waves-light mb-2 mb-md-0 me-2"
                                                         data-id="{{ @$row->id }}">Edit</a><a href="javascript:void();"
                                                         class="btn btn-primary btn-sm btn-rounded me-2 waves-effect waves-light mb-2 mb-md-0"
-                                                        data-id="{{ @$row->id }}">View Details</a> <a href="{{ url('delete-bill'.'/'. @$row->id) }}" onclick="return confirm('Are you sure?')"><i class="fas fa-times text-danger"></i></a></td>
+                                                        data-id="{{ @$row->id }}">View Details</a> <a
+                                                        href="{{ url('delete-bill' . '/' . @$row->id) }}"
+                                                        onclick="return confirm('Are you sure?')"><i
+                                                            class="fas fa-times text-danger"></i></a></td>
                                             </tr>
                                         @endforeach
 
@@ -189,24 +197,84 @@
         </div> <!-- container-fluid -->
     </div>
     <!-- end main content-->
+    <form id="print_form" action="{{ url('print_') }}">
+        <input type="hidden" id="start_field" name="start_field">
+        <input type="hidden" id="end_field" name="end_field">
+    </form>
+    <form id="pdf_form" action="{{ url('print_PDF') }}">
+        <input type="hidden" id="start_field_" name="start_field">
+        <input type="hidden" id="end_field_" name="end_field">
+        <input type="hidden" id="duplicate_" name="duplicate">
+    </form>
 @endsection
 @section('customJs')
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
         flatpickr("#date_range", {
-        mode: "range",
-        onClose: function(selectedDates, dateStr, instance) {
-            // Format the date range as "DD/MM/YYYY - DD/MM/YYYY"
-            // if (selectedDates.length > 1) {
-            //     const startDate = selectedDates[0];
-            //     const endDate = selectedDates[1];
-            //     const formattedStartDate = instance.formatDate(startDate, "d/m/Y");
-            //     const formattedEndDate = instance.formatDate(endDate, "d/m/Y");
-            //     instance.input.value = `${formattedStartDate} - ${formattedEndDate}`;
-            // }
-            $('#range-form').submit();
-        }
-    });
+            mode: "range",
+            onClose: function(selectedDates, dateStr, instance) {
+                // Format the date range as "DD/MM/YYYY - DD/MM/YYYY"
+                // if (selectedDates.length > 1) {
+                //     const startDate = selectedDates[0];
+                //     const endDate = selectedDates[1];
+                //     const formattedStartDate = instance.formatDate(startDate, "d/m/Y");
+                //     const formattedEndDate = instance.formatDate(endDate, "d/m/Y");
+                //     instance.input.value = `${formattedStartDate} - ${formattedEndDate}`;
+                // }
+                $('#range-form').submit();
+            }
+        });
+
+        $('.btn-print').on('click', function() {
+            $(".is-invalid").removeClass('is-invalid');
+            $(".invalid-feedback").html('');
+            var isValid = true;
+            var start_bill = $('#start_bill').val();
+            var end_bill = $('#end_bill').val();
+            if (start_bill === '') {
+                $("#start_bill").addClass('is-invalid').siblings('.invalid-feedback').html(
+                    'This field is required.');
+                isValid = false;
+            }
+            if (end_bill === '') {
+                $("#end_bill").addClass('is-invalid').siblings('.invalid-feedback').html('This field is required.');
+                isValid = false;
+            }
+            if (isValid) {
+                $('#start_field').val(start_bill);
+                $('#end_field').val(end_bill);
+                $('#print_form').submit();
+            }
+        })
+
+        $('.btn-download').on('click', function() {
+            $(".is-invalid").removeClass('is-invalid');
+            $(".invalid-feedback").html('');
+            var isValid = true;
+            var start_bill = $('#start_bill').val();
+            var end_bill = $('#end_bill').val();
+            if (start_bill === '') {
+                $("#start_bill").addClass('is-invalid').siblings('.invalid-feedback').html(
+                    'This field is required.');
+                isValid = false;
+            }
+            if (end_bill === '') {
+                $("#end_bill").addClass('is-invalid').siblings('.invalid-feedback').html('This field is required.');
+                isValid = false;
+            }
+            if (isValid) {
+                $('#start_field_').val(start_bill);
+                $('#end_field_').val(end_bill);
+                if ($('#duplicateCheck').is(':checked')) {
+                    $('#duplicate_').val('1');
+
+                } else {
+                    $('#duplicate_').val('0');
+
+                }
+                $('#pdf_form').submit();
+            }
+        })
         var datepicker = $('#datepicker6').datepicker({
             format: 'dd M yyyy',
             autoclose: true
