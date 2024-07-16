@@ -306,7 +306,6 @@ class PatientController extends Controller
     }
     public function docUpload(Request $request)
     {
-        // dd($request->all());
         $validated = $request->validate([
             'file' => 'required|file|mimes:jpg,jpeg,png,pdf,txt,docx|max:2048'
         ]);
@@ -376,6 +375,7 @@ class PatientController extends Controller
                 'bill_no' => 'required',
                 'patient_id' => 'required|integer|exists:patients,id',
             ];
+            // dd($request->all());
             $validator = Validator::make($request->all(), $rules);
             if ($validator->fails()) {
                 return response()->json([
@@ -393,7 +393,7 @@ class PatientController extends Controller
             if ($demoItems->isEmpty()) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'No demo items found for the specified page',
+                    'message' => 'NO item Add',
                 ]);
             }
             DB::beginTransaction();
@@ -426,15 +426,10 @@ class PatientController extends Controller
             DemoItem::where('page_id', $pageNo)->delete();
             DB::table('temp_stock_reservations')->where('page_id', $pageNo)->delete();
             DB::commit();
-            if ($print) {
-                return response()->json([
-                    'status' => true,
-                    'id' => $newlyCreatedId,
-                    'message' => 'Bill As Print created successfully',
-                ]);
-            }
             return response()->json([
                 'status' => true,
+                'id' => $newlyCreatedId,
+                'print' => $print,
                 'message' => 'Bill created successfully',
             ]);
         } catch (\Exception $e) {
@@ -455,6 +450,17 @@ class PatientController extends Controller
             $formattedDateTime = $dateTime->format('d-m-Y | g:i A');
             $bill_item = DB::table('bill_items')->where('bill_id', $id)->get();
             return view('patient.bill_print', compact('bill', 'bill_item', 'formattedDateTime'));
+        }
+        abort(404);
+    }
+    public function bill_details($id)
+    {
+        $bill =   PatientBills::find($id);
+        if ($bill) {
+            $dateTime = Carbon::now();
+            $formattedDateTime = $dateTime->format('d-m-Y | g:i A');
+            $bill_item = DB::table('bill_items')->where('bill_id', $id)->get();
+            return view('patient.bill_detail', compact('bill', 'bill_item', 'formattedDateTime'));
         }
         abort(404);
     }

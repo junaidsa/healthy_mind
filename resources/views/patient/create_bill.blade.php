@@ -179,39 +179,24 @@
                             </form>
                         </div>
                         <div class="col-lg-12">
-                            <div class="mt-3">
-                                <label for="basicpill-address-input">Note</label>
-                                <textarea id="note" class="note" name="note" class="form-control" rows="2"
-                                    style="
-                            width: 100%;
-                            height: 30%;
-                        "></textarea>
-                            </div>
+                            <div class="mb-3">
+                                <label for="exampleFormControlTextarea1" class="form-label">Note</label>
+                                <textarea id="note" name="note" class="form-control" rows="3"></textarea>
+                              </div>
                         </div>
 
                     </div>
                     <div class="col-md-3">
                         <div class="d-flex justify-content-center align-items-center">
                             <div class="box" id="imagePreview">
-                                @if ($patient->Image)
-                                    <img src="{{ asset('public/media/photos') . '/' . $patient->Image }}"
-                                        alt="{{ $patient->name }}'s photo" width="50" height="50"
-                                        class="rounded photo-thumbnail">
-                                @else
-                                    <img src="{{ asset('public/media/photos') . '/' . 'no-photo.png' }}"
-                                        alt="{{ $patient->name }}'s photo" width="50" height="50"
-                                        class="rounded photo-thumbnail">
-                                @endif
                             </div>
                         </div>
                         <div class="d-flex justify-content-center">
-                            <a href="#" style="display: block; width:85%;" type="button"
-                                class="btn btn-success mt-2 pl-4 align-items-center" data-bs-target="#capturePhotoModal"
-                                data-bs-toggle="modal">
-                                Upload
-                            </a>
+                            <button type="button" class="btn btn-primary mt-2 waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#capimage">
+                                Capture
+                              </button>
                         </div>
-                        <input type="file" id="photo" name="photo" style="display: none;" accept="image/*">
+                        <input type="file" id="bill_image" name="bill_image" style="display: none;" accept="image/*">
                     </div>
                 </div>
                 <div class="row  mt-4" style="position: relative;left: 49px;">
@@ -227,6 +212,27 @@
                 </div>
             </div>
         </form>
+    </div>
+    <div class="modal fade" id="capimage" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Capture photo</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-center">
+                    <canvas id="captured-image" class="d-none"></canvas>
+                    <video id="camera-preview" width="500" height="300" autoplay></video>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" id="captureBtn">Capture</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     </div>
     <footer class="footer">
@@ -245,20 +251,57 @@
 @endsection
 @section('customJs')
     <script>
-        document.getElementById('photo').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    const imagePreview = document.getElementById('imagePreview');
-                    imagePreview.innerHTML = '';
-                    imagePreview.appendChild(img);
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+var imageData = '';
+$('#capimage').on('shown.bs.modal', function () {
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(function(stream) {
+        var video = document.getElementById('camera-preview');
+        video.srcObject = stream;
+        video.play();
+      })
+      .catch(function(error) {
+        console.log('Error accessing the camera:', error);
+      });
+  } else {
+    console.log('getUserMedia is not supported');
+  }
+});
+
+$('#captureBtn').on('click', function(e) {
+  e.preventDefault();
+
+  var video = document.getElementById('camera-preview');
+
+  var canvas = document.getElementById('captured-image');
+  var context = canvas.getContext('2d');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // Save the image data
+  imageData = canvas.toDataURL('image/png');
+
+  // Set the image preview
+  var imagePreview = document.getElementById('imagePreview');
+  imagePreview.innerHTML = '<img src="' + imageData + '" alt="Captured Image">';
+  var byteString = atob(imageData.split(',')[1]);
+  var mimeString = imageData.split(',')[0].split(':')[1].split(';')[0];
+  var ab = new ArrayBuffer(byteString.length);
+  var ia = new Uint8Array(ab);
+  for (var i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  var blob = new Blob([ab], { type: mimeString });
+  var file = new File([blob], "photo.png", { type: mimeString });
+
+  // Set the file input
+  var photoInput = document.getElementById('bill_image');
+  var dataTransfer = new DataTransfer();
+  dataTransfer.items.add(file);
+  photoInput.files = dataTransfer.files;
+});
+
         $("#add").click(function() {
             const page_no = $('#lastPageNumber').val();
             const medicineString = $('#medicine').val();
@@ -435,40 +478,48 @@
             const bill_no = $('#bill_no').val();
             const patient_id = $('#patient_id').val();
             var totalPrice = $('#total-price').text();
+            const bill_image = $('#bill_image')[0].files[0]; // Get the image file
+            var formData = new FormData();
+            formData.append('page_no', page_no);
+            formData.append('note', note);
+            formData.append('bill_no', bill_no);
+            formData.append('patient_id', patient_id);
+            formData.append('totalPrice', totalPrice);
+            formData.append('print', print);
+            formData.append('_token', '{{ csrf_token() }}');
+            formData.append('bill_image', bill_image);
+
             $.ajax({
                 url: "{{ url('bill/create') }}",
                 method: 'POST',
                 dataType: 'json',
-                data: {
-                    page_no: page_no,
-                    note: note,
-                    bill_no: bill_no,
-                    patient_id: patient_id,
-                    totalPrice: totalPrice,
-                    print: print,
-                    _token: '{{ csrf_token() }}'
-                },
+                data:formData,
+                cache:false,
+                processData:false,
+                contentType:false,
                 success: function(response) {
                     if (response.status == true) {
                         // console.log(response);
                         const print_id = response.id
-                        console.log( typeof print_id);
+                        const printStatus = response.print === "true"; // Convert string "true" or "false" to boolean
+                        // console.log( typeof print_id);
                         Swal.fire({
                             title: "Good job!",
                             text: "Bill created successfully.",
                             icon: "success"
                         }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = "{{ url('print') }}" + '/'+ print_id;
+                            if (result.isConfirmed  && printStatus) {
+                                // if (print_id) {
+                                    window.location.href = "{{ url('print') }}" + '/'+ print_id;
+
+                                }else{
+                                window.location.href = "{{ url('patients') }}";
                             }
                         });
                     } else {
-                        var errors = response.errors;
-                        swalWithBootstrapButtons.fire({
-                            title: "Cancelled",
-                            text: "This Bill Cannot Created:)",
-                            icon: "error"
-                        });
+                        var errors = response.message;
+                        alert(errors);
+
                     }
                 },
             });

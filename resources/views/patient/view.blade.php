@@ -114,10 +114,15 @@
                                         <td>{{ $patient->date_of_birth }}</td>
                                         <td>{{ $patient->alternative_no }}</td>
                                         <td>{{ $patient->mobile_no }}</td>
-                                        <td>5</td>
+                                         <td>{{
+                                            $totalbills = DB::table('patient_bills')
+                                            ->where('patient_id', $patient->id)
+                                            ->count();
+                                            }}</td>
                                         <td>
                                             <a href="{{ url('patients') . '/' . $patient->id}}" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">View Details</a>
                                             <a href="{{ url('add-bill') . '/'.$patient->id }}" class="btn btn-success btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">Add Bill</a>
+                                        </td>
                                 </tr>
                                 @endforeach
                             </tbody>
