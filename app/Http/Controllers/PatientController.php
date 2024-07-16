@@ -144,7 +144,6 @@ class PatientController extends Controller
             ->orderBy('created_at')
             ->first();
             $addid_qty = DB::table('demo_items')->where('batch_no', $batch->batch_no)->where('medicine_id',$medicineId)->where('page_id',$request->page_no)->get();
-            // dd($addid_qty);
             if (count($addid_qty) > 0) {
                 $total_qty = 0;
                 foreach($addid_qty as $r){
@@ -171,16 +170,11 @@ class PatientController extends Controller
                     }
                 }
             }
-            // dd($batch->quantity, $r_quantity);
             if(isset($r_quantity)){
                 $totalAvailableQty = $batch->quantity - $r_quantity;
             } else {
                 $totalAvailableQty = $batch->quantity;
             }
-            // dd($batch);
-
-
-            // dd($totalAvailableQty, $requestedQty);
         if ($totalAvailableQty < $requestedQty) {
             $validator->errors()->add('qty', "Batch {$batch->batch_no} has only {$totalAvailableQty} stock available");
             return response()->json([
@@ -205,7 +199,6 @@ class PatientController extends Controller
                     'page_id' => $request->page_no,
                     'medicine_id' => $medicineId,
                     'batch_id' => $batch->id,
-                    // 'batch_no' => $batch->batch_no,
                     'quantity' => $requestedQty,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -223,10 +216,8 @@ class PatientController extends Controller
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
-                // $requestedQty -= $reservedQty;
                 DemoItem::insert($demoItems);
             }
-        // Insert all demo items
         $idPage = $request->page_no;
 
         $totalPrice = DB::table('demo_items as di')
@@ -296,10 +287,6 @@ class PatientController extends Controller
             return redirect('patients')->with('error', 'Patient not found.');
         }
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         //
@@ -367,15 +354,17 @@ class PatientController extends Controller
         $rows = DemoItem::where('page_id', $id)->get();
         return response()->json($rows);
     }
-    public function create_bill(Request $request)
+    public function store_bill(Request $request)
     {
         try {
             $rules = [
                 'page_no' => 'required|integer',
                 'bill_no' => 'required',
+                'bill_date' => 'required',
                 'patient_id' => 'required|integer|exists:patients,id',
+                'photo' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+
             ];
-            // dd($request->all());
             $validator = Validator::make($request->all(), $rules);
             if ($validator->fails()) {
                 return response()->json([
@@ -388,6 +377,7 @@ class PatientController extends Controller
             $bill_No = $request->input('bill_no');
             $patientId = $request->input('patient_id');
             $note = $request->input('note');
+            $bill_date = $request->input('bill_date');
             $total = $request->input('totalPrice');
             $demoItems = DemoItem::where('page_id', $pageNo)->get();
             if ($demoItems->isEmpty()) {
@@ -396,13 +386,20 @@ class PatientController extends Controller
                     'message' => 'NO item Add',
                 ]);
             }
+            $file = null;
+            if ($request->hasFile('bill_image')) {
+                $document = $request->file('bill_image');
+                $name = now()->format('Y-m-d_H-i-s') . '-bill';
+                $file = $name . '.' . $document->getClientOriginalExtension();
+                $targetDir = public_path('./media/photos');
+                $document->move($targetDir, $file);
+            }
             DB::beginTransaction();
-            $dateTime = Carbon::now();
-            $formattedDateTime = $dateTime->format('d-m-Y | g:i A');
             $patientBill = PatientBills::create([
                 'bill_no' => $bill_No,
                 'patient_id' => $patientId,
-                'bill_date' => $formattedDateTime,
+                'bill_date' => $bill_date,
+                'bill_image' => $file,
                 'total_amount' => $total,
                 'note' => $note,
                 'created_at' => now(),
@@ -453,7 +450,7 @@ class PatientController extends Controller
         }
         abort(404);
     }
-    public function bill_details($id)
+    public function detailBill($id)
     {
         $bill =   PatientBills::find($id);
         if ($bill) {
@@ -464,4 +461,5 @@ class PatientController extends Controller
         }
         abort(404);
     }
+
 }

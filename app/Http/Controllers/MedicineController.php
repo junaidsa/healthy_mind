@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Batche;
 use App\Models\Medicine;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -21,7 +23,6 @@ class MedicineController extends Controller
         ->paginate(10);
         return view('medicine.view',compact('medicines'));
     }
-
     /**
      * Show the form for creating a new resource.
      */
@@ -58,6 +59,23 @@ class MedicineController extends Controller
     public function show(string $id)
     {
         //
+        $medicine = Medicine::find($id);
+
+        if($medicine){
+            $monthlyData = DB::table('bill_items')
+            ->select(DB::raw('SUM(qty) as total_qty'), DB::raw('MONTH(created_at) as month'))
+            ->where('medicine_id', $id)
+            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->get();
+            $monthlyDataArray = [];
+            foreach ($monthlyData as $data) {
+                $monthName = Carbon::create()->month($data->month)->format('F');
+                $monthlyDataArray[$monthName] = $data->total_qty;
+            }
+        $history =  DB::table('medicine_history')->where('medicine_id',$id)->whereNull('deleted_at')->paginate('10');
+            return view('medicine.history',compact('history','id','monthlyDataArray'));
+        }
+        abort('404');
     }
 
     /**
@@ -86,10 +104,10 @@ class MedicineController extends Controller
             $me->rate = $request->input('rate');
             $me->tax = $request->input('tax');
             $me->save();
-        return redirect('medicines')->with('success', 'Patient updated successfully.');
+        return redirect('medicines')->with('success', 'Medicine updated successfully.');
 
         }else{
-            return redirect('medicines')->with('error', 'Patient not found.');
+            return redirect('medicines')->with('error', 'Medicine not found.');
         }
     }
 
@@ -114,21 +132,39 @@ class MedicineController extends Controller
             $existingBatch = Batche::where('medicine_id', $request->input('medicine'))
                                 ->where('batch_no', $request->input('batch_no'))
                                 ->first();
+                                $currentDateTime = Date::now()->format('h:i A');
 
             if ($existingBatch) {
                 $existingBatch->quantity += $request->input('quantity');
                 $existingBatch->save();
 
+                DB::table('medicine_history')->insert([
+                    'batch_id' =>  $existingBatch->id,
+                    'medicine_id' => $existingBatch->medicine_id,
+                    'stock' => $request->input('quantity'),
+                    'status' => 'Adding Stock'.' '.$request->input('quantity'),
+                    'time' => $currentDateTime,
+                    'batch_no' => $existingBatch->batch_no,
+                ]);
                 return redirect('medicines')->with('success', 'Stock updated successfully.');
-            } else {
-                $medicine = new Batche();
-                $medicine->medicine_id = $request->input('medicine');
-                $medicine->batch_no = $request->input('batch_no');
-                $medicine->quantity = $request->input('quantity');
-                $medicine->save();
 
-                return redirect('medicines')->with('success', 'Stock added successfully.');
+
+
             }
+            $batch = new Batche();
+                $batch->medicine_id = $request->input('medicine');
+                $batch->batch_no = $request->input('batch_no');
+                $batch->quantity = $request->input('quantity');
+                $batch->save();
+                DB::table('medicine_history')->insert([
+                    'batch_id' =>  $batch->id,
+                    'medicine_id' => $batch->medicine_id,
+                    'stock' => $request->input('quantity'),
+                    'status' => 'Adding Stock'.' '.$request->input('quantity'),
+                    'time' => $currentDateTime,
+                    'batch_no' => $batch->batch_no,
+                ]);
+                return redirect('medicines')->with('success', 'Stock added successfully');
         } else {
             return redirect()->back()->withErrors($validated)->withInput();
         }

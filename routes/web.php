@@ -64,5 +64,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/billbook/pdf', [HomeController::class,'billbook_pdf']);
     Route::get('/billbook/excel', [HomeController::class,'billbook_excel']);
     Route::get('/delete-bill/{id}', [HomeController::class,'deleteBill']);
+    Route::get('/detail-bill/{id}', [PatientController::class,'detailBill']);
+
 });
 require __DIR__.'/auth.php';

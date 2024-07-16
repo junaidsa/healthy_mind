@@ -89,7 +89,7 @@
                         <div class="col-md-3 mb-3">
                             <label class="form-label">Bill Date & Time</label>
                             <input type="text" disabled class="form-control @error('uid_number') is-invalid @enderror"
-                                name="uid_number" id="uid_number" tabindex="1" value="{{ $formattedDateTime }}" disabled>
+                                name="bill_date" id="bill_date" tabindex="1" value="{{ $formattedDateTime }}" disabled>
                             @error('uid_number')
                                 <div class=" invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -475,11 +475,13 @@ $('#captureBtn').on('click', function(e) {
         function saveBill(print) {
             const page_no = $('#lastPageNumber').val();
             const note = $('#note').val();
+            const bill_date = $('#bill_date').val();
             const bill_no = $('#bill_no').val();
             const patient_id = $('#patient_id').val();
             var totalPrice = $('#total-price').text();
-            const bill_image = $('#bill_image')[0].files[0]; // Get the image file
+            const bill_image = $('#bill_image')[0].files[0];
             var formData = new FormData();
+            formData.append('bill_date', bill_date);
             formData.append('page_no', page_no);
             formData.append('note', note);
             formData.append('bill_no', bill_no);

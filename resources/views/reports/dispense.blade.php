@@ -174,7 +174,7 @@
                                                 <td class="text-center">{{ @$row->father_name }}</td>
                                                 <td class="text-center">{{ @$row->other_id }}</td>
                                                 <td class="text-center">{{ @$med_qty }}</td>
-                                                <td class="text-center"><a href=""
+                                                <td class="text-center"><a href="{{ url('detail-bill').'/'.$row->id.'?from=dispense' }}"
                                                         class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0"
                                                         data-id="{{ @$row->id }}">View Details</a></td>
                                             </tr>

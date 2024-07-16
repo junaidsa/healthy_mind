@@ -1,25 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <!-- Bootstrap Css -->
-    <link href="{{ asset('public') }}/assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('public') }}/assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet"
-        type="text/css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
-        rel="stylesheet">
-
-    <title>Bill Printing</title>
-</head>
-
-<body style="background:#f2f2f2;">
+ @extends('layouts.app');
+@section('main')
     <style>
-        .bill-container {
+ .bill-container {
             border: 1px solid #ced4da;
             display: flex;
             justify-content: center;
@@ -167,16 +149,32 @@ body{
             } */
         }
     </style>
-    <div class="container" >
-        <label>
+ <div class="page-content">
+     <div class="row d-print-none">
+        <div class="col-12">
+            @php
+        $fromScreen = request()->query('from');
+            @endphp
+            <a href="{{url('').'/'.$fromScreen}}">
+                <button type="button" class="btn btn-primary waves-effect waves-light mb-4">
+                    <i class="bx bx-arrow-back font-size-16 align-middle me-2"></i>Back
+              </button>
+            </a>
+            <a href="javascript:window.print()" class="btn btn-success waves-effect waves-light mb-4">
+                <i class="fa fa-print"></i>
+            </a>
+            <label>
 
-            <input type="checkbox" id="duplicateCheck" class="float-end" />
-            <span>DUPLICATE</span>
-        </label>
+                <input type="checkbox" id="duplicateCheck" class="float-end" />
+                <span>DUPLICATE</span>
+            </label>
+        </div>
+    </div>
+    <div class="container" >
 
         <div class="text-center mt-2">
 
-            <h1><b style="padding-left: 140px;" class="output-text">OUTPUT</b></h1>
+            {{-- <h1><b style="padding-left: 140px;" class="output-text">OUTPUT</b></h1> --}}
         </div>
         <div class="bill-container" style="background-color: #fff;">
             <div class="bill" id="originalBill"  style="position: relative;">
@@ -187,12 +185,10 @@ body{
                 <p class="text-center" style="font-weight: 500; font-size: 14px;">Medical/hospital Address</p>
                 <div class="hr-boader"></div>
                 @php
-                    $patient = DB::table('patients')
-                        ->where('id', $bill->patient_id)
-                        ->first();
-                    $dateOfBirth = \Carbon\Carbon::parse($patient->date_of_birth);
-                    $age = $dateOfBirth->age;
-                @endphp
+                $patient = DB::table('patients')
+          ->where('id', $bill->patient_id)
+          ->first();
+            @endphp
                 <div class="receipt-header">
                     <div class="row justify-content-center">
                         <div class="col-6">
@@ -219,7 +215,7 @@ body{
                             </p>
 
                             <p>Age/Sex: <span
-                                    style="font-size: 14px; font-weight: 700; padding-left: 26px;">{{ $age }}/{{ $patient->gender }}</span>
+                                    style="font-size: 14px; font-weight: 700; padding-left: 26px;">{{ $patient->date_of_birth }}/{{ $patient->gender }}</span>
                             </p>
 
                             <p>M. No: <span
@@ -316,7 +312,7 @@ body{
                         </p>
 
                         <p>Age/Sex: <span
-                                style="font-size: 14px; font-weight: 700; padding-left: 26px;">{{ $age }}/{{ $patient->gender }}</span>
+                                style="font-size: 14px; font-weight: 700; padding-left: 26px;">{{  $patient->date_of_birth  }}/{{ $patient->gender }}</span>
                         </p>
 
                         <p>M. No: <span
@@ -377,11 +373,9 @@ body{
             </div>
         </div>
     </div>
-
-
-
-
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</div>
+@endsection
+@section('customJs')
     <script>
         document.getElementById('duplicateCheck').addEventListener('change', function() {
     if (this.checked) {
@@ -417,6 +411,7 @@ body{
             });
         });
     </script>
+    @endsection
 </body>
 
 </html>

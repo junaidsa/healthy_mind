@@ -207,7 +207,7 @@
                                                     class="btn-stock btn-black" data-bs-toggle="modal"
                                                     data-bs-target=".transaction-detailModal" data-medicine_id="{{$medicine->id}}">Add Stock</a>
                                                 &nbsp;&nbsp;
-                                                <a href="{{ url('add-bill') . '/' . $medicine->id }}"
+                                                <a href="{{ url('medicines') . '/' . $medicine->id }}"
                                                     class="btn-black">History</a>
                                     </tr>
                                     @endforeach
