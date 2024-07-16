@@ -312,8 +312,8 @@
                                     </a>
                                 </li>
 
-                                <li>
-                                    <a href="javascript: void(0);">
+                                <li  class="{{ Request::is('dispense') || Request::is('dispense/create') || Request::is('dispense/*') ? 'mm-active' : '' }}">
+                                    <a href="{{ url('/dispense') }}">
                                         <i class="bx bx-layout"></i>
                                         <span key="t-layouts">Dispense</span>
                                     </a>
