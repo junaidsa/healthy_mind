@@ -267,6 +267,19 @@
 @endsection
 @section('customJs')
     <script>
+        var datepicker = $('#datepicker6').datepicker({
+            format: 'dd M yyyy',
+            autoclose: true
+        }).on('changeDate', function(e) {
+            // Get the selected date
+            var selectedDate = $('#datepicker6').datepicker('getFormattedDate');
+            // Update the displayed date
+            $('#datepicker6').text(selectedDate);
+            // Reload the current URL with the selected date as a query parameter
+            var currentUrl = window.location.href.split('?')[0]; // Remove existing query parameters
+            var newUrl = currentUrl + '?date=' + encodeURIComponent(selectedDate);
+            window.location.href = newUrl;
+        });
         function parseQueryString(url) {
             var params = {};
             var queryString = url.split('?')[1];
