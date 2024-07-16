@@ -23,5 +23,7 @@ class HomeController extends Controller
 
         // dd($data);
         return view('reports.dispense', compact('data'));
+
+
     }
 }
