@@ -20,9 +20,6 @@ use Illuminate\Support\Facades\Validator;
 
 class PatientController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $keywords = request('keywords');
@@ -115,80 +112,6 @@ class PatientController extends Controller
     public function show(string $id)
     {
     }
-    // public function create_demo(Request $request)
-    // {
-    //     $rules = [
-    //         'page_no' => 'required|integer',
-    //         'medicine' => 'required|integer|exists:medicines,id',
-    //         'qty' => 'required|integer|min:1',
-    //         'dos' => 'required|integer',
-    //     ];
-
-    //     $validator = Validator::make($request->all(), $rules);
-    //     if ($validator->fails()) {
-    //         return response()->json([
-    //             'status' => false,
-    //             'errors' => $validator->errors(),
-    //         ]);
-    //     }
-
-    //     $medicineId = $request->input('medicine');
-    //     $requestedQty = $request->qty;
-
-    //     $batches = Batche::where('medicine_id', $medicineId)
-    //                     ->where('quantity', '>', 0)
-    //                     ->orderBy('created_at')
-    //                     ->get();
-    //     $totalAvailableQty = $batches->sum('quantity');
-    //     if ($totalAvailableQty < $requestedQty) {
-    //         $validator->errors()->add('qty', 'Not enough stock available');
-    //         return response()->json([
-    //             'status' => false,
-    //             'errors' => $validator->errors(),
-    //         ]);
-    //     }
-    //     $remainingQty = $requestedQty;
-    //     foreach ($batches as $batch) {
-    //         if ($remainingQty <= 0) {
-    //             break;
-    //         }
-
-    //         $batchQty = $batch->quantity;
-
-    //         if ($batchQty >= $remainingQty) {
-    //             DB::table('temp_stock_reservations')->insert([
-    //                 'page_id' => $request->page_no,
-    //                 'medicine_id' => $medicineId,
-    //                 'batch_id' => $batch->id,
-    //                 'quantity' => $remainingQty,
-    //                 'created_at' => now(),
-    //                 'updated_at' => now(),
-    //             ]);
-    //             $remainingQty = 0;
-    //         } else {
-    //             DB::table('temp_stock_reservations')->insert([
-    //                 'page_id' => $request->page_no,
-    //                 'medicine_id' => $medicineId,
-    //                 'batch_id' => $batch->id,
-    //                 'quantity' => $batchQty,
-    //                 'created_at' => now(),
-    //                 'updated_at' => now(),
-    //             ]);
-    //             $remainingQty -= $batchQty;
-    //         }
-    //     }
-    //     DemoItem::create([
-    //         'page_id' => $request->page_no,
-    //         'medicine_id' => $medicineId,
-    //         'qty' => $requestedQty,
-    //         'dos' => $request->dos,
-    //     ]);
-
-    //     return response()->json([
-    //         'status' => true,
-    //         'message' => 'Bill created successfully',
-    //     ]);
-    // }
     public function create_demo(Request $request)
     {
         // Validation rules
