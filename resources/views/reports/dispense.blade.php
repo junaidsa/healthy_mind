@@ -83,7 +83,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-9 d-flex align-items-center" style="font-size: 16px;">
-                            <b class="mr-4 pb-2">Date</b>&nbsp;&nbsp; &nbsp;<span class="pl-4 pb-2"><b style="cursor: pointer;" id="datepicker6" data-date-format="dd M, yyyy" data-date-autoclose="true" data-provide="datepicker" data-date-container="#datepicker6">{{ date('d M Y') }}</b></span>
+                            <b class="mr-4 pb-2">Date</b>&nbsp;&nbsp; &nbsp;<span class="pl-4 pb-2"><b style="cursor: pointer;" id="datepicker6" data-date-format="dd M yyyy" data-date-autoclose="true" data-provide="datepicker" data-date-container="#datepicker6">{{ date('d M Y') }}</b></span>
                         </div>
                         <div class="col-3 text-end mb-2">
                             <a href="" class="btn btn btn-success">
