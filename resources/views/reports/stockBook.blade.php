@@ -147,7 +147,18 @@
                                 $currentDate = date('Y-m-d');
                                 $check_date = isset($_GET['date']) ? date('Y-m-d', strtotime($_GET['date'].' - 1 day')) : date('Y-m-d',strtotime( $currentDate.' - 1 day'));
                                 $check_date2 = isset($_GET['date']) ? date('Y-m-d', strtotime($_GET['date'])) : date('Y-m-d',strtotime( $currentDate));
-                                    $open_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<=', $check_date.' 23:59:59')->orderBy('id','desc')->sum('stock');
+                                    $check_time1=DB::table('bill_items')->where('medicine_id', $med->id)->whereDate('created_at', $check_date2)->orderBy('id','asc')->first();
+                                if($check_time1==''){
+                                    $check_time=$check_date.' 23:59:59';
+                                    $open_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<=', $check_time )->orderBy('id','desc')->sum('stock');
+
+                                }else{
+                                    $check_time=$check_time1->created_at;
+                                    $open_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<', $check_time )->orderBy('id','desc')->sum('stock');
+
+                                }
+
+
                                     $open_sold = DB::table('bill_items')->where('medicine_id', $med->id)->where('created_at','<=', $check_date.' 23:59:59')->orderBy('id','desc')->sum('qty');
                                     $opening_balence = $open_stock - $open_sold;
                                     $close_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<=', $check_date2.' 23:59:59')->orderBy('id','desc')->sum('stock');

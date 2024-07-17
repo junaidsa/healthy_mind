@@ -200,9 +200,11 @@
                         <input type="file" id="bill_image" name="bill_image" style="display: none;" accept="image/*">
                     </div>
                 </div>
-                <div class="row  mt-4" style="position: relative;left: 49px;">
-                    <div class="col-md-3  offset-md-8 pl-2">
-                        <div class="d-flex justify-content-center align-items-center ">
+                <div class="row  mt-4">
+                    <div class="col-md-9">
+                    </div>
+                    <div class="col-md-2">
+                        <div class="d-flex justify-content-end">
                             <button type="button" class="btn btn-primary btn-font" id="save">
                                 Save
                             </button>
