@@ -83,7 +83,8 @@
 @endphp
 
                                 <h4 class="card-title mb-4">{{$md->name}} Analystics</h4>
-                                <canvas id="bar" data-colors='["--bs-success-rgb, 0.8", "--bs-success" ]' height="200"></canvas>
+                                <canvas id="meds" style="display: block;height: 420px;width: 100%;"></canvas>
+                                {{-- <canvas id="meds" width="4444" height="2222"  class="chartjs-render-monitor"></canvas> --}}
 
                             </div>
                         </div>
@@ -127,11 +128,11 @@
     @section('customJs')
         <script>
             document.addEventListener("DOMContentLoaded", function() {
-    const ctx = document.getElementById('bar').getContext('2d');
+    const ctx = document.getElementById('meds').getContext('2d');
     const data = {
         labels: {!! json_encode(array_keys($monthlyDataArray)) !!},
         datasets: [{
-            label: 'Sale',
+            label: 'Sale QTY',
             data: {!! json_encode(array_values($monthlyDataArray)) !!},
             backgroundColor: 'rgba(75, 192, 192, 0.2)',
             borderColor: 'rgba(75, 192, 192, 1)',
