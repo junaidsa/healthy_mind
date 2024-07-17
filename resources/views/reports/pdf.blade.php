@@ -119,7 +119,7 @@ th{
     <div class="container" style="float:left;width:100%">
         @foreach ($bills as $bill)
         <div class="bill-container"
-        style="width:100%; background-color: #fff;{{ $loop->last ? '' : ($loop->iteration % 2 == 1 ? '' : 'page-break-after: always;') }}">
+        style="width:100%; background-color: #fff;{{ $loop->last ? '' : 'page-break-after: always;' }}">
 
                 <div class="bill" id="originalBill" style="position: relative; {{ $duplicate == 0 ? 'width:100%' : 'width:45%;float: left;border-right:2px dotted;' }}">
                     {{-- <img src="{{ asset('public/media/photos/scissors.png') }}" width="24px"

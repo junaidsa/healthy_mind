@@ -173,7 +173,7 @@
     <div class="container">
         <label>
 
-            <input type="checkbox" id="duplicateCheck" class="float-end" />
+            <input type="checkbox" id="duplicateCheck" class="float-end" @if($duplicate == 1) checked  @endif/>
             <span>DUPLICATE</span>
         </label>
 
@@ -418,6 +418,7 @@
                     $('.cutDiv-bottom').addClass('d-none')
                 }
             });
+            $('#duplicateCheck').change();
             $('#duplicateCheck').change(function() {
                 if ($(this).is(':checked')) {
                     var originalContent = $('#originalBill').html();

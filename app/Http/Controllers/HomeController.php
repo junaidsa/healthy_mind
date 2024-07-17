@@ -680,11 +680,59 @@ class HomeController extends Controller
         exit;
     }
 
-    public function showPrint_(Request $request)
-    {
-        $startField = $request->start_field;
-        $endField = $request->end_field;
+    // public function showPrint_(Request $request)
+    // {
+    //     $startField = $request->start_field;
+    //     $endField = $request->end_field;
+    //     $selected_ids = $request->selected_ids;
 
+    //     preg_match('/([A-Z]+)-(\d+)/', $startField, $startMatches);
+    //     preg_match('/([A-Z]+)-(\d+)/', $endField, $endMatches);
+
+    //     $startPrefix = $startMatches[1];
+    //     $startNumber = (int)$startMatches[2];
+    //     $endPrefix = $endMatches[1];
+    //     $endNumber = (int)$endMatches[2];
+    //     $bills = DB::table('patient_bills')
+    //         ->where(function ($query) use ($startPrefix, $startNumber, $endPrefix, $endNumber) {
+    //             $query->where(function ($query) use ($startPrefix, $startNumber, $endPrefix, $endNumber) {
+    //                 $query->where('bill_no', 'like', "$startPrefix%")
+    //                     ->whereRaw("CAST(SUBSTRING_INDEX(bill_no, '-', -1) AS UNSIGNED) >= ?", [$startNumber])
+    //                     ->whereRaw("CAST(SUBSTRING_INDEX(bill_no, '-', -1) AS UNSIGNED) <= ?", [$endNumber]);
+    //             });
+
+    //             if ($startPrefix != $endPrefix) {
+    //                 $query->orWhere(function ($query) use ($startPrefix, $startNumber) {
+    //                     $query->where('bill_no', 'like', "$startPrefix%")
+    //                         ->whereRaw("CAST(SUBSTRING_INDEX(bill_no, '-', -1) AS UNSIGNED) >= ?", [$startNumber]);
+    //                 });
+
+    //                 $query->orWhere(function ($query) use ($endPrefix, $endNumber) {
+    //                     $query->where('bill_no', 'like', "$endPrefix%")
+    //                         ->whereRaw("CAST(SUBSTRING_INDEX(bill_no, '-', -1) AS UNSIGNED) <= ?", [$endNumber]);
+    //                 });
+    //             }
+    //         })
+    //         ->get();
+    //     if ($bills) {
+    //         $dateTime = Carbon::now();
+    //         $formattedDateTime = $dateTime->format('d-m-Y | g:i A');
+    //         // $bill_item = DB::table('bill_items')->where('bill_id', $id)->get();
+    //         return view('reports.batch_print', compact('bills', 'formattedDateTime'));
+    //     }
+    //     abort(404);
+    // }
+    public function showPrint_(Request $request)
+{
+    $startField = $request->start_field;
+    $endField = $request->end_field;
+    $selectedIds = $request->selected_ids;
+    $duplicate = $request->duplicate;
+
+    $billsByRange = collect();
+    $billsByIds = collect();
+
+    if (!empty($startField) && !empty($endField)) {
         preg_match('/([A-Z]+)-(\d+)/', $startField, $startMatches);
         preg_match('/([A-Z]+)-(\d+)/', $endField, $endMatches);
 
@@ -692,7 +740,8 @@ class HomeController extends Controller
         $startNumber = (int)$startMatches[2];
         $endPrefix = $endMatches[1];
         $endNumber = (int)$endMatches[2];
-        $bills = DB::table('patient_bills')
+
+        $billsByRange = DB::table('patient_bills')
             ->where(function ($query) use ($startPrefix, $startNumber, $endPrefix, $endNumber) {
                 $query->where(function ($query) use ($startPrefix, $startNumber, $endPrefix, $endNumber) {
                     $query->where('bill_no', 'like', "$startPrefix%")
@@ -713,20 +762,36 @@ class HomeController extends Controller
                 }
             })
             ->get();
-        if ($bills) {
-            $dateTime = Carbon::now();
-            $formattedDateTime = $dateTime->format('d-m-Y | g:i A');
-            // $bill_item = DB::table('bill_items')->where('bill_id', $id)->get();
-            return view('reports.batch_print', compact('bills', 'formattedDateTime'));
-        }
-        abort(404);
     }
+
+    if (!empty($selectedIds)) {
+        $billsByIds = DB::table('patient_bills')
+            ->whereIn('id', $selectedIds)
+            ->get();
+    }
+
+    $bills = $billsByRange->merge($billsByIds)->unique('id');
+
+    if ($bills->isNotEmpty()) {
+        $dateTime = Carbon::now();
+        $formattedDateTime = $dateTime->format('d-m-Y | g:i A');
+        return view('reports.batch_print', compact('bills', 'duplicate','formattedDateTime'));
+    }
+
+    abort(404);
+}
+
     public function billPDF(Request $request)
     {
         $startField = $request->start_field;
-        $endField = $request->end_field;
-        $duplicate = $request->duplicate;
+    $endField = $request->end_field;
+    $selectedIds = $request->selected_ids;
+    $duplicate = $request->duplicate;
 
+    $billsByRange = collect();
+    $billsByIds = collect();
+
+    if (!empty($startField) && !empty($endField)) {
         preg_match('/([A-Z]+)-(\d+)/', $startField, $startMatches);
         preg_match('/([A-Z]+)-(\d+)/', $endField, $endMatches);
 
@@ -734,7 +799,8 @@ class HomeController extends Controller
         $startNumber = (int)$startMatches[2];
         $endPrefix = $endMatches[1];
         $endNumber = (int)$endMatches[2];
-        $bills = DB::table('patient_bills')
+
+        $billsByRange = DB::table('patient_bills')
             ->where(function ($query) use ($startPrefix, $startNumber, $endPrefix, $endNumber) {
                 $query->where(function ($query) use ($startPrefix, $startNumber, $endPrefix, $endNumber) {
                     $query->where('bill_no', 'like', "$startPrefix%")
@@ -755,6 +821,16 @@ class HomeController extends Controller
                 }
             })
             ->get();
+    }
+
+    if (!empty($selectedIds)) {
+        $billsByIds = DB::table('patient_bills')
+            ->whereIn('id', $selectedIds)
+            ->get();
+    }
+
+    $bills = $billsByRange->merge($billsByIds)->unique('id');
+
             $dateTime = Carbon::now();
             $formattedDateTime = $dateTime->format('d-m-Y | g:i A');
         $pdf = $pdf = PDF::loadView('reports.pdf', compact('bills','formattedDateTime', 'duplicate'), [],[

@@ -1,5 +1,5 @@
 @extends('layouts.app');
-@section('title', 'Bill Boo Report')
+@section('title', 'Bill Book Report')
 @section('main')
     <style>
         .table-blue {
@@ -165,10 +165,13 @@
                                                 <td class="text-center">{{ @$row->bill_no }}</td>
                                                 <td class="text-center">{{ @$row->file_no }}</td>
                                                 <td class="text-center">
-                                                    @if(@$row->bill_image && file_exists(public_path('media/photos/' . $row->bill_image)))
-                                                        <img src="{{ asset('public/media/photos/' . $row->bill_image) }}" alt="" width="40" height="40" class="d-block rounded">
+                                                    @if (@$row->bill_image && file_exists(public_path('media/photos/' . $row->bill_image)))
+                                                        <img src="{{ asset('public/media/photos/' . $row->bill_image) }}"
+                                                            alt="" width="40" height="40"
+                                                            class="d-block rounded">
                                                     @else
-                                                        <div style="width: 40px; height: 40px; background-color: grey;" class="d-block rounded"></div>
+                                                        <div style="width: 40px; height: 40px; background-color: grey;"
+                                                            class="d-block rounded"></div>
                                                     @endif
                                                 </td>
                                                 <td class="text-center">{{ @$row->first_name }}</td>
@@ -179,7 +182,8 @@
                                                 <td class="text-center">{{ @$row->total_amount }} ₹</td>
                                                 <td class="text-center"><a href="javascript:void();"
                                                         class="btn btn-success btn-sm waves-effect waves-light mb-2 mb-md-0 me-2"
-                                                        data-id="{{ @$row->id }}">Edit</a><a href="{{ url('detail-bill').'/'.$row->id.'?from=billbook' }}"
+                                                        data-id="{{ @$row->id }}">Edit</a><a
+                                                        href="{{ url('detail-bill') . '/' . $row->id . '?from=billbook' }}"
                                                         class="btn btn-primary btn-sm btn-rounded me-2 waves-effect waves-light mb-2 mb-md-0"
                                                         data-id="{{ @$row->id }}">View Details</a> <a
                                                         href="{{ url('delete-bill' . '/' . @$row->id) }}"
@@ -204,6 +208,7 @@
     <form id="print_form" action="{{ url('print_') }}">
         <input type="hidden" id="start_field" name="start_field">
         <input type="hidden" id="end_field" name="end_field">
+        <input type="hidden" id="duplicate" name="duplicate">
     </form>
     <form id="pdf_form" action="{{ url('print_PDF') }}">
         <input type="hidden" id="start_field_" name="start_field">
@@ -226,10 +231,44 @@
                 //     instance.input.value = `${formattedStartDate} - ${formattedEndDate}`;
                 // }
                 if (selectedDates.length === 2) {
-                $('#range-form').submit();
-        }
+                    $('#range-form').submit();
+                }
             }
         });
+
+        // $('.btn-print').on('click', function() {
+        //     $(".is-invalid").removeClass('is-invalid');
+        //     $(".invalid-feedback").html('');
+        //     var isValid = true;
+        //     var start_bill = $('#start_bill').val();
+        //     var end_bill = $('#end_bill').val();
+        //     if (start_bill === '') {
+        //         $("#start_bill").addClass('is-invalid').siblings('.invalid-feedback').html(
+        //             'This field is required.');
+        //         isValid = false;
+        //     }
+        //     if (end_bill === '') {
+        //         $("#end_bill").addClass('is-invalid').siblings('.invalid-feedback').html('This field is required.');
+        //         isValid = false;
+        //     }
+        //     var selectedIds = [];
+        //     $('input[type=checkbox]:checked').each(function() {
+        //         var id = $(this).data('id'); // Assuming the checkboxes have a data-id attribute
+        //         if (id) {
+        //             selectedIds.push(id);
+        //         }
+        //     });
+
+        //     // Create hidden input fields for each selected ID
+        //     selectedIds.forEach(function(id) {
+        //         $('#print_form').append('<input type="hidden" name="selected_ids[]" value="' + id + '">');
+        //     });
+        //     if (isValid) {
+        //         $('#start_field').val(start_bill);
+        //         $('#end_field').val(end_bill);
+        //         $('#print_form').submit();
+        //     }
+        // })
 
         $('.btn-print').on('click', function() {
             $(".is-invalid").removeClass('is-invalid');
@@ -237,21 +276,48 @@
             var isValid = true;
             var start_bill = $('#start_bill').val();
             var end_bill = $('#end_bill').val();
-            if (start_bill === '') {
-                $("#start_bill").addClass('is-invalid').siblings('.invalid-feedback').html(
-                    'This field is required.');
-                isValid = false;
+
+            var selectedIds = [];
+            $('input[type=checkbox]:checked').each(function() {
+                var id = $(this).data('id'); // Assuming the checkboxes have a data-id attribute
+                if (id) {
+                    selectedIds.push(id);
+                }
+            });
+
+            // If any checkboxes are checked, skip validation of input fields
+            if (selectedIds.length === 0) {
+                if (start_bill === '') {
+                    $("#start_bill").addClass('is-invalid').siblings('.invalid-feedback').html(
+                        'This field is required.');
+                    isValid = false;
+                }
+                if (end_bill === '') {
+                    $("#end_bill").addClass('is-invalid').siblings('.invalid-feedback').html(
+                        'This field is required.');
+                    isValid = false;
+                }
             }
-            if (end_bill === '') {
-                $("#end_bill").addClass('is-invalid').siblings('.invalid-feedback').html('This field is required.');
-                isValid = false;
-            }
+
+            // Create hidden input fields for each selected ID
+            selectedIds.forEach(function(id) {
+                $('#print_form').append('<input type="hidden" name="selected_ids[]" value="' + id + '">');
+            });
+
             if (isValid) {
                 $('#start_field').val(start_bill);
                 $('#end_field').val(end_bill);
+                if ($('#duplicateCheck').is(':checked')) {
+                    $('#duplicate').val('1');
+
+                } else {
+                    $('#duplicate').val('0');
+
+                }
                 $('#print_form').submit();
             }
-        })
+        });
+
 
         $('.btn-download').on('click', function() {
             $(".is-invalid").removeClass('is-invalid');
@@ -259,15 +325,30 @@
             var isValid = true;
             var start_bill = $('#start_bill').val();
             var end_bill = $('#end_bill').val();
-            if (start_bill === '') {
-                $("#start_bill").addClass('is-invalid').siblings('.invalid-feedback').html(
-                    'This field is required.');
-                isValid = false;
+            var selectedIds = [];
+            $('input[type=checkbox]:checked').each(function() {
+                var id = $(this).data('id'); // Assuming the checkboxes have a data-id attribute
+                if (id) {
+                    selectedIds.push(id);
+                }
+            });
+            if (selectedIds.length === 0) {
+                if (start_bill === '') {
+                    $("#start_bill").addClass('is-invalid').siblings('.invalid-feedback').html(
+                        'This field is required.');
+                    isValid = false;
+                }
+                if (end_bill === '') {
+                    $("#end_bill").addClass('is-invalid').siblings('.invalid-feedback').html(
+                        'This field is required.');
+                    isValid = false;
+                }
             }
-            if (end_bill === '') {
-                $("#end_bill").addClass('is-invalid').siblings('.invalid-feedback').html('This field is required.');
-                isValid = false;
-            }
+
+            selectedIds.forEach(function(id) {
+                $('#pdf_form').append('<input type="hidden" name="selected_ids[]" value="' + id + '">');
+            });
+
             if (isValid) {
                 $('#start_field_').val(start_bill);
                 $('#end_field_').val(end_bill);

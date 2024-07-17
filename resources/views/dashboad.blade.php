@@ -114,7 +114,9 @@
             <div class="row mt-4">
                 <div class="col-sm-3">
                     <p style="font-weight: bold; font-size: 1rem;">Select Date</p>
-                    <p style="font-weight: bold;font-size: 1rem;margin-top: -12px;">24 May 2024</p>
+                    <p style="font-weight: bold;font-size: 1rem;margin-top: -12px;" style="cursor: pointer !important;" id="datepicker6" data-date-format="dd M yyyy"
+                    data-date-autoclose="true" data-provide="datepicker"
+                    data-date-container="#datepicker6">{{ isset($_GET['date']) ? $_GET['date'] : date('d M Y') }}</p>
                 </div>
             </div>
 
@@ -131,13 +133,25 @@
             @endphp
             <div class="row mt-2">
                 @foreach ($all_medicne as $med)
+                @php
+                                $currentDate = date('Y-m-d');
+                                $check_date = isset($_GET['date']) ? date('Y-m-d', strtotime($_GET['date'].' - 1 day')) : date('Y-m-d',strtotime( $currentDate.' - 1 day'));
+                                $check_date2 = isset($_GET['date']) ? date('Y-m-d', strtotime($_GET['date'])) : date('Y-m-d',strtotime( $currentDate));
+                                    $open_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<=', $check_date.' 23:59:59')->orderBy('id','desc')->sum('stock');
+                                    $open_sold = DB::table('bill_items')->where('medicine_id', $med->id)->where('created_at','<=', $check_date.' 23:59:59')->orderBy('id','desc')->sum('qty');
+                                    $opening_balence = $open_stock - $open_sold;
+                                    $close_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<=', $check_date2.' 23:59:59')->orderBy('id','desc')->sum('stock');
+                                    $close_sold = DB::table('bill_items')->where('medicine_id', $med->id)->where('created_at','<=', $check_date2.' 23:59:59')->orderBy('id','desc')->sum('qty');
+                                    $closing_balence = $close_stock - $close_sold;
+                                    // $current_stock = DB::table('batches')->where('quantity', '>' , '0')->where('medicine_id', $med->id)->sum('quantity');
+                                @endphp
                     <div class="col-sm-3 mb-2">
                         <div class="card mini-stats-wid">
                             <div class="card-body">
                                 <div class="d-flex align-items-center">
                                     <div class="flex-grow-1">
                                         <p class="fw-medium m-0 p-0" style="font-size: 14px;">{{ $med->name }}</p>
-                                        <h2 class="mb-0">200</h2>
+                                        <h2 class="mb-0">{{ $opening_balence }}</h2>
                                     </div>
 
                                     <div class="flex-shrink-0 align-self-center">
@@ -157,7 +171,7 @@
                                 <div class="d-flex align-items-center">
                                     <div class="flex-grow-1">
                                         <p class="fw-medium m-0 p-0" style="font-size: 14px;">{{ $med->name }}</p>
-                                        <h2 class="mb-0">200</h2>
+                                        <h2 class="mb-0">{{ $closing_balence }}</h2>
                                     </div>
 
                                     <div class="flex-shrink-0 align-self-center">
@@ -176,4 +190,22 @@
             </div>
         </div>
         <!-- End Page-content -->
+    @endsection
+
+    @section('customJs')
+    <script>
+        var datepicker = $('#datepicker6').datepicker({
+            format: 'dd M yyyy',
+            autoclose: true
+        }).on('changeDate', function(e) {
+            // Get the selected date
+            var selectedDate = $('#datepicker6').datepicker('getFormattedDate');
+            // Update the displayed date
+            $('#datepicker6').text(selectedDate);
+            // Reload the current URL with the selected date as a query parameter
+            var currentUrl = window.location.href.split('?')[0]; // Remove existing query parameters
+            var newUrl = currentUrl + '?date=' + encodeURIComponent(selectedDate);
+            window.location.href = newUrl;
+        });
+    </script>
     @endsection
