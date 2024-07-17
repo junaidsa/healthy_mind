@@ -200,17 +200,6 @@
                                                         class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0"
                                                         data-id="{{ @$row->id }}">View Details</a></td>
                                             </tr>
-                                            @php
-                                            $open_stock = DB::table('stock_history')->where('medicine_id', $med->id)->where('date', date('Y-m-d'))->first();
-                                            $current_stock = DB::table('batches')->where('quantity', '>' , '0')->where('medicine_id', $med->id)->sum('quantity');
-                                        @endphp
-                                        <tr>
-                                            <td class="fw-bold" style="width: 20%">{{ $med->name }}</td>
-                                            <td style="width: 20%">Opening: <span class="fw-bold">{{ $open_stock->qty }}</span></td>
-                                            <td style="width: 20%">Closing: <span class="fw-bold">{{ $current_stock }}</span></td>
-                                            <td style="width: 40%">Left: <span class="fw-bold">{{ $open_stock->qty - $current_stock }}</span></td>
-                                        </tr>
-                                        @endforeach
                                         @endforeach
                                         {{-- <tr>
                                             <td class="text-center">2</td>
