@@ -28,7 +28,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-sm-3">
-                        <div class="card mini-stats-wid">
+                        {{-- <div class="card mini-stats-wid">
                             <div class="card-body sm-card">
                                 <div class="d-flex">
                                     <div class="flex-grow-1">
@@ -36,8 +36,25 @@
                                     </div>
                                     <div class="flex-shrink-0">
                                         <span class="icon">
-                                            <img src="{{ asset('public') }}/assets/images/tag.png" class="w-50">
-                                        </span>
+                                            {{-- <simg src="{{ asset('public') }}/assets/images/tag.png" class="w-50"> --}}
+                                        {{-- </span>
+                                    </div>
+                                </div>
+                            </div> --}}
+                        {{-- </div> --}}
+                        <div class="card mini-stats-wid">
+                            <div class="card-body">
+                                <div class="d-flex">
+                                    <div class="flex justy">
+                                        <p class="text-muted fw-medium">Add Bill</p>
+                                    </div>
+
+                                    <div class="flex-shrink-0 align-self-center">
+                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
+                                            <span class="avatar-title rounded-circle bg-primary">
+                                                <i class="bx bx-purchase-tag-alt font-size-20"></i>
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

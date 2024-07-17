@@ -386,5 +386,4 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
 
 <!-- Mirrored from themesbrand.com/skote/layouts/dashboard-job.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 07 Aug 2023 16:08:27 GMT -->
 </html>
-    {{-- @include('layout/header'); --}}
-    {{-- @include('layout/footer') --}}
+
