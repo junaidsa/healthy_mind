@@ -1,4 +1,5 @@
 @extends('layouts.app');
+@section('title', 'Create Bill')
 @section('main')
     <style>
         .hr-boader {

@@ -1,4 +1,5 @@
 @extends('layouts.app');
+@section('title', 'Stock Book Report')
 @section('main')
     <style>
         .table-blue {
@@ -61,6 +62,35 @@
         .table>:not(caption)>*>*{
             padding: .35rem .75rem;
         }
+        @media print {
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+    .table td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+    color: #1a1919;
+
+
+}
+.batch-info {
+    background-color: #f2f2f2;
+}
+.page-break {
+    page-break-before: always;
+}
+.table th{
+    font-weight:700;
+    background-color:#0000;
+      border: 1px solid black;
+    padding: 8px;
+    color: #000;
+    text-align: center;
+}
+}
     </style>
     <div class="page-content" style="min-height: 570px;">
         <div class="container">
@@ -68,7 +98,7 @@
                 <div class="col-9 d-flex align-items-center">
 
                 </div>
-                <div class="col-3 text-end mb-2">
+                <div class="col-3 text-end mb-2 d-print-none">
                     {{-- <a href="{{ url('stock/pdf') }}@if(isset($_GET['date']))?date={{ $_GET['date'] }}@endif" class="btn btn btn-success">
                         PDF
                     </a> --}}
@@ -88,8 +118,8 @@
                     {{-- <a href="{{ url('stock/print') }}@if(isset($_GET['date']))?date={{ $_GET['date'] }}@endif" class="btn btn btn-success">
                         Print
                     </a> --}}
-                    <a href="{{ url('stock/print') }}@if(request()->has('date'))?date={{ request()->get('date') }}@endif
-                        @if(request()->has('search')){{ request()->has('date') ? '&' : '?' }}search={{ request()->get('search') }}@endif"
+                    <a href="javascript: void(0);"
+                    onclick="window.print()"
                         class="btn btn-success">
                         Print
                     </a>
@@ -142,7 +172,7 @@
                                             <th class="text-center">Father's Name</th>
                                             <th class="text-center">Aadhar Number</th>
                                             <th class="text-center">Medicine</th>
-                                            <th class="text-center">Options</th>
+                                            <th class="text-center d-print-none">Options</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -196,94 +226,11 @@
                                                 <td class="text-center">{{ @$row->father_name }}</td>
                                                 <td class="text-center">{{ @$row->other_id }}</td>
                                                 <td class="text-center">{{ @$med_qty }}</td>
-                                                <td class="text-center"><a href="{{ url('detail-bill').'/'.$row->id.'?from=stockbook' }}"
+                                                <td class="text-center d-print-none"><a href="{{ url('detail-bill').'/'.$row->id.'?from=stockbook' }}"
                                                         class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0"
                                                         data-id="{{ @$row->id }}">View Details</a></td>
                                             </tr>
                                         @endforeach
-                                        {{-- <tr>
-                                            <td class="text-center">2</td>
-                                            <td class="text-center">AB-19</td>
-                                            <td class="text-center">NPC-06</td>
-                                            <td class="text-center">Alex Saif</td>
-                                            <td class="text-center">Simon Rey</td>
-                                            <td class="text-center">1252 2512 5232</td>
-                                            <td class="text-center">5</td>
-                                            <td class="text-center"><a class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">View Details</a></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-center">3</td>
-                                            <td class="text-center">AB-18</td>
-                                            <td class="text-center">NPC-06</td>
-                                            <td class="text-center">Alex Saif</td>
-                                            <td class="text-center">Simon Rey</td>
-                                            <td class="text-center">1252 2512 5232</td>
-                                            <td class="text-center">5</td>
-                                            <td class="text-center"><a class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">View Details</a></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-center">4</td>
-                                            <td class="text-center">AB-17</td>
-                                            <td class="text-center">NPC-06</td>
-                                            <td class="text-center">Alex Saif</td>
-                                            <td class="text-center">Simon Rey</td>
-                                            <td class="text-center">1252 2512 5232</td>
-                                            <td class="text-center">5</td>
-                                            <td class="text-center"><a class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">View Details</a></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-center">5</td>
-                                            <td class="text-center">AB-16</td>
-                                            <td class="text-center">NPC-06</td>
-                                            <td class="text-center">Alex Saif</td>
-                                            <td class="text-center">Simon Rey</td>
-                                            <td class="text-center">1252 2512 5232</td>
-                                            <td class="text-center">5</td>
-                                            <td class="text-center"><a class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">View Details</a></td>
-                                        </tr>
-                                        <tr class="batch-info">
-                                            <td class="text-center" colspan="8" class="text-center"><b>Paracetamol Batch Changed: 106505</b></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-center">6</td>
-                                            <td class="text-center">AB-15</td>
-                                            <td class="text-center">NPC-06</td>
-                                            <td class="text-center">Alex Saif</td>
-                                            <td class="text-center">Simon Rey</td>
-                                            <td class="text-center">1252 2512 5232</td>
-                                            <td class="text-center">5</td>
-                                            <td class="text-center"><a class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">View Details</a></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-center">7</td>
-                                            <td class="text-center">AB-14</td>
-                                            <td class="text-center">NPC-06</td>
-                                            <td class="text-center">Alex Saif</td>
-                                            <td class="text-center">Simon Rey</td>
-                                            <td class="text-center">1252 2512 5232</td>
-                                            <td class="text-center">5</td>
-                                            <td class="text-center"><a class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">View Details</a></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-center">8</td>
-                                            <td class="text-center">AB-13</td>
-                                            <td class="text-center">NPC-06</td>
-                                            <td class="text-center">Alex Saif</td>
-                                            <td class="text-center">Simon Rey</td>
-                                            <td class="text-center">1252 2512 5232</td>
-                                            <td class="text-center">5</td>
-                                            <td class="text-center"><a class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">View Details</a></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-center">9</td>
-                                            <td class="text-center">AB-12</td>
-                                            <td class="text-center">NPC-06</td>
-                                            <td class="text-center">Alex Saif</td>
-                                            <td class="text-center">Simon Rey</td>
-                                            <td class="text-center">1252 2512 5232</td>
-                                            <td class="text-center">5</td>
-                                            <td class="text-center"><a href="" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">View Details</a></td>
-                                        </tr> --}}
                                     </tbody>
 
                                 </table>

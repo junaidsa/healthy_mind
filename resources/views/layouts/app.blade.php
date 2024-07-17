@@ -21,7 +21,8 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
 <head>
 
     <meta charset="utf-8" />
-    <title>Admin & Dashboard</title>
+    <title>@yield('title', 'Healthy Mind')</title>
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
     <meta content="Themesbrand" name="author" />
@@ -220,7 +221,7 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
                                 <li class="menu-title" key="t-menu">Menu</li>
 
                                 <li>
-                                    <a href="javascript: void(0);" class="">
+                                    <a href="{{url('home')}}" class="{{ Request::is('home') ? 'mm-active' : ''}}">
                                         <i class="bx bx-home-circle"></i>
                                         <span key="t-dashboards">Dashboards</span>
                                     </a>

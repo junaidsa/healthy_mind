@@ -1,4 +1,5 @@
 @extends('layouts.app');
+@section('title', 'Bill Boo Report')
 @section('main')
     <style>
         .table-blue {
