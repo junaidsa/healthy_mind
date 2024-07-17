@@ -163,10 +163,13 @@
                                                         data-id="{{ @$row->id }}"></td>
                                                 <td class="text-center">{{ @$row->bill_no }}</td>
                                                 <td class="text-center">{{ @$row->file_no }}</td>
-                                                <td class="text-center"><img
-                                                        src="{{ asset('public') }}/media/photos/{{ @$row->Image }}"
-                                                        alt="" width="40" height="40"
-                                                        class="d-block rounded"></td>
+                                                <td class="text-center">
+                                                    @if(@$row->bill_image && file_exists(public_path('media/photos/' . $row->bill_image)))
+                                                        <img src="{{ asset('public/media/photos/' . $row->bill_image) }}" alt="" width="40" height="40" class="d-block rounded">
+                                                    @else
+                                                        <div style="width: 40px; height: 40px; background-color: grey;" class="d-block rounded"></div>
+                                                    @endif
+                                                </td>
                                                 <td class="text-center">{{ @$row->first_name }}</td>
                                                 <td class="text-center">{{ @$row->father_name }}</td>
                                                 <td class="text-center">{{ @$row->date_of_birth }}</td>

@@ -360,10 +360,6 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
         <script src="{{ asset('public') }}/assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
         <script src="{{ asset('public') }}/assets/libs/spectrum-colorpicker2/spectrum.min.js"></script>
         <script src="{{ asset('public') }}/assets/libs/apexcharts/apexcharts.min.js"></script>
-
-        <!-- Chart JS -->
-        <script src="{{ asset('public') }}/assets/libs/chart.js/Chart.bundle.min.js"></script>
-        <script src="{{ asset('public') }}/assets/js/pages/chartjs.init.js"></script>
         <script src="{{ asset('public') }}/assets/js/pages/dashboard-job.init.js"></script>
                 <script src="{{ asset('public') }}/assets/libs/dropzone/min/dropzone.min.js"></script>
                 <script src="{{ asset('public') }}/assets/libs/toastr/build/toastr.min.js"></script>
@@ -390,4 +386,5 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
 
 <!-- Mirrored from themesbrand.com/skote/layouts/dashboard-job.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 07 Aug 2023 16:08:27 GMT -->
 </html>
-
+    {{-- @include('layout/header'); --}}
+    {{-- @include('layout/footer') --}}

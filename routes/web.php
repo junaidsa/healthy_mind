@@ -42,7 +42,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/upload', [PatientController::class, 'docUpload'])->name('doc.upload');
     Route::get('/document/delete/{id}', [PatientController::class, 'deletedoc']);
     Route::get('add-bill/{id}', [PatientController::class, 'CreateBill']);
+    Route::get('add-bill', [PatientController::class, 'CreateBill_']);
     Route::post('/patients/{id}', [PatientController::class, 'update'])->name('patients.update');
+    Route::post('/savebill', [PatientController::class, 'update']);
     Route::resource('medicines', MedicineController::class);
     Route::post('stock/store', [MedicineController::class,'store_stock']);
     Route::post('/medicines/{id}', [MedicineController::class,'update'])->name('medicines.update');

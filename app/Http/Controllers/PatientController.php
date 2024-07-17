@@ -70,6 +70,28 @@ class PatientController extends Controller
 
         return view('patient.create_bill', compact("patient", 'formattedDateTime', 'bill_No', 'medicines', 'uniquePageNumber'));
     }
+    public function CreateBill_()
+    {
+        $patient = Patient::all();
+        $medicines = Medicine::all();
+        $dateTime = Carbon::now();
+        $formattedDateTime = $dateTime->format('d-m-Y | g:i A');
+        $latestBill_id = PatientBills::latest('id')->first();
+        if ($latestBill_id) {
+            $latestId = $latestBill_id->id + 1;
+            if ($latestId < 10) {
+                $bill_No = 'AB-0' . $latestId;
+            } else {
+                $bill_No = 'AB-' . $latestId;
+            }
+        } else {
+            $bill_No = 'AB-01';
+        }
+        $uniquePageNumber = mt_rand(10000000, 99999999);
+
+
+        return view('create_bill', compact('formattedDateTime', 'bill_No', 'medicines', 'uniquePageNumber','patient'));
+    }
     public function store(Request $request)
     {
         $validated = $request->validate([
