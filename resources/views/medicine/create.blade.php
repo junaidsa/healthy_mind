@@ -35,9 +35,9 @@
                 <div class="row mb-3">
                     <div class="col">
                         <label for="name">Medicine Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control"
+                        <input type="text" class="form-control" @error('name') is-invalid @enderror
                             name="name"
-                            value="">
+                            value="" id="name">
                             @error('name')
                             <div class=" invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -47,7 +47,7 @@
                         <label for="rate">Rate <span class="text-danger">*</span></label>
                         <input type="text" class="form-control"
                             name="rate"
-                            value="">
+                            value="" id="rate" @error('rate') is-invalid @enderror>
                             @error('rate')
                             <div class=" invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -55,8 +55,8 @@
                      </div>
                     <div class="col">
                         <label for="tax">TAX <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control " name="tax"
-                            placeholder="Enter tax" value="">
+                        <input type="text" class="form-control " name="tax" id="tax"
+                         value="" @error('tax') is-invalid @enderror>
                             @error('tax')
                             <div class=" invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -84,12 +84,12 @@ $(document).ready(function() {
         var rate = $("#rate").val();
         var isValid = true;
         if (name === '') {
-            $("#registration_date").addClass('is-invalid').siblings('.invalid-feedback').html('name is required.');
+            $("#name").addClass('is-invalid').siblings('.invalid-feedback').html('name is required.');
             isValid = false;
         }
 
         if (tax === '') {
-            $("#first_name").addClass('is-invalid').siblings('.invalid-feedback').html('tax is required.');
+            $("#tax").addClass('is-invalid').siblings('.invalid-feedback').html('tax is required.');
             isValid = false;
         }
 
