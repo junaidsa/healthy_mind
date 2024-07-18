@@ -96,13 +96,12 @@
                     <div class="row mt-3">
                         <div class="col-md-3 mb-2">
                             <label class="form-label">Patient Name <span class="text-danger">*</span></label>
-                            <select name="first_name" id="first_name"
-                                class="form-control @error('first_name') is-invalid @enderror " style="padding: .47rem .75rem !important;">
-                                <option value="">Select Patient</option>
-                                @foreach ($patient as $p)
+                                <select class="form-control select2 @error('first_name') is-invalid @enderror" style="padding: .47rem .75rem !important;" name="first_name" id="first_name">
+                                    <option>Select</option>
+                                    @foreach ($patient as $p)
                                     <option value="{{ $p->id }}">{{ $p->first_name }}</option>
                                 @endforeach
-                            </select>
+                                </select>
                             @error('first_name')
                                 <div class=" invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -253,6 +252,7 @@
 @endsection
 @section('customJs')
     <script>
+        $('.select2').select2()
         $(document).on('change', '#first_name', function(){
             var patient_id = $(this).val();
             console.log(patient_id);
@@ -398,7 +398,6 @@
                 success: function(data) {
                     var select = $('#medicine');
                     select.empty();
-                    select.append('<option value="">Select Medicine</option>');
                     $.each(data, function(key, value) {
                         // select.append('<option value="' + value.id + '">' + value.name + ' (Stock ' +
                         //     value.totalQuantity + ') '+ value.totalQuantity <= 0 ? 'disabled' : '' +'</option>');

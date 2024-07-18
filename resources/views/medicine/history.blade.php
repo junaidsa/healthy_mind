@@ -74,23 +74,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="row mb-4">
-
-                    <div class="col-xl-12">
-                        <div class="card">
-                            <div class="card-body">
-@php
-  $md = DB::table('medicines')->where('id',$id)->first();
-@endphp
-
-                                <h4 class="card-title mb-4">{{$md->name}} Analystics</h4>
-                                <canvas id="meds" style="display: block;height: 420px;width: 100%;"></canvas>
-                                {{-- <canvas id="meds" width="4444" height="2222"  class="chartjs-render-monitor"></canvas> --}}
-
-                            </div>
-                        </div>
-                    </div> <!-- end col -->
-                </div>
                 <div class="row">
                     <div class="col-12">
                         <div class="table-responsive">
@@ -128,31 +111,7 @@
     @endsection
     @section('customJs')
         <script>
-            document.addEventListener("DOMContentLoaded", function() {
-    const ctx = document.getElementById('meds').getContext('2d');
-    const data = {
-        labels: {!! json_encode(array_keys($monthlyDataArray)) !!},
-        datasets: [{
-            label: 'Sale QTY',
-            data: {!! json_encode(array_values($monthlyDataArray)) !!},
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 1
-        }]
-    };
-    const config = {
-        type: 'bar',
-        data: data,
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    };
-    new Chart(ctx, config);
-});
+
             function parseQueryString(url) {
                 var params = {};
                 var queryString = url.split('?')[1];

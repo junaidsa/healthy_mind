@@ -33,7 +33,8 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
     <link href="{{asset('public') }}/assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
     <link href="{{asset('public') }}/assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
     <link href="{{asset('public') }}/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
-        <link href="{{asset('public') }}/assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
+    <link href="{{asset('public') }}/assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
+    <link href="{{asset('public') }}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <link rel="stylesheet" type="text/css" href="{{asset('public') }}/assets/libs/toastr/build/toastr.min.css">
             <script src="{{asset('public') }}/assets/libs/toastr/build/toastr.min.js"></script>
@@ -357,6 +358,7 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
         <script src="{{asset('public')}}/assets/libs/node-waves/waves.min.js"></script>
         <script src="{{asset('public')}}/assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
         <script src="{{asset('public')}}/assets/libs/spectrum-colorpicker2/spectrum.min.js"></script>
+        <script src="{{asset('public')}}/assets/libs/select2/js/select2.min.js"></script>
         <script src="<?php echo asset('public') ?>/assets/libs/apexcharts/apexcharts.min.js"></script>
         <script src="<?php echo asset('public') ?>/assets/js/pages/dashboard-job.init.js"></script>
                 <script src="<?php echo asset('public') ?>/assets/libs/dropzone/min/dropzone.min.js"></script>
@@ -364,6 +366,7 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
                 <script src="<?php echo asset('public') ?>/assets/js/pages/toastr.init.js"></script>
                 <script src="<?php echo asset('public') ?>/assets/js/app.js"></script>
                 <script src="<?php echo asset('public') ?>/assets/js/app.js"></script>
+
                     <!-- form repeater js -->
                 <script src="<?php echo asset('public') ?>/assets/libs/jquery.repeater/jquery.repeater.min.js"></script>
                  <script src="<?php echo asset('public') ?>/assets/js/pages/form-repeater.int.js"></script>
@@ -376,7 +379,6 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
-
         </script>
         @yield('customJs')
 

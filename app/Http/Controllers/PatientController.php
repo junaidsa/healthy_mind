@@ -22,14 +22,25 @@ class PatientController extends Controller
 {
     public function index()
     {
-        $keywords = request('keywords');
-        $patients = Patient::where('first_name', 'like', "%$keywords%")
-        ->orWhere('father_name', 'like', "%$keywords%")
-        ->orWhere('uid_number', 'like', "%$keywords%")
-        ->orderBy('id', 'desc')
-        ->paginate(10);
-        return view('patient.view', compact('patients'));
+        return view('patient.view');
     }
+    public function search(Request $request)
+    {
+        $keywords = $request->input('keywords');
+        $patients = Patient::select('patients.*', DB::raw('COUNT(patient_bills.id) as total_bills'))
+        ->leftJoin('patient_bills', 'patients.id', '=', 'patient_bills.patient_id')
+        ->where('first_name', 'like', "%$keywords%")
+            ->orWhere('father_name', 'like', "%$keywords%")
+            ->orWhere('uid_number', 'like', "%$keywords%")
+                ->groupBy('patients.id')
+                ->orderBy('patients.id', 'desc')
+            ->paginate(10);
+            return response()->json([
+                'patients' => $patients,
+                'links' => (string) $patients->links('pagination::bootstrap-5')
+            ]);
+}
+
     public function create()
     {
         $dateTime = Carbon::now();
@@ -68,7 +79,7 @@ class PatientController extends Controller
         $uniquePageNumber = mt_rand(10000000, 99999999);
 
 
-        return view('patient.create_bill', compact("patient", 'formattedDateTime', 'bill_No', 'medicines', 'uniquePageNumber'));
+        return view('patient.create_bill', compact("patient", 'formattedDateTime', 'bill_No', 'medicines', 'uniquePageNumber','id'));
     }
     public function CreateBill_()
     {
@@ -98,9 +109,10 @@ class PatientController extends Controller
             'file_no' => 'required',
             'registration_date' => 'required',
             'first_name' => 'required',
-            'data_of_birth' => 'required',
+            // 'files' => 'required',
             'gender' => 'required',
             'uid_number' => 'required',
+            // 'files' => 'required',
             'mobile_no' => 'required',
             'address' => 'required',
             'photo' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -128,6 +140,21 @@ class PatientController extends Controller
             $patient->address = $request->input('address');
             $patient->Image = $file;
             $patient->save();
+            if ($request->hasFile('files')) {
+                foreach ($request->file('files') as $doc) {
+                    $name = now()->format('Y-m-d_H-i-s') . '-' . uniqid() . '-doc';
+                    $file = $name . '.' . $doc->getClientOriginalExtension();
+                    $targetDir = public_path('media/photos');
+                    $doc->move($targetDir, $file);
+                    DB::table('documents')->insert([
+                        'file_name' => $file,
+                        'user_id' => 1,
+                        'patient_id' => $patient->id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+                }
             return redirect('patients')->with('success', 'Patient add successfully.');
         } else {
             return redirect()->back()->withErrors($validated)->withInput();

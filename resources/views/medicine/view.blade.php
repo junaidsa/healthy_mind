@@ -110,14 +110,23 @@
         </div>
             <div class="row mt-2">
                 @foreach ($medicines as $medicine)
+                @php
+                $leftstock = DB::table('batches')
+                    ->where('medicine_id', $medicine->id)
+                    ->sum('quantity');
+                $salestock = DB::table('bill_items')
+                    ->where('medicine_id', $medicine->id)
+                    ->sum('qty');
 
+                $totalstock = $salestock + $leftstock;
+            @endphp
                 <div class="col-sm-3">
                     <div class="card mini-stats-wid">
                         <div class="card-body lg-card">
                             <div class="d-flex">
                                 <div class="flex-grow-1">
                                     <p style="margin-bottom: 0;"><strong style="font-size: larger;">{{$medicine->name}}</strong></p>
-                                    <span class="font-g">{{$medicine->rate}}</span>
+                                    <span class="font-g">{{$leftstock}}</span>
                                 </div>
                                 <div class="flex-shrink-0">
                                     <span class="icon">

@@ -61,7 +61,8 @@
                                 <h4 style="margin-bottom: -16px;" class="mt-4">Create Bill</h4>
                             </div>
                             <div>
-                                <a href="{{ url('/patients') }}" class="btn btn-success">Old History</a>
+                                {{-- <button type="button" class="btn btn-success waves-effect waves-light" data-bs-toggle="modal" data-bs-target=".bs-example-modal-sm">Small modal</button> --}}
+                                <a href="javascript: void(0);" class="btn btn-success" data-bs-target=".bs-example-modal-sm" data-bs-toggle="modal">Old History</a>
                             </div>
                         </div>
                         <div class="hr-boader">
@@ -143,7 +144,62 @@
                     </div>
                 </div>
 
-
+                                            <!--  Small modal example -->
+                                            <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog modal-sm">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="mySmallModalLabel">Patient History</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            @php
+                                                            $lastBill = DB::table('patient_bills')
+                                                           ->where('patient_id', $id)
+                                                            ->orderBy('created_at', 'desc')
+                                                            ->first();
+                                                            if ($lastBill) {
+                                                                $bill_id = $lastBill->id;
+                                                                $bill_item = DB::table('bill_items')
+                                                               ->where('bill_id', $bill_id)
+                                                                ->orderBy('created_at', 'desc')
+                                                                ->Join('medicines', 'bill_items.medicine_id', '=', 'medicines.id')
+                                                                ->select('bill_items.*', 'medicines.name as medicine_name')
+                                                                ->get();
+                                                            }else {
+                                                                $bill_item = null;
+                                                            }
+                                                            @endphp
+                                                            @if($bill_item)
+                                                                <table class="table">
+                                                                    <thead>
+                                                                    <th>Medicine Name</th>
+                                                                    <th>Qty</th>
+                                                                    {{-- <th>Date</th> --}}
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <tr class="text-center">Date: <b>{{$lastBill->bill_date}}</b></tr>
+                                                                        @foreach ($bill_item as $item)
+                                                                        <tr>
+                                                                    <td>{{$item->medicine_name}}</td>
+                                                                    <td>{{$item->qty}}</td>
+                                                                    {{-- <td>{{$item->created_at}}</td> --}}
+                                                                        </tr>
+                                                                        @endforeach
+                                                                    </tbody>
+                                                                </table>
+                                                                <div>
+                                                                <p>
+                                                                {{$lastBill->note}}
+                                                                    </p>
+                                                                </div>
+                                                             @else
+                                                                <p>No history found for this patient.</p>
+                                                            @endif
+                                                        </div>
+                                                    </div><!-- /.modal-content -->
+                                                </div><!-- /.modal-dialog -->
+                                            </div><!-- /.modal -->
                 {{--  Bill CreATE --}}
                 <div class="row mt-4">
                     <div class="col-md-9">
@@ -384,10 +440,7 @@ $('#captureBtn').on('click', function(e) {
                 success: function(data) {
                     var select = $('#medicine');
                     select.empty();
-                    select.append('<option value="">Select Medicine</option>');
                     $.each(data, function(key, value) {
-                        // select.append('<option value="' + value.id + '">' + value.name + ' (Stock ' +
-                        //     value.totalQuantity + ') '+ value.totalQuantity <= 0 ? 'disabled' : '' +'</option>');
                         select.append('<option value="' + value.id + '" ' + (value.totalQuantity <= 0 ? 'disabled' : '') + '>' + value.name + ' (Stock ' + value.totalQuantity + ')</option>');
 
                     });

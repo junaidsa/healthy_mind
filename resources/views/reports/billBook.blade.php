@@ -143,12 +143,10 @@
                                     <tbody>
                                     <tbody>
                                         @php
-                                            $last_batches = []; // Initialize outside the loop to keep track globally
+                                            $last_batches = [];
                                         @endphp
                                         @foreach ($data as $row)
                                             @php
-                                                // $bill_items = DB::table('bill_items')->where('bill_id', $row->id)->get();
-                                                // dd($bill_items);
                                                 $med_qty = DB::table('bill_items')
                                                     ->where('bill_id', $row->id)
                                                     ->sum('qty');

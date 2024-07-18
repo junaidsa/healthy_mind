@@ -53,6 +53,28 @@
     <div class="page-content">
     <form id="createpatientForm" action="{{url('/patients')}}" method="POST" enctype="multipart/form-data">
         @csrf
+    <div class="modal fade transaction-detailModal" tabindex="-1" role="dialog" aria-labelledby="transaction-detailModalLabel"               aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="transaction-detailModalLabel">Upload Documents</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{-- <form id="uploadForm" action="{{ route('doc.upload') }}" method="Post" enctype="multipart/form-data">
+                            @csrf --}}
+                            <div class="mt-4 mt-md-0">
+                         <input class="form-control" type="file" name="files[]" multiple id="fileInput" required>
+                            </div>
+                            <ul id="fileList" class="mb-4"></ul>
+                            <div class="modal-footer">
+                                {{-- <button type="button" class="btn btn-success" id="saveFille" data-bs-dismiss="modal">Submit</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> --}}
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
@@ -106,9 +128,13 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Date Of Birth <span class="text-danger">*</span></label>
-                        <div class="input-daterange input-group @error('date_of_birth') is-invalid @enderror"id="datepicker6" data-date-format="dd M, yyyy" data-date-autoclose="true" data-provide="datepicker" data-date-container="#datepicker6">
-                             <input type="text" class="form-control" name="data_of_birth" autocomplete="off">
-                                @error('date_of_birth')
+                        <div class="input-daterange input-group" id="datepicker6"
+                        data-date-format="dd-mm-yyyy"
+                        data-date-autoclose="true"
+                        data-provide="datepicker"
+                        data-date-container="#datepicker6">
+                       <input type="text" class="form-control  @error('date_of_birth') is-invalid @enderror" name="data_of_birth" autocomplete="off" />
+                                @error('data_of_birth')
                                 <div class=" invalid-feedback">{{ $message }}</div>
                                      @enderror
                             </div>
@@ -141,7 +167,6 @@
                         <div class="col-md-4  mb-3">
                             <label class="form-label">Gender <span class="text-danger">*</span></label>
                             <select class="form-control @error('gender') is-invalid @enderror" tabindex="9" name="gender" id="gender">
-                                <option selected="" disabled=""></option>
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
                                 <option value="Other">Other</option>
@@ -171,10 +196,6 @@
                         <div class="box" id="imagePreview"></div>
                     </div>
                     <div class="d-flex justify-content-center">
-                        {{-- <button  id="captureBtn" style="display: block; width:85%;"  type="button"
-                            class="btn btn-success mt-2 pl-4 align-items-center">
-                            Capture
-                        </button> --}}
                         <button type="button" class="btn btn-success mt-2 waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#staticBackdrop" >
                             Capture
                         </button>
@@ -183,9 +204,13 @@
                     <input type="file" id="photo" name="photo" style="display: none;" accept="image/*">
                 </div>
             </div>
-            <div class="row  mb-3" style="position: relative;left: 49px;">
-                <div class="col-md-3  offset-md-8 pl-2">
+            <div class="row  mb-3">
+                <div class="col-md-8"></div>
+                <div class="col-md-3 pl-2">
                     <div class="d-flex justify-content-center align-items-center ">
+                        <button type="button" class="btn btn-primary btn-font" data-bs-toggle="modal" data-bs-target=".transaction-detailModal">
+                            Upload Docs
+                        </button>
                         <button class="btn btn-primary mf-1 btn-font " type="submit">Save Patient</button>
                     </div>
                 </div>
@@ -194,6 +219,26 @@
     </form>
 
     </div>
+    </div>
+
+    <div class="modal fade transaction-detailModal" tabindex="-1" role="dialog" aria-labelledby="transaction-detailModalLabel"               aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="transaction-detailModalLabel">Upload Documents</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                        <div class="mt-4 mt-md-0">
+                            <input class="form-control" type="file" name="file" id="fileInput" required>
+                        </div>
+                        <ul id="fileList" class="mb-4"></ul>
+                        <div class="modal-footer">
+                        </div>
+                    {{-- </form> --}}
+                </div>
+            </div>
+        </div>
     </div>
     <!-- Static Backdrop Modal -->
     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -221,7 +266,6 @@
 @section('customJs')
 <script>
     var imageData = '';
-
 $('#staticBackdrop').on('shown.bs.modal', function () {
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
     navigator.mediaDevices.getUserMedia({ video: true })

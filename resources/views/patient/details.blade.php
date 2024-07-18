@@ -24,9 +24,11 @@
                                     <div class="col-sm-4 mt-4">
                                         <div class="avatar-xl profile-user-wid mb-4 mt-2">
                                             @if ($patient->Image)
-                                            <img src="{{ asset('public/media/photos') . '/' . $patient->Image }}"
-                                                alt="{{ $patient->name }}'"
-                                                class="img-thumbnail">
+                                            <a href="{{ asset('public/media/photos') . '/' . $patient->Image }}" data-lightbox="patient-gallery">
+                                                <img src="{{ asset('public/media/photos') . '/' . $patient->Image }}"
+                                                    alt="{{ $patient->name }}'s photo"
+                                                    class="img-thumbnail">
+                                            </a>
                                         @else
                                             <img src="{{ asset('public/media/photos') . '/' . 'nophoto.png' }}"
                                                 alt="{{ $patient->name }}'s photo"
@@ -234,14 +236,19 @@ $total_doc = DB::table('documents')
                                                             <td>{{ $loop->iteration }}</td>
                                                             <td>{{$bill->bill_no}}</td>
                                                             <td>
-                                                                @if ($patient->Image)
-                                                                <img src="{{ asset('public/media/photos') . '/' . $patient->Image }}"
+                                                                @if ($bill->bill_image)
+                                                                </a>
+                                                                <a href="{{ asset('public/media/photos') . '/' . $bill->bill_image }}" data-lightbox="patient-gallery">
+                                                                    <img src="{{ asset('public/media/photos') . '/' . $patient->Image }}"
                                                                     alt="{{ $patient->name }}'"
                                                                     class="avatar-sm photo-thumbnail cursor-pointer">
+                                                                </a>
                                                             @else
+                                                               <a href="{{ asset('public/media/photos') . '/' . 'nophoto.png' }}" data-lightbox="patient-gallery">
                                                                 <img src="{{ asset('public/media/photos') . '/' . 'nophoto.png' }}"
-                                                                    alt="{{ $patient->name }}'s photo"
-                                                                    class="avatar-sm photo-thumbnail cursor-pointer">
+                                                                alt="{{ $patient->name }}'s photo"
+                                                                class="avatar-sm photo-thumbnail cursor-pointer">
+                                                               </a>
                                                             @endif
                                                             <td>{{ $bill->created_at}}</td>
                                                             <td>{{

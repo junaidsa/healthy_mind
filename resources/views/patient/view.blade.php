@@ -43,6 +43,9 @@
         .mt-6 {
             margin-top: 3.5rem !important;
         }
+        td{
+            border-bottom: 2px solid;
+        }
     </style>
     <div class="page-content">
         <div class="container-fluid">
@@ -50,7 +53,9 @@
                 <div class="col-12">
                     <div class="page-title-box d-sm-flex justify-content-between">
                         <div class="mt-6">
-                            <a href="{{ url('/patients/create') }}" class="btn btn-primary btn-font">Add Patient</a>
+                            <a href="{{ url('/patients/create') }}" class="btn btn-primary btn-font px-3">Add Patient</a>
+                            &nbsp;&nbsp;&nbsp;
+                            <a href="{{ url('add-bill') }}" class="btn btn-success btn-font">Add Bill</a>
                         </div>
                         <div class="page-title-right">
                             <div class="m-4 mb-2">
@@ -95,42 +100,33 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($patients as $patient)
-                                <tr>
-                                        <td>{{ $patient->id }}</td>
-                                        <td>{{ $patient->file_no }}</td>
-                                        <td>
-                                            @if ($patient->Image)
-                                                <img src="{{ asset('public/media/photos') . '/' . $patient->Image }}"
-                                                    alt="{{ $patient->name }}'s photo" width="50" height="50"
-                                                    class="rounded photo-thumbnail">
-                                            @else
-                                                <img src="{{ asset('public/media/photos') . '/' . 'no-photo.png' }}"
-                                                    alt="{{ $patient->name }}'s photo" width="50" height="50"
-                                                    class="rounded photo-thumbnail">
-                                            @endif
-                                        </td>
-                                        <td>{{ $patient->first_name }}</td>
-                                        <td>{{ $patient->father_name }}</td>
-                                        <td>{{ $patient->date_of_birth }}</td>
-                                        <td>{{ $patient->alternative_no }}</td>
-                                        <td>{{ $patient->mobile_no }}</td>
-                                         <td>{{
-                                            $totalbills = DB::table('patient_bills')
-                                            ->where('patient_id', $patient->id)
-                                            ->count();
-                                            }}</td>
-                                        <td>
-                                            <a href="{{ url('patients') . '/' . $patient->id}}" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">View Details</a>
-                                            <a href="{{ url('add-bill') . '/'.$patient->id }}" class="btn btn-success btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">Add Bill</a>
-                                        </td>
-                                </tr>
-                                @endforeach
+
                             </tbody>
                         </table>
-                        {{ $patients->links('pagination::bootstrap-5') }}
+                        <div class="pagination float-end"></div>
+                        {{-- {{ $patients->links('pagination::bootstrap-5') }} --}}
                     </div>
                 </div> <!-- end col -->
+                <!-- Modal -->
+<div class="modal fade" id="modalImg" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="imageModalLabel">Image</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <img id="modalImage" src="" alt="Patient Image" class="img-fluid">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
             </div> <!-- end row -->
 
         </div> <!-- container-fluid -->
@@ -139,37 +135,63 @@
     @endsection
     @section('customJs')
     <script>
-function parseQueryString(url) {
-    var params = {};
-    var queryString = url.split('?')[1];
-    if (queryString) {
-        queryString.split('&').forEach(function (pair) {
-            pair = pair.split('=');
-            params[pair[0]] = decodeURIComponent(pair[1] || '');
+   document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+
+        // Function to fetch and update patient list
+        function fetchPatients(keywords = '') {
+            fetch(`{{ route('search.patients') }}?keywords=${keywords}`)
+                .then(response => response.json())
+                .then(data => {
+                    updatePatientTable(data.patients.data);
+                    document.querySelector('.pagination').innerHTML = data.links;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Event listener for search input
+        searchInput.addEventListener('keyup', function() {
+            const keywords = searchInput.value;
+            fetchPatients(keywords);
         });
-    }
-    return params;
-}
-var baseUrl = "{{ route('patients.index') }}";
-var currentUrl = window.location.href;
-var parsedParams = parseQueryString(currentUrl);
-var url = new URL(baseUrl);
-Object.keys(parsedParams).forEach(function(key) {
-    url.searchParams.append(key, parsedParams[key]);
-});
-    const searchInput = document.getElementById('searchInput');
-    searchInput.addEventListener('keypress', function(event) {
-      if (event.key === 'Enter') {
-        var params = url.searchParams;
-         var keywords = $("#searchInput").val();
-           params.set("keywords", keywords);
-         if (keywords) {
-} else {
-  url.search = '';
-}
-         url.search = params.toString();
-         window.location.href = url.toString();
-      }
+
+        // Function to update patient table
+        function updatePatientTable(patients) {
+            const tbody = document.querySelector('tbody');
+            tbody.innerHTML = '';
+
+            patients.forEach(patient => {
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${patient.id}</td>
+                    <td>${patient.file_no}</td>
+                    <td>
+                        <img src="${patient.Image ? '{{ asset('public/media/photos') }}/' + patient.Image : '{{ asset('public/media/photos/no-photo.png') }}'}"
+                             alt="${patient.first_name}'s photo" width="50" height="50"
+                             class="rounded photo-thumbnail" data-toggle="modal" data-target="#imageModal"
+                             onclick="showImageModal('${patient.Image ? '{{ asset('public/media/photos') }}/' + patient.Image : '{{ asset('public/media/photos/no-photo.png') }}'}')">
+                    </td>
+                    <td>${patient.first_name}</td>
+                    <td>${patient.father_name}</td>
+                    <td>${patient.date_of_birth}</td>
+                    <td>${patient.uid_number}</td>
+                    <td>${patient.mobile_no}</td>
+                    <td>${patient.total_bills}</td>
+                    <td>
+                        <a href="{{ url('patients') }}/${patient.id}" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">View Details</a>
+                        <a href="{{ url('add-bill') }}/${patient.id}" class="btn btn-success btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">Add Bill</a>
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+            });
+        }
+
+        // Fetch patients on page load
+        fetchPatients();
     });
+</script>
+
     </script>
 @endsection
