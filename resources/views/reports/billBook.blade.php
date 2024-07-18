@@ -180,9 +180,9 @@
                                                 <td class="text-center">{{ @$row->other_id }}</td>
                                                 <td class="text-center">{{ @$med_qty }}</td>
                                                 <td class="text-center">{{ @$row->total_amount }} ₹</td>
-                                                <td class="text-center"><a href="javascript:void();"
-                                                        class="btn btn-success btn-sm waves-effect waves-light mb-2 mb-md-0 me-2"
-                                                        data-id="{{ @$row->id }}">Edit</a><a
+                                                <td class="text-center">
+                                                    <a href="{{url('bill/edit').'/'.$row->id}}"  class="btn btn-success btn-sm waves-effect waves-light mb-2 mb-md-0 me-2" data-id="{{ @$row->id }}">Edit</a>
+                                                    <a
                                                         href="{{ url('detail-bill') . '/' . $row->id . '?from=billbook' }}"
                                                         class="btn btn-primary btn-sm btn-rounded me-2 waves-effect waves-light mb-2 mb-md-0"
                                                         data-id="{{ @$row->id }}">View Details</a> <a
