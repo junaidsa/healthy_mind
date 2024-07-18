@@ -138,15 +138,11 @@
                                 $check_date = isset($_GET['date']) ? date('Y-m-d', strtotime($_GET['date'].' - 1 day')) : date('Y-m-d',strtotime( $currentDate.' - 1 day'));
                                 $check_date2 = isset($_GET['date']) ? date('Y-m-d', strtotime($_GET['date'])) : date('Y-m-d',strtotime( $currentDate));
                                 $check_time1=DB::table('bill_items')->where('medicine_id', $med->id)->whereDate('created_at', $check_date2)->orderBy('id','asc')->first();
-                                if($check_time1==''){
-                                    $check_time=$check_date.' 23:59:59';
+                                
+                                    $check_time=$check_date2.' 23:59:59';
                                     $open_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<=', $check_time )->orderBy('id','desc')->sum('stock');
 
-                                }else{
-                                    $check_time=$check_time1->created_at;
-                                    $open_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<', $check_time )->orderBy('id','desc')->sum('stock');
-
-                                }
+                               
        $open_sold = DB::table('bill_items')->where('medicine_id', $med->id)->where('created_at','<=', $check_date.' 23:59:59')->orderBy('id','desc')->sum('qty');
                                     $opening_balence = $open_stock - $open_sold;
                                     $close_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<=', $check_date2.' 23:59:59')->orderBy('id','desc')->sum('stock');
@@ -180,7 +176,7 @@
                                 <div class="d-flex align-items-center">
                                     <div class="flex-grow-1">
                                         <p class="fw-medium m-0 p-0" style="font-size: 14px;">{{ $med->name }}</p>
-                                        <h2 class="mb-0">{{ $closing_balence }}</h2>
+                                        <h2 class="mb-0">{{ @$opening_balence - $closing_balence  }}</h2>
                                     </div>
 
                                     <div class="flex-shrink-0 align-self-center">

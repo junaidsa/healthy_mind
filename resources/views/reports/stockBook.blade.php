@@ -148,15 +148,11 @@
                                 $check_date = isset($_GET['date']) ? date('Y-m-d', strtotime($_GET['date'].' - 1 day')) : date('Y-m-d',strtotime( $currentDate.' - 1 day'));
                                 $check_date2 = isset($_GET['date']) ? date('Y-m-d', strtotime($_GET['date'])) : date('Y-m-d',strtotime( $currentDate));
                                     $check_time1=DB::table('bill_items')->where('medicine_id', $med->id)->whereDate('created_at', $check_date2)->orderBy('id','asc')->first();
-                                if($check_time1==''){
-                                    $check_time=$check_date.' 23:59:59';
+                             
+                                    $check_time=$check_date2.' 23:59:59';
                                     $open_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<=', $check_time )->orderBy('id','desc')->sum('stock');
 
-                                }else{
-                                    $check_time=$check_time1->created_at;
-                                    $open_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<', $check_time )->orderBy('id','desc')->sum('stock');
-
-                                }
+                              
 
 
                                     $open_sold = DB::table('bill_items')->where('medicine_id', $med->id)->where('created_at','<=', $check_date.' 23:59:59')->orderBy('id','desc')->sum('qty');
@@ -169,8 +165,8 @@
                                 <tr>
                                     <td class="fw-bold" style="width: 20%">{{ $med->name }}</td>
                                     <td style="width: 20%">Opening: <span class="fw-bold">{{ @$opening_balence }}</span></td>
-                                    <td style="width: 20%">Closing: <span class="fw-bold">{{ $closing_balence }}</span></td>
-                                    <td style="width: 40%">Left: <span class="fw-bold">{{ @$opening_balence - $closing_balence }}</span></td>
+                                    <td style="width: 20%">Closing: <span class="fw-bold">{{ @$opening_balence - $closing_balence  }}</span></td>
+                                    <td style="width: 40%">Left: <span class="fw-bold">{{ $closing_balence}}</span></td>
                                 </tr>
                                 @endforeach
                             </tbody>

@@ -254,11 +254,31 @@ class HomeController extends Controller
         foreach ($medicnes as $med) {
             $open_stock = DB::table('stock_history')->where('medicine_id', $med->id)->where('date', date('Y-m-d'))->first();
             $current_stock = DB::table('batches')->where('quantity', '>', '0')->where('medicine_id', $med->id)->sum('quantity');
+            
+            
+              $currentDate = date('Y-m-d');
+                                $check_date = isset($_GET['date']) ? date('Y-m-d', strtotime($_GET['date'].' - 1 day')) : date('Y-m-d',strtotime( $currentDate.' - 1 day'));
+                                $check_date2 = isset($_GET['date']) ? date('Y-m-d', strtotime($_GET['date'])) : date('Y-m-d',strtotime( $currentDate));
+                                    $check_time1=DB::table('bill_items')->where('medicine_id', $med->id)->whereDate('created_at', $check_date2)->orderBy('id','asc')->first();
+                             
+                                    $check_time=$check_date2.' 23:59:59';
+                                    $open_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<=', $check_time )->orderBy('id','desc')->sum('stock');
+
+                              
+
+
+                                    $open_sold = DB::table('bill_items')->where('medicine_id', $med->id)->where('created_at','<=', $check_date.' 23:59:59')->orderBy('id','desc')->sum('qty');
+                                    $opening_balence = $open_stock - $open_sold;
+                                    $close_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<=', $check_date2.' 23:59:59')->orderBy('id','desc')->sum('stock');
+                                    $close_sold = DB::table('bill_items')->where('medicine_id', $med->id)->where('created_at','<=', $check_date2.' 23:59:59')->orderBy('id','desc')->sum('qty');
+                                    $closing_balence = $close_stock - $close_sold;
+                                    
+                                    
             $html .= '<tr>
                                     <td class="fw-bold" style="width: 20%">' . $med->name . '</td>
-                                    <td style="width: 20%">Opening: <span class="fw-bold">' . $open_stock->qty . '</span></td>
-                                    <td style="width: 20%">Closing: <span class="fw-bold">' . $current_stock . '</span></td>
-                                    <td style="width: 40%">Left: <span class="fw-bold">' . $open_stock->qty - $current_stock . '</span></td>
+                                    <td style="width: 20%">Opening: <span class="fw-bold">' . @$opening_balence . '</span></td>
+                                    <td style="width: 20%">Closing: <span class="fw-bold">' .@$opening_balence - $closing_balence. '</span></td>
+                                    <td style="width: 40%">Left: <span class="fw-bold">' .  $closing_balence . '</span></td>
                                 </tr>';
         }
         $html .= '</tbody>
@@ -417,10 +437,25 @@ class HomeController extends Controller
         $medicnes = DB::table('medicines')->whereNull('deleted_at')->get();
 
         foreach ($medicnes as $med) {
-            $open_stock = DB::table('stock_history')->where('medicine_id', $med->id)->where('date', date('Y-m-d'))->first();
-            $current_stock = DB::table('batches')->where('quantity', '>', '0')->where('medicine_id', $med->id)->sum('quantity');
+             $currentDate = date('Y-m-d');
+                                $check_date = isset($_GET['date']) ? date('Y-m-d', strtotime($_GET['date'].' - 1 day')) : date('Y-m-d',strtotime( $currentDate.' - 1 day'));
+                                $check_date2 = isset($_GET['date']) ? date('Y-m-d', strtotime($_GET['date'])) : date('Y-m-d',strtotime( $currentDate));
+                                    $check_time1=DB::table('bill_items')->where('medicine_id', $med->id)->whereDate('created_at', $check_date2)->orderBy('id','asc')->first();
+                             
+                                    $check_time=$check_date2.' 23:59:59';
+                                    $open_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<=', $check_time )->orderBy('id','desc')->sum('stock');
 
-            $csvContent = '"' . $med->name . '","Opening: ","' . $open_stock->qty . '","Closing:","' . $current_stock . '","Left:","' . $open_stock->qty - $current_stock . '"' . "\n";
+                              
+
+
+                                    $open_sold = DB::table('bill_items')->where('medicine_id', $med->id)->where('created_at','<=', $check_date.' 23:59:59')->orderBy('id','desc')->sum('qty');
+                                    $opening_balence = $open_stock - $open_sold;
+                                    $close_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<=', $check_date2.' 23:59:59')->orderBy('id','desc')->sum('stock');
+                                    $close_sold = DB::table('bill_items')->where('medicine_id', $med->id)->where('created_at','<=', $check_date2.' 23:59:59')->orderBy('id','desc')->sum('qty');
+                                    $closing_balence = $close_stock - $close_sold;
+                                    
+                                    
+            $csvContent = '"' . $med->name . '","Opening: ","' . @$opening_balence . '","Closing:","' .@$opening_balence - $closing_balence   . '","Left:","' . $closing_balence . '"' . "\n";
         }
 
         // Define CSV headers

@@ -160,7 +160,7 @@ body{
                     <i class="bx bx-arrow-back font-size-16 align-middle me-2"></i>Back
               </button>
             </a>
-            <a href="javascript:window.print()" class="btn btn-success waves-effect waves-light mb-4">
+            <a onclick="window.print(); return false;" href="javascript:;" class="btn btn-success waves-effect waves-light mb-4">
                 <i class="fa fa-print"></i>
             </a>
             <label>

@@ -30,18 +30,18 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
     <link rel="shortcut icon" href="assets/images/favicon.ico">
     <meta name="csrf-token" content="{{csrf_token()}}" />
     <!-- Bootstrap Css -->
-    <link href="{{ asset('public') }}/assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('public') }}/assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('public') }}/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
-        <link href="{{ asset('public') }}/assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
+    <link href="{{asset('public') }}/assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
+    <link href="{{asset('public') }}/assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css" />
+    <link href="{{asset('public') }}/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+        <link href="{{asset('public') }}/assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="{{ asset('public') }}/assets/libs/toastr/build/toastr.min.css">
-            <script src="{{ asset('public') }}/assets/libs/toastr/build/toastr.min.js"></script>
-            <script src="{{ asset('public') }}/assets/js/pages/toastr.init.js"></script>
-    <link href="{{ asset('public') }}/assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('public') }}/assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('public') }}/assets/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="{{ asset('public') }}/assets/libs/%40chenfengyuan/datepicker/datepicker.min.css">
+        <link rel="stylesheet" type="text/css" href="{{asset('public') }}/assets/libs/toastr/build/toastr.min.css">
+            <script src="{{asset('public') }}/assets/libs/toastr/build/toastr.min.js"></script>
+            <script src="{{asset('public') }}/assets/js/pages/toastr.init.js"></script>
+    <link href="<?php echo asset('public') ?>/assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
+    <link href="<?php echo asset('public') ?>/assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
+    <link href="<?php echo asset('public') ?>/assets/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="<?php echo asset('public') ?>/assets/libs/%40chenfengyuan/datepicker/datepicker.min.css">
 </head>
 <style>
     .navbar-brand-box {
@@ -126,19 +126,19 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
                                         <div class="row g-0">
                                             <div class="col">
                                                 <a class="dropdown-icon-item" href="#">
-                                                    <img src="{{ asset('public') }}/assets/images/brands/github.png" alt="Github">
+                                                    <img src="<?php echo asset('public') ?>/assets/images/brands/github.png" alt="Github">
                                                     <span>GitHub</span>
                                                 </a>
                                             </div>
                                             <div class="col">
                                                 <a class="dropdown-icon-item" href="#">
-                                                    <img src="{{ asset('public') }}/assets/images/brands/bitbucket.png" alt="bitbucket">
+                                                    <img src="<?php echo asset('public') ?>/assets/images/brands/bitbucket.png" alt="bitbucket">
                                                     <span>Bitbucket</span>
                                                 </a>
                                             </div>
                                             <div class="col">
                                                 <a class="dropdown-icon-item" href="#">
-                                                    <img src="{{ asset('public') }}/assets/images/brands/dribbble.png" alt="dribbble">
+                                                    <img src="<?php echo asset('public') ?>/assets/images/brands/dribbble.png" alt="dribbble">
                                                     <span>Dribbble</span>
                                                 </a>
                                             </div>
@@ -147,19 +147,19 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
                                         <div class="row g-0">
                                             <div class="col">
                                                 <a class="dropdown-icon-item" href="#">
-                                                    <img src="{{ asset('public') }}/assets/images/brands/dropbox.png" alt="dropbox">
+                                                    <img src="<?php echo asset('public') ?>/assets/images/brands/dropbox.png" alt="dropbox">
                                                     <span>Dropbox</span>
                                                 </a>
                                             </div>
                                             <div class="col">
                                                 <a class="dropdown-icon-item" href="#">
-                                                    <img src="{{ asset('public') }}/assets/images/brands/mail_chimp.png" alt="mail_chimp">
+                                                    <img src="<?php echo asset('public') ?>/assets/images/brands/mail_chimp.png" alt="mail_chimp">
                                                     <span>Mail Chimp</span>
                                                 </a>
                                             </div>
                                             <div class="col">
                                                 <a class="dropdown-icon-item" href="#">
-                                                    <img src="{{ asset('public') }}/assets/images/brands/slack.png" alt="slack">
+                                                    <img src="<?php echo asset('public') ?>/assets/images/brands/slack.png" alt="slack">
                                                     <span>Slack</span>
                                                 </a>
                                             </div>
@@ -179,7 +179,7 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
                             <div class="dropdown d-inline-block">
                                 <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
                                 data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <img class="rounded-circle header-profile-user" src="{{ asset('public') }}/assets/images/users/avatar-1.jpg"
+                                    <img class="rounded-circle header-profile-user" src="<?php echo asset('public') ?>/assets/images/users/avatar-1.jpg"
                                         alt="Header Avatar">
                                     <span class="d-none d-xl-inline-block ms-1" key="t-henry">Henry</span>
                                     <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
@@ -310,7 +310,7 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
 
                 <div class="p-4">
                     <div class="mb-2">
-                        <img src="{{ asset('public') }}/assets/images/layouts/layout-1.jpg" class="img-thumbnail" alt="layout images">
+                        <img src="<?php echo asset('public') ?>/assets/images/layouts/layout-1.jpg" class="img-thumbnail" alt="layout images">
                     </div>
 
                     <div class="form-check form-switch mb-3">
@@ -319,7 +319,7 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
                     </div>
 
                     <div class="mb-2">
-                        <img src="{{ asset('public') }}/assets/images/layouts/layout-2.jpg" class="img-thumbnail" alt="layout images">
+                        <img src="<?php echo asset('public') ?>/assets/images/layouts/layout-2.jpg" class="img-thumbnail" alt="layout images">
                     </div>
                     <div class="form-check form-switch mb-3">
                         <input class="form-check-input theme-choice" type="checkbox" id="dark-mode-switch">
@@ -327,7 +327,7 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
                     </div>
 
                     <div class="mb-2">
-                        <img src="{{ asset('public') }}/assets/images/layouts/layout-3.jpg" class="img-thumbnail" alt="layout images">
+                        <img src="<?php echo asset('public') ?>/assets/images/layouts/layout-3.jpg" class="img-thumbnail" alt="layout images">
                     </div>
                     <div class="form-check form-switch mb-3">
                         <input class="form-check-input theme-choice" type="checkbox" id="rtl-mode-switch">
@@ -335,7 +335,7 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
                     </div>
 
                     <div class="mb-2">
-                        <img src="{{ asset('public') }}/assets/images/layouts/layout-4.jpg" class="img-thumbnail" alt="layout images">
+                        <img src="<?php echo asset('public') ?>/assets/images/layouts/layout-4.jpg" class="img-thumbnail" alt="layout images">
                     </div>
                     <div class="form-check form-switch mb-5">
                         <input class="form-check-input theme-choice" type="checkbox" id="dark-rtl-mode-switch">
@@ -351,29 +351,25 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
 
         <!-- Right bar overlay-->
         <div class="rightbar-overlay"></div>
-        <script src="{{ asset('public') }}/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-        <script src="{{ asset('public') }}/assets/libs/metismenu/metisMenu.min.js"></script>
-        <script src="{{ asset('public') }}/assets/libs/simplebar/simplebar.min.js"></script>
-        <script src="{{ asset('public') }}/assets/libs/node-waves/waves.min.js"></script>
-        <script src="{{ asset('public') }}/assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
-        <script src="{{ asset('public') }}/assets/libs/spectrum-colorpicker2/spectrum.min.js"></script>
-        <script src="{{ asset('public') }}/assets/libs/apexcharts/apexcharts.min.js"></script>
-        <script src="{{ asset('public') }}/assets/js/pages/dashboard-job.init.js"></script>
-                <script src="{{ asset('public') }}/assets/libs/dropzone/min/dropzone.min.js"></script>
-                <script src="{{ asset('public') }}/assets/libs/toastr/build/toastr.min.js"></script>
-                <script src="{{ asset('public') }}/assets/js/pages/toastr.init.js"></script>
-                <script src="{{ asset('public') }}/assets/js/app.js"></script>
-                <script src="{{ asset('public') }}/assets/js/app.js"></script>
+        <script src="{{asset('public')}}/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="{{asset('public')}}/assets/libs/metismenu/metisMenu.min.js"></script>
+        <script src="{{asset('public')}}/assets/libs/simplebar/simplebar.min.js"></script>
+        <script src="{{asset('public')}}/assets/libs/node-waves/waves.min.js"></script>
+        <script src="{{asset('public')}}/assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+        <script src="{{asset('public')}}/assets/libs/spectrum-colorpicker2/spectrum.min.js"></script>
+        <script src="<?php echo asset('public') ?>/assets/libs/apexcharts/apexcharts.min.js"></script>
+        <script src="<?php echo asset('public') ?>/assets/js/pages/dashboard-job.init.js"></script>
+                <script src="<?php echo asset('public') ?>/assets/libs/dropzone/min/dropzone.min.js"></script>
+                <script src="<?php echo asset('public') ?>/assets/libs/toastr/build/toastr.min.js"></script>
+                <script src="<?php echo asset('public') ?>/assets/js/pages/toastr.init.js"></script>
+                <script src="<?php echo asset('public') ?>/assets/js/app.js"></script>
+                <script src="<?php echo asset('public') ?>/assets/js/app.js"></script>
                     <!-- form repeater js -->
-                <script src="{{ asset('public') }}/assets/libs/jquery.repeater/jquery.repeater.min.js"></script>
-                 <script src="{{ asset('public') }}/assets/js/pages/form-repeater.int.js"></script>
+                <script src="<?php echo asset('public') ?>/assets/libs/jquery.repeater/jquery.repeater.min.js"></script>
+                 <script src="<?php echo asset('public') ?>/assets/js/pages/form-repeater.int.js"></script>
          <!-- Sweet Alerts js -->
-         <script src="{{ asset('public') }}/assets/libs/chart.js/Chart.bundle.min.js"></script>
-         <script src="{{ asset('public') }}/assets/js/pages/chartjs.init.js"></script>
-         <!-- Sweet Alerts js -->
-
-        <script src="{{ asset('public') }}/assets/libs/sweetalert2/sweetalert2.min.js"></script>
-        <script src="{{ asset('public') }}/assets/js/pages/sweet-alerts.init.js"></script>
+        <script src="<?php echo asset('public') ?>/assets/libs/sweetalert2/sweetalert2.min.js"></script>
+        <script src="<?php echo asset('public') ?>/assets/js/pages/sweet-alerts.init.js"></script>
         <script>
             $.ajaxSetup({
             headers: {
