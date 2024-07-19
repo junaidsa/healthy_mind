@@ -30,8 +30,10 @@ class PatientController extends Controller
         $patients = Patient::select('patients.*', DB::raw('COUNT(patient_bills.id) as total_bills'))
         ->leftJoin('patient_bills', 'patients.id', '=', 'patient_bills.patient_id')
         ->where('first_name', 'like', "%$keywords%")
-            ->orWhere('father_name', 'like', "%$keywords%")
-            ->orWhere('uid_number', 'like', "%$keywords%")
+        ->orWhere('father_name', 'like', "%$keywords%")
+        ->orWhere('uid_number', 'like', "%$keywords%")
+        ->orWhere('file_no', 'like', "%$keywords%")
+        ->orWhere('mobile_no', 'like', "%$keywords%")
                 ->groupBy('patients.id')
                 ->orderBy('patients.id', 'desc')
             ->paginate(10);

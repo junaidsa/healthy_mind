@@ -559,19 +559,13 @@ $('#captureBtn').on('click', function(e) {
                         const print_id = response.id
                         const printStatus = response.print === "true"; // Convert string "true" or "false" to boolean
                         // console.log( typeof print_id);
-                        Swal.fire({
-                            title: "Good job!",
-                            text: "Bill created successfully.",
-                            icon: "success"
-                        }).then((result) => {
-                            if (result.isConfirmed  && printStatus) {
+                        if (printStatus) {
                                 // if (print_id) {
                                     window.location.href = "{{ url('print') }}" + '/'+ print_id;
 
                                 }else{
                                 window.location.href = "{{ url('patients') }}";
-                            }
-                        });
+                                }
                     } else {
                         var errors = response.message;
                         alert(errors);

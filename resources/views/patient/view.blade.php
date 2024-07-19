@@ -108,33 +108,34 @@
                     </div>
                 </div> <!-- end col -->
                 <!-- Modal -->
-<div class="modal fade" id="modalImg" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="imageModalLabel">Image</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <img id="modalImage" src="" alt="Patient Image" class="img-fluid">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
+
 
             </div> <!-- end row -->
 
         </div> <!-- container-fluid -->
     </div>
     <!-- end main content-->
+
+    <div class="modal fade" id="modalImg" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="imageModalLabel">Image</h5>
+            </div>
+            <div class="modal-body">
+              <img id="modalImage" src="" alt="Patient Image" class="img-fluid">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary close-model" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
     @endsection
     @section('customJs')
     <script>
+
+
    document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('searchInput');
 
@@ -155,6 +156,15 @@
             fetchPatients(keywords);
         });
 
+        $(document).on('click','.photoClick',function(){
+            var data=$(this).attr('data');
+            $('#modalImage').attr('src',data);
+            $('#modalImg').modal('show')
+        })
+        $(document).on('click','.close-model',function(){
+            $('#modalImg').modal('hide')
+        })
+
         // Function to update patient table
         function updatePatientTable(patients) {
             const tbody = document.querySelector('tbody');
@@ -169,8 +179,8 @@
                     <td>
                         <img src="${patient.Image ? '{{ asset('public/media/photos') }}/' + patient.Image : '{{ asset('public/media/photos/no-photo.png') }}'}"
                              alt="${patient.first_name}'s photo" width="50" height="50"
-                             class="rounded photo-thumbnail" data-toggle="modal" data-target="#imageModal"
-                             onclick="showImageModal('${patient.Image ? '{{ asset('public/media/photos') }}/' + patient.Image : '{{ asset('public/media/photos/no-photo.png') }}'}')">
+                             class="rounded photo-thumbnail photoClick"
+                             data="${patient.Image ? '{{ asset('public/media/photos') }}/' + patient.Image : '{{ asset('public/media/photos/no-photo.png') }}'}">
                     </td>
                     <td>${patient.first_name}</td>
                     <td>${patient.father_name}</td>
