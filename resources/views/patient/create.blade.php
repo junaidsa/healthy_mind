@@ -64,7 +64,7 @@
                         {{-- <form id="uploadForm" action="{{ route('doc.upload') }}" method="Post" enctype="multipart/form-data">
                             @csrf --}}
                             <div class="mt-4 mt-md-0">
-                         <input class="form-control" type="file" name="files[]" multiple id="fileInput" required>
+                         <input class="form-control" type="file" name="files[]" multiple id="fileInput">
                             </div>
                             <ul id="fileList" class="mb-4"></ul>
                             <div class="modal-footer">
@@ -133,7 +133,7 @@
                         data-date-autoclose="true"
                         data-provide="datepicker"
                         data-date-container="#datepicker6">
-                       <input type="text" class="form-control  @error('date_of_birth') is-invalid @enderror" name="data_of_birth" autocomplete="off" />
+                       <input type="text" class="form-control  @error('date_of_birth') is-invalid @enderror" name="data_of_birth" id="data_of_birth" autocomplete="off" />
                                 @error('data_of_birth')
                                 <div class=" invalid-feedback">{{ $message }}</div>
                                      @enderror
@@ -220,26 +220,6 @@
 
     </div>
     </div>
-
-    <div class="modal fade transaction-detailModal" tabindex="-1" role="dialog" aria-labelledby="transaction-detailModalLabel"               aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="transaction-detailModalLabel">Upload Documents</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                        <div class="mt-4 mt-md-0">
-                            <input class="form-control" type="file" name="file" id="fileInput" required>
-                        </div>
-                        <ul id="fileList" class="mb-4"></ul>
-                        <div class="modal-footer">
-                        </div>
-                    {{-- </form> --}}
-                </div>
-            </div>
-        </div>
-    </div>
     <!-- Static Backdrop Modal -->
     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -325,6 +305,7 @@ $('#captureBtn').on('click', function(e) {
             var uid_number = $("#uid_number").val().trim();
             var mobile_no = $("#mobile_no").val().trim();
             var address = $("#address").val().trim();
+            var data_of_birth = $("#data_of_birth").val()
             var gender = document.getElementById("gender").value.trim();
             var photo = $("#photo").prop('files')[0];
             var isValid = true;
@@ -336,16 +317,16 @@ $('#captureBtn').on('click', function(e) {
                 $("#registration_date").addClass('is-invalid').siblings('.invalid-feedback').html('Registration Date & Time is required.');
                 isValid = false;
             }
+            if (data_of_birth === '') {
+                $("#data_of_birth").addClass('is-invalid').siblings('.invalid-feedback').html('Date of Birth is required.');
+                isValid = false;
+            }
 
             if (first_name === '') {
                 $("#first_name").addClass('is-invalid').siblings('.invalid-feedback').html('First Name is required.');
                 isValid = false;
             }
 
-            if (uid_number === '') {
-                $("#uid_number").addClass('is-invalid').siblings('.invalid-feedback').html('UID No. is required.');
-                isValid = false;
-            }
             if (uid_number === '') {
                 $("#uid_number").addClass('is-invalid').siblings('.invalid-feedback').html('UID No. is required.');
                 isValid = false;
@@ -362,21 +343,6 @@ $('#captureBtn').on('click', function(e) {
             if (address === '') {
                 $("#address").addClass('is-invalid').siblings('.invalid-feedback').html('Address is required.');
                 isValid = false;
-            }
-            if (photo) {
-                var fileSize = photo.size;
-                var fileType = photo.type;
-                var validExtensions = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/svg'];
-
-                if ($.inArray(fileType, validExtensions) == -1) {
-                    $("#photo").addClass('is-invalid').siblings('.invalid-feedback').html('Invalid file type. Please upload an image file.');
-                    isValid = false;
-                }
-
-                if (fileSize > 2048000) { // Max size in bytes (2MB)
-                    $("#photo").addClass('is-invalid').siblings('.invalid-feedback').html('File size exceeds the limit of 2MB.');
-                    isValid = false;
-                }
             }
             if (!isValid) {
                 event.preventDefault();
