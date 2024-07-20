@@ -20,7 +20,7 @@ class MedicineController extends Controller
     {
         $keywords = request('keywords');
         $medicines = Medicine::where('name', 'like', "%$keywords%")
-        ->paginate(10);
+        ->paginate(30);
         return view('medicine.view',compact('medicines'));
     }
     /**

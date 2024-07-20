@@ -7,6 +7,7 @@ use PDF;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+// use Barryvdh\DomPDF\PDF;
 
 class HomeController extends Controller
 {
@@ -14,19 +15,42 @@ class HomeController extends Controller
     {
         return view('dashboad');
     }
-    public function dispense_view()
+    public function dispense_view(Request $request)
     {
-        $search = @$_GET['search'];
+        // $search = @$_GET['search'];
 
-        $date = @$_GET['date'];
-        if (isset($date)) {
-            $cond = date('Y-m-d', strtotime($date));
-        } else {
-            $cond = date('Y-m-d');
-        }
+        // $date = @$_GET['date'];
+        // if (isset($date)) {
+        //     $cond = date('Y-m-d', strtotime($date));
+        // } else {
+        //     $cond = date('Y-m-d');
+        // }
+
+        // $data = DB::table('patient_bills as pb')
+        //     ->select('pb.*', 'p.file_no', 'p.first_name', 'p.father_name', 'p.other_id')
+        //     ->join('patients as p', function ($join) {
+        //         $join->on('p.id', 'pb.patient_id');
+        //     })
+        //     ->where(function ($q) use ($search) {
+        //         if (!empty($search)) {
+        //             $q->where('pb.bill_no', 'like', '%' . $search . '%')
+        //                 ->orWhere('p.first_name', 'like', '%' . $search . '%')
+        //                 ->orWhere('p.father_name', 'like', '%' . $search . '%')
+        //                 ->orWhere('p.other_id', 'like', '%' . $search . '%')
+        //                 ->orWhere('p.file_no', 'like', '%' . $search . '%');
+        //         }
+        //     })
+        //     ->where('pb.updated_at', 'LIKE', '%' . $cond . '%')
+        //     ->orderBy('pb.id', 'desc')
+        //     ->get();
+
+
+        $search = $request->get('search', '');
+        $date = $request->get('date');
+        $cond = isset($date) ? date('Y-m-d', strtotime($date)) : date('Y-m-d');
 
         $data = DB::table('patient_bills as pb')
-            ->select('pb.*', 'p.file_no', 'p.first_name', 'p.father_name', 'p.other_id')
+            ->select('pb.*', 'p.file_no', 'p.first_name', 'p.father_name', 'p.uid_number')
             ->join('patients as p', function ($join) {
                 $join->on('p.id', 'pb.patient_id');
             })
@@ -42,50 +66,139 @@ class HomeController extends Controller
             ->where('pb.updated_at', 'LIKE', '%' . $cond . '%')
             ->orderBy('pb.id', 'desc')
             ->get();
+            if($request->ajax()){
+                $last_batches = [];
+                 $result = [];
+                 foreach($data as $row){
+
+                     $bill_items = DB::table('bill_items')
+                     ->where('bill_id', $row->id)
+                     ->orderBy('medicine_id')
+                     ->orderBy('batch_no')
+                     ->get();
+                     $batch_notifications = [];
+                     foreach ($bill_items as $item) {
+                         if (isset($last_batches[$item->medicine_id]) && $last_batches[$item->medicine_id] != $item->batch_no){
+                            $med_name = DB::table('medicines')
+                                ->where('id', $item->medicine_id)
+                                ->first();
+                                $batch_notifications[] = [
+                                    'medicine_name' => $med_name->name,
+                                    'batch_no' => $item->batch_no,
+                                ];
+                            }
+                            $last_batches[$item->medicine_id] = $item->batch_no;
+                     }
+                     $med_qty = $bill_items->sum('qty');
+                     $result[] = [
+                        'bill_id' => $row->id,
+                        'bill_no' => $row->bill_no,
+                        'file_no' => $row->file_no,
+                        'first_name' => $row->first_name,
+                        'father_name' => $row->father_name,
+                        'other_id' => $row->uid_number,
+                        'med_qty' => $med_qty,
+                        'batch_notifications' => $batch_notifications
+                    ];
+                 }
+                return response()->json($result);
+            }
         return view('reports.dispense', compact('data'));
     }
+    // public function fatchDispense(Request $request){
+
+
+
+
+    // }
     public function billbook_view(Request $request)
     {
-        $start_date = '';
-        $end_date = '';
-        $search = @$_GET['search'];
+    //     $start_date = '';
+    //     $end_date = '';
+    //     $search = @$_GET['search'];
 
-        $date = @$_GET['date'];
-        if (isset($date)) {
-            $date_part = explode(' to ', $date);
+    //     $date = @$_GET['date'];
+    //     if (isset($date)) {
+    //         $date_part = explode(' to ', $date);
 
-            $start_date = date('Y-m-d', strtotime($date_part[0]));
-            $end_date = isset($date_part[1]) ? date('Y-m-d', strtotime($date_part[1])) : '';
-            if(empty($end_date)){
-                $end_date =  $start_date;
+    //         $start_date = date('Y-m-d', strtotime($date_part[0]));
+    //         $end_date = isset($date_part[1]) ? date('Y-m-d', strtotime($date_part[1])) : '';
+    //         if(empty($end_date)){
+    //             $end_date =  $start_date;
+    //         }
+    //     }
+
+    //     $data = DB::table('patient_bills as pb')
+    //         ->select('pb.*', 'p.file_no', 'p.first_name', 'p.father_name', 'p.other_id', 'p.Image', 'p.date_of_birth')
+    //         ->join('patients as p', function ($join) {
+    //             $join->on('p.id', 'pb.patient_id');
+    //         })
+    //         ->where(function ($q) use ($search) {
+    //             if (!empty($search)) {
+    //                 $q->where('pb.bill_no', 'like', '%' . $search . '%')
+    //                     ->orWhere('p.first_name', 'like', '%' . $search . '%')
+    //                     ->orWhere('p.father_name', 'like', '%' . $search . '%')
+    //                     ->orWhere('p.other_id', 'like', '%' . $search . '%')
+    //                     ->orWhere('p.date_of_birth', 'like', '%' . $search . '%')
+    //                     ->orWhere('pb.total_amount', 'like', '%' . $search . '%')
+    //                     ->orWhere('p.file_no', 'like', '%' . $search . '%');
+    //             }
+    //         })
+    //         ->where(function ($q) use ($date, $start_date, $end_date) {
+    //             if (!empty($date)) {
+    //                 $q->where('pb.updated_at', '>=', $start_date . ' 00:00:00')
+    //                     ->where('pb.updated_at', '<=', $end_date . ' 23:59:59');
+    //             }
+    //         })
+    //         ->orderBy('pb.id', 'desc')
+    //         ->get();
+
+    //     return view('reports.billbook', compact('data'));    $start_date = '';
+    $start_date = '';
+    $end_date = '';
+    $search = $request->input('search', '');
+    $date = $request->input('date', '');
+
+    if (!empty($date)) {
+        $date_part = explode(' to ', $date);
+        $start_date = date('Y-m-d', strtotime($date_part[0]));
+        $end_date = isset($date_part[1]) ? date('Y-m-d', strtotime($date_part[1])) : $start_date;
+    }
+
+    $query = DB::table('patient_bills as pb')
+    ->select('pb.*', 'p.file_no', 'p.first_name', 'p.father_name', 'p.other_id', 'p.Image', 'p.date_of_birth',
+    DB::raw('(SELECT SUM(bi.qty) FROM bill_items as bi WHERE bi.bill_id = pb.id) as med_qty'))
+        ->join('patients as p', 'p.id', '=', 'pb.patient_id')
+        ->where(function ($q) use ($search) {
+            if (!empty($search)) {
+                $q->where('pb.bill_no', 'like', '%' . $search . '%')
+                  ->orWhere('p.first_name', 'like', '%' . $search . '%')
+                  ->orWhere('p.father_name', 'like', '%' . $search . '%')
+                  ->orWhere('p.other_id', 'like', '%' . $search . '%')
+                  ->orWhere('p.date_of_birth', 'like', '%' . $search . '%')
+                  ->orWhere('pb.total_amount', 'like', '%' . $search . '%')
+                  ->orWhere('p.file_no', 'like', '%' . $search . '%');
             }
-        }
+        })
+        ->where(function ($q) use ($start_date, $end_date) {
+            if (!empty($start_date)) {
+                $q->where('pb.updated_at', '>=', $start_date . ' 00:00:00')
+                  ->where('pb.updated_at', '<=', $end_date . ' 23:59:59');
+            }
+        })
+        ->orderBy('pb.id', 'desc');
 
-        $data = DB::table('patient_bills as pb')
-            ->select('pb.*', 'p.file_no', 'p.first_name', 'p.father_name', 'p.other_id', 'p.Image', 'p.date_of_birth')
-            ->join('patients as p', function ($join) {
-                $join->on('p.id', 'pb.patient_id');
-            })
-            ->where(function ($q) use ($search) {
-                if (!empty($search)) {
-                    $q->where('pb.bill_no', 'like', '%' . $search . '%')
-                        ->orWhere('p.first_name', 'like', '%' . $search . '%')
-                        ->orWhere('p.father_name', 'like', '%' . $search . '%')
-                        ->orWhere('p.other_id', 'like', '%' . $search . '%')
-                        ->orWhere('p.date_of_birth', 'like', '%' . $search . '%')
-                        ->orWhere('pb.total_amount', 'like', '%' . $search . '%')
-                        ->orWhere('p.file_no', 'like', '%' . $search . '%');
-                }
-            })
-            ->where(function ($q) use ($date, $start_date, $end_date) {
-                if (!empty($date)) {
-                    $q->where('pb.updated_at', '>=', $start_date . ' 00:00:00')
-                        ->where('pb.updated_at', '<=', $end_date . ' 23:59:59');
-                }
-            })
-            ->orderBy('pb.id', 'desc')
-            ->get();
-        return view('reports.billbook', compact('data'));
+    if ($request->ajax()) {
+        $data = $query->get();
+        return response()->json($data);
+    }
+
+    $data = $query->get();
+    return view('reports.billbook', compact('data'));
+
+
+
+
     }
     public function stockBook_view()
     {
@@ -254,17 +367,17 @@ class HomeController extends Controller
         foreach ($medicnes as $med) {
             $open_stock = DB::table('stock_history')->where('medicine_id', $med->id)->where('date', date('Y-m-d'))->first();
             $current_stock = DB::table('batches')->where('quantity', '>', '0')->where('medicine_id', $med->id)->sum('quantity');
-            
-            
+
+
               $currentDate = date('Y-m-d');
                                 $check_date = isset($_GET['date']) ? date('Y-m-d', strtotime($_GET['date'].' - 1 day')) : date('Y-m-d',strtotime( $currentDate.' - 1 day'));
                                 $check_date2 = isset($_GET['date']) ? date('Y-m-d', strtotime($_GET['date'])) : date('Y-m-d',strtotime( $currentDate));
                                     $check_time1=DB::table('bill_items')->where('medicine_id', $med->id)->whereDate('created_at', $check_date2)->orderBy('id','asc')->first();
-                             
+
                                     $check_time=$check_date2.' 23:59:59';
                                     $open_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<=', $check_time )->orderBy('id','desc')->sum('stock');
 
-                              
+
 
 
                                     $open_sold = DB::table('bill_items')->where('medicine_id', $med->id)->where('created_at','<=', $check_date.' 23:59:59')->orderBy('id','desc')->sum('qty');
@@ -272,8 +385,8 @@ class HomeController extends Controller
                                     $close_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<=', $check_date2.' 23:59:59')->orderBy('id','desc')->sum('stock');
                                     $close_sold = DB::table('bill_items')->where('medicine_id', $med->id)->where('created_at','<=', $check_date2.' 23:59:59')->orderBy('id','desc')->sum('qty');
                                     $closing_balence = $close_stock - $close_sold;
-                                    
-                                    
+
+
             $html .= '<tr>
                                     <td class="fw-bold" style="width: 20%">' . $med->name . '</td>
                                     <td style="width: 20%">Opening: <span class="fw-bold">' . @$opening_balence . '</span></td>
@@ -417,7 +530,7 @@ class HomeController extends Controller
         echo $csvContent;
         exit;
     }
-    public function stockbook_excel()
+    public function stockbook_excel(Request $request)
     {
         $date = request()->get('date');
         $cond = $date ? date('Y-m-d', strtotime($date)) : date('Y-m-d');
@@ -441,11 +554,11 @@ class HomeController extends Controller
                                 $check_date = isset($_GET['date']) ? date('Y-m-d', strtotime($_GET['date'].' - 1 day')) : date('Y-m-d',strtotime( $currentDate.' - 1 day'));
                                 $check_date2 = isset($_GET['date']) ? date('Y-m-d', strtotime($_GET['date'])) : date('Y-m-d',strtotime( $currentDate));
                                     $check_time1=DB::table('bill_items')->where('medicine_id', $med->id)->whereDate('created_at', $check_date2)->orderBy('id','asc')->first();
-                             
+
                                     $check_time=$check_date2.' 23:59:59';
                                     $open_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<=', $check_time )->orderBy('id','desc')->sum('stock');
 
-                              
+
 
 
                                     $open_sold = DB::table('bill_items')->where('medicine_id', $med->id)->where('created_at','<=', $check_date.' 23:59:59')->orderBy('id','desc')->sum('qty');
@@ -453,8 +566,8 @@ class HomeController extends Controller
                                     $close_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<=', $check_date2.' 23:59:59')->orderBy('id','desc')->sum('stock');
                                     $close_sold = DB::table('bill_items')->where('medicine_id', $med->id)->where('created_at','<=', $check_date2.' 23:59:59')->orderBy('id','desc')->sum('qty');
                                     $closing_balence = $close_stock - $close_sold;
-                                    
-                                    
+
+
             $csvContent = '"' . $med->name . '","Opening: ","' . @$opening_balence . '","Closing:","' .@$opening_balence - $closing_balence   . '","Left:","' . $closing_balence . '"' . "\n";
         }
 
@@ -526,20 +639,30 @@ class HomeController extends Controller
     }
 
 
-    public function billbook_pdf()
+    public function billbook_pdf(Request $request)
     {
         $start_date = '';
         $end_date = '';
-        $search = @$_GET['search'];
+        $search = $request->input('search_data');
 
-        $date = @$_GET['date'];
+        $date = $request->input('date_data');
         if (isset($date)) {
             $date_part = explode(' to ', $date);
-            // dd($date_part);
 
-            $start_date = date('Y-m-d', strtotime($date_part[0]));
-            $end_date = date('Y-m-d', strtotime($date_part[1]));
+            // Check if $date_part has at least one part
+            if (count($date_part) >= 1) {
+                $start_date = date('Y-m-d', strtotime($date_part[0]));
+                $end_date = isset($date_part[1]) ? date('Y-m-d', strtotime($date_part[1])) : date('Y-m-d');
+            } else {
+                // Handle the error if date range is not correctly formatted
+                return response()->json(['error' => 'Invalid date range format. Please use "YYYY-MM-DD to YYYY-MM-DD".'], 400);
+            }
+        } else {
+            // If no date is provided, set both start_date and end_date to the current date
+            $start_date = date('Y-m-d');
+            $end_date = date('Y-m-d');
         }
+
 
         $data = DB::table('patient_bills as pb')
             ->select('pb.*', 'p.file_no', 'p.first_name', 'p.father_name', 'p.other_id', 'p.Image', 'p.date_of_birth')
@@ -631,19 +754,40 @@ class HomeController extends Controller
         return $pdf->stream('Billbook.pdf');
     }
 
-    public function billbook_excel()
+    public function billbook_excel(Request $request)
     {
+        // $start_date = '';
+        // $end_date = '';
+        // $search = @$_GET['search'];
+
+        // $date = @$_GET['date'];
+        // if (isset($date)) {
+        //     $date_part = explode(' to ', $date);
+        //     // dd($date_part);
+
+        //     $start_date = date('Y-m-d', strtotime($date_part[0]));
+        //     $end_date = date('Y-m-d', strtotime($date_part[1]));
+        // }
         $start_date = '';
         $end_date = '';
-        $search = @$_GET['search'];
+        $search = $request->input('search_data');
 
-        $date = @$_GET['date'];
+        $date = $request->input('date_data');
         if (isset($date)) {
             $date_part = explode(' to ', $date);
-            // dd($date_part);
 
-            $start_date = date('Y-m-d', strtotime($date_part[0]));
-            $end_date = date('Y-m-d', strtotime($date_part[1]));
+            // Check if $date_part has at least one part
+            if (count($date_part) >= 1) {
+                $start_date = date('Y-m-d', strtotime($date_part[0]));
+                $end_date = isset($date_part[1]) ? date('Y-m-d', strtotime($date_part[1])) : date('Y-m-d');
+            } else {
+                // Handle the error if date range is not correctly formatted
+                return response()->json(['error' => 'Invalid date range format. Please use "YYYY-MM-DD to YYYY-MM-DD".'], 400);
+            }
+        } else {
+            // If no date is provided, set both start_date and end_date to the current date
+            $start_date = date('Y-m-d');
+            $end_date = date('Y-m-d');
         }
 
         $data = DB::table('patient_bills as pb')

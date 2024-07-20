@@ -74,7 +74,7 @@
                         <form id="range-form" action="{{ url()->current() }}">
                             <input type="hidden" name="search" value="{{ @$_GET['search'] }}">
                             <input type="text" class="form-control form-control-sm" id="date_range" name="date"
-                                value="{{ @$_GET['date'] }}" style="width: 200px">
+                                value="{{ date('d M Y') }}" style="width: 200px">
                         </form>
                         <div class="d-flex align-items-center fw-bold">
                             PRINT BILL <input type="text" class="form-control form-control-sm ms-2 me-2"
@@ -91,12 +91,11 @@
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex">
-                            <a href="{{ url('billbook/pdf') }}{{ request()->has('date') ? '?date=' . request()->get('date') : '' }}{{ request()->has('search') ? (request()->has('date') ? '&' : '?') . 'search=' . request()->get('search') : '' }}"
+                            <a href="javascript: void(0);" id="pdfView"
                                 class="btn btn-success me-3">
                                 PDF
                             </a>
-                            <a href="{{ url('billbook/excel') }}@if (request()->has('date')) ?date={{ request()->get('date') }} @endif
-                        @if (request()->has('search')) {{ request()->has('date') ? '&' : '?' }}search={{ request()->get('search') }} @endif"
+                            <a href="javascript: void(0);" id="exlView"
                                 class="btn btn-success">
                                 Excel
                             </a>
@@ -141,8 +140,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                    <tbody>
-                                        @php
+                                        {{-- @php
                                             $last_batches = [];
                                         @endphp
                                         @foreach ($data as $row)
@@ -188,7 +186,7 @@
                                                         onclick="return confirm('Are you sure?')"><i
                                                             class="fas fa-times text-danger"></i></a></td>
                                             </tr>
-                                        @endforeach
+                                        @endforeach --}}
 
                                     </tbody>
 
@@ -199,14 +197,37 @@
                     </div> <!-- end row -->
                 </div>
             </div>
-
+            <div class="modal fade" id="modalImg" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="imageModalLabel">Image</h5>
+                    </div>
+                    <div class="modal-body">
+                      <img id="modalImage" src="" alt="Patient Image" class="img-fluid">
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary close-model" data-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
         </div> <!-- container-fluid -->
     </div>
+</div>
     <!-- end main content-->
     <form id="print_form" action="{{ url('print_') }}">
         <input type="hidden" id="start_field" name="start_field">
         <input type="hidden" id="end_field" name="end_field">
         <input type="hidden" id="duplicate" name="duplicate">
+    </form>
+    <form id="pdf_view" action="{{ url('billbook/pdf') }}">
+        <input type="hidden" name="search_data" class="search_data"  >
+        <input type="hidden" name="date_data"  class="date_data" >
+    </form>
+    <form id="exl_view" action="{{ url('billbook/excel') }}">
+        <input type="hidden" name="search_data" class="search_data"  >
+        <input type="hidden" name="date_data"  class="date_data" >
     </form>
     <form id="pdf_form" action="{{ url('print_PDF') }}">
         <input type="hidden" id="start_field_" name="start_field">
@@ -217,57 +238,83 @@
 @section('customJs')
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
-        flatpickr("#date_range", {
-            mode: "range",
-            onClose: function(selectedDates, dateStr, instance) {
-                // Format the date range as "DD/MM/YYYY - DD/MM/YYYY"
-                // if (selectedDates.length > 1) {
-                //     const startDate = selectedDates[0];
-                //     const endDate = selectedDates[1];
-                //     const formattedStartDate = instance.formatDate(startDate, "d/m/Y");
-                //     const formattedEndDate = instance.formatDate(endDate, "d/m/Y");
-                //     instance.input.value = `${formattedStartDate} - ${formattedEndDate}`;
-                // }
-                if (selectedDates.length === 2) {
-                    $('#range-form').submit();
-                }
+
+
+$(document).ready(function() {
+    function fetchBills(search = '', date = '') {
+        $.ajax({
+            url: '{{ url('/billbook') }}',
+            type: 'GET',
+            data: { search: search, date: date },
+            success: function(data) {
+                $('.search_data').val(search);
+                $('.date_data').val(date);
+                let rows = '';
+                $.each(data, function(index, row) {
+                    rows += `<tr>
+                        <td class="text-center"><input type="checkbox" id="selected_export" data-id="${row.id}"></td>
+                        <td class="text-center">${row.bill_no}</td>
+                        <td class="text-center">${row.file_no}</td>
+                        <td class="text-center">
+                            ${row.bill_image ? `<img src="{{ asset('public/media/photos/${row.bill_image}') }}" alt="" width="40" height="40" class="d-block rounded photoClick" data="{{ asset('public/media/photos/${row.bill_image}') }}">` : `<div style="width: 40px; height: 40px; background-color: grey;" class="d-block rounded"></div>`}
+                        </td>
+                        <td class="text-center">${row.first_name}</td>
+                        <td class="text-center">${row.father_name}</td>
+                        <td class="text-center">${row.date_of_birth}</td>
+                        <td class="text-center">${row.other_id}</td>
+                        <td class="text-center">${row.med_qty}</td>
+                        <td class="text-center">${row.total_amount} ₹</td>
+                        <td class="text-center">
+                            <a href="{{ url('bill/edit') }}/${row.id}" class="btn btn-success btn-sm waves-effect waves-light mb-2 mb-md-0 me-2" data-id="${row.id}">Edit</a>
+                            <a href="{{ url('detail-bill') }}/${row.id}?from=billbook" class="btn btn-primary btn-sm btn-rounded me-2 waves-effect waves-light mb-2 mb-md-0" data-id="${row.id}">View Details</a>
+                            <a href="{{ url('delete-bill') }}/${row.id}" onclick="return confirm('Are you sure?')"><i class="fas fa-times text-danger"></i></a>
+                        </td>
+                    </tr>`;
+                });
+                $('table tbody').html(rows);
             }
         });
+    }
+    $(document).on('click','.photoClick',function(){
+            var data=$(this).attr('data');
+            $('#modalImage').attr('src',data);
+            $('#modalImg').modal('show')
+        })
+        $(document).on('click','.close-model',function(){
+            $('#modalImg').modal('hide')
+        })
 
-        // $('.btn-print').on('click', function() {
-        //     $(".is-invalid").removeClass('is-invalid');
-        //     $(".invalid-feedback").html('');
-        //     var isValid = true;
-        //     var start_bill = $('#start_bill').val();
-        //     var end_bill = $('#end_bill').val();
-        //     if (start_bill === '') {
-        //         $("#start_bill").addClass('is-invalid').siblings('.invalid-feedback').html(
-        //             'This field is required.');
-        //         isValid = false;
-        //     }
-        //     if (end_bill === '') {
-        //         $("#end_bill").addClass('is-invalid').siblings('.invalid-feedback').html('This field is required.');
-        //         isValid = false;
-        //     }
-        //     var selectedIds = [];
-        //     $('input[type=checkbox]:checked').each(function() {
-        //         var id = $(this).data('id'); // Assuming the checkboxes have a data-id attribute
-        //         if (id) {
-        //             selectedIds.push(id);
-        //         }
-        //     });
+    $('#search').on('keyup', function() {
+        fetchBills($(this).val(),
+         $('#date_range').val());
+    });
 
-        //     // Create hidden input fields for each selected ID
-        //     selectedIds.forEach(function(id) {
-        //         $('#print_form').append('<input type="hidden" name="selected_ids[]" value="' + id + '">');
-        //     });
-        //     if (isValid) {
-        //         $('#start_field').val(start_bill);
-        //         $('#end_field').val(end_bill);
-        //         $('#print_form').submit();
-        //     }
-        // })
+    $('#date_range').on('change', function() {
+        fetchBills($('#search').val(), $(this).val());
+    });
+    fetchBills();
+    $('#pdfView').click(function(){
+        $('#pdf_view')[0].submit();
+    })
+    $('#exlView').click(function(){
+        $('#exl_view')[0].submit();
+    })
+})
+const today = new Date();
+const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
 
+        flatpickr("#date_range", {
+                mode: "range",
+                dateFormat: "Y-m-d",
+                defaultDate: [today, endOfDay], // Set default dates to today
+                onClose: function(selectedDates, dateStr, instance) {
+                    if (selectedDates.length === 2) {
+                        const endDate = new Date();
+                        selectedDates[1] = endDate;
+                        instance.setDate(selectedDates, false);
+                    }
+                }
+            });
         $('.btn-print').on('click', function() {
             $(".is-invalid").removeClass('is-invalid');
             $(".invalid-feedback").html('');
@@ -277,7 +324,7 @@
 
             var selectedIds = [];
             $('input[type=checkbox]:checked').each(function() {
-                var id = $(this).data('id'); // Assuming the checkboxes have a data-id attribute
+                var id = $(this).data('id');
                 if (id) {
                     selectedIds.push(id);
                 }
@@ -364,46 +411,9 @@
             format: 'dd M yyyy',
             autoclose: true
         }).on('changeDate', function(e) {
-            // Get the selected date
-            var selectedDate = $('#datepicker6').datepicker('getFormattedDate');
-            // Update the displayed date
-            $('#datepicker6').text(selectedDate);
-            // Reload the current URL with the selected date as a query parameter
-            var currentUrl = window.location.href.split('?')[0]; // Remove existing query parameters
-            var newUrl = currentUrl + '?date=' + encodeURIComponent(selectedDate);
-            window.location.href = newUrl;
         });
 
-        function parseQueryString(url) {
-            var params = {};
-            var queryString = url.split('?')[1];
-            if (queryString) {
-                queryString.split('&').forEach(function(pair) {
-                    pair = pair.split('=');
-                    params[pair[0]] = decodeURIComponent(pair[1] || '');
-                });
-            }
-            return params;
-        }
-        var baseUrl = "{{ route('patients.index') }}";
-        var currentUrl = window.location.href;
-        var parsedParams = parseQueryString(currentUrl);
-        var url = new URL(baseUrl);
-        Object.keys(parsedParams).forEach(function(key) {
-            url.searchParams.append(key, parsedParams[key]);
-        });
-        const searchInput = document.getElementById('searchInput');
-        searchInput.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                var params = url.searchParams;
-                var keywords = $("#searchInput").val();
-                params.set("keywords", keywords);
-                if (keywords) {} else {
-                    url.search = '';
-                }
-                url.search = params.toString();
-                window.location.href = url.toString();
-            }
-        });
+
+
     </script>
 @endsection

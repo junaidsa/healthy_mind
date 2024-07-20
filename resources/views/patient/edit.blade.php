@@ -75,7 +75,7 @@
                 <div class="col-md-3 mb-3 mt-4 offset-md-7">
                     <label for="disabledTextInput" class="form-label"style=" position: relative; left: 29px;">Registration
                         Date & Time <span class="text-danger">*</span></label>
-                    <input type="text" id="registration_date" name="registration_date" class="form-control @error('registration_date') is-invalid @enderror" value="{{$patient->registration_date}}"
+                    <input type="text" id="registration_date" name="registration_date" class="form-control @error('registration_date') is-invalid @enderror" tabindex="1" value="{{$patient->registration_date}}"
                         style="
                         margin-left: 20px;
                         width: 85%;
@@ -96,12 +96,12 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Father Name</label>
-                            <input type="text" class="form-control " tabindex="2" name="father_name" id="father_name"
+                            <input type="text" class="form-control" tabindex="2" name="father_name" id="father_name"
                                 value="{{$patient->father_name}}">
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Date Of Birth <span class="text-danger">*</span></label>
-                        <div class="input-daterange input-group @error('date_of_birth') is-invalid @enderror"id="datepicker6" data-date-format="dd M, yyyy" data-date-autoclose="true" data-provide="datepicker" data-date-container="#datepicker6">
+                        <div class="input-daterange input-group @error('date_of_birth') is-invalid @enderror"id="datepicker6" data-date-format="dd M, yyyy" data-date-autoclose="true" data-provide="datepicker" data-date-container="#datepicker6" tabindex="3">
                              <input type="text" class="form-control" name="data_of_birth" value="{{$patient->date_of_birth}}">
                                 @error('date_of_birth')
                                 <div class=" invalid-feedback">{{ $message }}</div>
@@ -112,7 +112,7 @@
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label class="form-label">UID No <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('uid_number') is-invalid @enderror" name="uid_number" id="uid_number" tabindex="1"
+                            <input type="text" class="form-control @error('uid_number') is-invalid @enderror" name="uid_number" id="uid_number" tabindex="4"
                                 value="{{$patient->uid_number}}">
                                 @error('uid_number')
                                 <div class=" invalid-feedback">{{ $message }}</div>
@@ -120,12 +120,12 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Other ID </label>
-                            <input type="number" class="form-control " tabindex="2" name="other_id" id="other_id"
+                            <input type="number" class="form-control " tabindex="5" name="other_id" id="other_id"
                                 value="{{$patient->other_id}}">
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Mobile No <span class="text-danger">*</span> </label>
-                            <input type="number" class="form-control @error('mobile_no') is-invalid @enderror" tabindex="2" name="mobile_no" id="mobile_no"
+                            <input type="number" class="form-control @error('mobile_no') is-invalid @enderror" tabindex="6" name="mobile_no" id="mobile_no"
                                 value="{{$patient->mobile_no}}">
                                 @error('mobile_no')
                                 <div class=" invalid-feedback">{{ $message }}</div>
@@ -135,7 +135,7 @@
                     <div class="row">
                         <div class="col-md-4  mb-3">
                             <label class="form-label">Gender <span class="text-danger">*</span></label>
-                            <select class="form-control @error('gender') is-invalid @enderror" tabindex="9" name="gender" id="gender">
+                            <select class="form-control @error('gender') is-invalid @enderror" tabindex="7" name="gender" id="gender">
                                 <option value="Male" {{($patient->gender == 'Male') ? 'selected' : ''}}>Male</option>
                                 <option value="Female" {{($patient->gender == 'Female') ? 'selected' : ''}}>Female</option>
                                 <option value="Other" {{($patient->gender == 'Other') ? 'selected' : ''}}>Other</option>
@@ -146,14 +146,14 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Alternative No </label>
-                            <input type="text" class="form-control" tabindex="2" name="alternative_no" id="alternative_no"
+                            <input type="text" class="form-control" tabindex="8" name="alternative_no" id="alternative_no"
                                 value="{{$patient->alternative_no}}">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-8 mb-3">
                             <label class="form-label">Address <span class="text-danger">*</span></label>
-                            <textarea id="address" name="address" tabindex="10" class="form-control @error('address') is-invalid @enderror" rows="3">{{$patient->address}}</textarea>
+                            <textarea id="address" name="address" tabindex="10" class="form-control @error('address') is-invalid @enderror" rows="3" tabindex="9">{{$patient->address}}</textarea>
                         </div>
                         @error('address')
                         <div class=" invalid-feedback">{{ $message }}</div>

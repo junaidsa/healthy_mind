@@ -15,5 +15,7 @@ class DemoItem extends Model
         'medicine_id',
         'qty',
         'dos',
+        'bill_id',
+        'is_deleted',
     ];
 }

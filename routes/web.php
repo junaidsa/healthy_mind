@@ -48,8 +48,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('medicines', MedicineController::class);
     Route::post('stock/store', [MedicineController::class,'store_stock']);
     Route::post('/medicines/{id}', [MedicineController::class,'update'])->name('medicines.update');
-    Route::get('/medicine/dropdown/{id}', [MedicineController::class,'getdropdown'])->name('medicines.update');
+    Route::get('/medicine/dropdown/{id}', [MedicineController::class,'getdropdown']);
     Route::post('/demo/create', [PatientController::class,'create_demo']);
+    Route::post('/demo/updated', [PatientController::class,'updateDemoItems'])->name('bill.updatedDemoItems');
     Route::post('/bill/create', [PatientController::class,'store_bill']);
     Route::get('/demo/get-row/{id}', [PatientController::class, 'getRow']);
     Route::get('/print/{id}', [PatientController::class, 'showPrint']);
@@ -67,7 +68,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/billbook/excel', [HomeController::class,'billbook_excel']);
     Route::get('/delete-bill/{id}', [HomeController::class,'deleteBill']);
     Route::get('/detail-bill/{id}', [PatientController::class,'detailBill']);
-    Route::get('/patient/search', [PatientController::class, 'search'])->name('search.patients');
+    Route::get('/bill/edit/{id}', [PatientController::class,'bill_edit']);
+    Route::get('/bill/get-item/{id}', [PatientController::class,'getitem']);
+    Route::get('/batch_qty/check/{id}/{qty}', [PatientController::class,'batchQty']);
+    Route::get('/patient/get', [PatientController::class, 'search'])->name('patients.getPatients');
+    Route::get('/bill/delete-item/{id}/{page_no}', [PatientController::class, 'deleteitem']);
+    Route::post('/bills/{id}',[PatientController::class,'update_bill'])->name('bills.update');
+    Route::get('/demo/delete-editrow/{id}', [PatientController::class, 'editrowdelete']);
+    Route::get('/demo/edit-row/{id}', [PatientController::class, 'getEditRow']);
+    Route::post('/demo/update-row/{id}', [PatientController::class, 'updateDemoRows']);
 
 });
 require __DIR__.'/auth.php';

@@ -145,16 +145,16 @@ $total_doc = DB::table('documents')
     $patient_bills = DB::table('patient_bills')
         ->where('patient_id', $patient->id)
         ->whereNull('deleted_at')
-        ->paginate(5);
+        ->paginate(30);
     $bills_note = DB::table('patient_bills')
         ->where('patient_id', $patient->id)
         ->whereNull('deleted_at')
         ->whereNotNull('note')
-        ->paginate(5);
+        ->paginate(30);
     $docs = DB::table('documents')
         ->where('patient_id', $patient->id)
         ->whereNull('deleted_at')
-        ->paginate(5);
+        ->paginate(30);
   @endphp
                         <div class="col-xl-8">
                             <div class="row">
@@ -198,7 +198,7 @@ $total_doc = DB::table('documents')
                                     <!-- Nav tabs -->
                                     <ul class="nav nav-tabs nav-tabs-custom nav-justified" role="tablist">
                                         <li class="nav-item" role="presentation">
-                                            <a class="nav-link active" data-bs-toggle="tab" href="#PrescriptionList" role="tab" aria-selected="true">
+                                            <a class="nav-link {{isset($_GET['notes'])?'':'active'}}" data-bs-toggle="tab" href="#PrescriptionList" role="tab" aria-selected="true">
                                                 <span class="d-block d-sm-none"><i class="far fa-envelope"></i></span>
                                                 <span class="d-none d-sm-block">Bills</span>
                                             </a>
@@ -210,7 +210,7 @@ $total_doc = DB::table('documents')
                                             </a>
                                         </li>
                                         <li class="nav-item" role="presentation">
-                                            <a class="nav-link" data-bs-toggle="tab" href="#notes" role="tab" aria-selected="false" tabindex="-1">
+                                            <a class="nav-link {{isset($_GET['notes'])?'active':''}}" data-bs-toggle="tab" href="#notes" role="tab" aria-selected="false" tabindex="-1">
                                                 <span class="d-block d-sm-none"><i class="fas fa-cog"></i></span>
                                                 <span class="d-none d-sm-block">Notes</span>
                                             </a>
@@ -218,7 +218,7 @@ $total_doc = DB::table('documents')
                                     </ul>
                                     <!-- Tab panes -->
                                     <div class="tab-content p-3 text-muted">
-                                        <div class="tab-pane active show" id="PrescriptionList" role="tabpanel">
+                                        <div class="tab-pane {{isset($_GET['notes'])?'':'active show'}}" id="PrescriptionList" role="tabpanel">
                                             <table class="table table-bordered dt-responsive nowrap " style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                                 <thead>
                                                     <tr>
@@ -327,7 +327,7 @@ $total_doc = DB::table('documents')
                                             </table>
                                             {{ $docs->links('pagination::bootstrap-5') }}
                                         </div>
-                                        <div class="tab-pane" id="notes" role="tabpanel">
+                                        <div class="tab-pane {{isset($_GET['notes'])?'active show':''}}" id="notes" role="tabpanel">
                                             <table class="table dt-responsive nowrap " style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                                                 <thead>
                                                     <th>
@@ -344,16 +344,17 @@ $total_doc = DB::table('documents')
                                                 </thead>
                                                 <tbody>
                                                     @foreach ($bills_note as $note)
+                                                    <tr>
                                                         <td>{{ $loop->iteration }}</td>
                                                         <td>{{$note->bill_no}}</td>
                                                         <td><p>{{$note->note}}</p><td>
+                                                        </tr>
                                                     @endforeach
 
                                                 <tbody>
                                                                                                                                                                                                  </tbody>
                                             </table>
-                                            {{ $bills_note->links('pagination::bootstrap-5') }}
-                                                                                                                                                                                            </tbody>
+                                             {{ $bills_note->appends(['notes' => 1])->links('pagination::bootstrap-5') }}                                                                                                                                                  </tbody>
                                             </table>
                                         </div>
                                     </div>

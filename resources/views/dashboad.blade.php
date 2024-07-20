@@ -32,6 +32,23 @@
             height: 2.5rem;
             width: 2.5rem;
         }
+        .datediv{
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+            background: none;
+            margin-top:-12px;
+        }
+        .datein{
+            border: none;
+            font-weight: 700;
+            font-size: 1.3rem;
+            outline: none;
+        }
+        input.datein:focus-visible{
+            border: none;
+            font-weight: 700;
+        }
     </style>
     <div class="page-content">
         <div class="container-fluid">
@@ -114,9 +131,17 @@
             <div class="row mt-4">
                 <div class="col-sm-3">
                     <p style="font-weight: bold; font-size: 1rem;">Select Date</p>
-                    <p style="font-weight: bold;font-size: 1rem;margin-top: -12px;" style="cursor: pointer !important;" id="datepicker6" data-date-format="dd M yyyy"
+                    {{-- <p style="font-weight: bold;font-size: 1rem;margin-top: -12px;" style="cursor: pointer !important;" id="datepicker6" data-date-format="dd M yyyy"
                     data-date-autoclose="true" data-provide="datepicker"
-                    data-date-container="#datepicker6">{{ isset($_GET['date']) ? $_GET['date'] : date('d M Y') }}</p>
+                    data-date-container="#datepicker6">{{ isset($_GET['date']) ? $_GET['date'] : date('d M Y') }}</p> --}}
+                    <div class="datediv">
+                        <div style="font-size: 1.3rem"><b>Date</b></div>
+                        <div>
+                        <input type="text" class="datein" id="datepicker6" name="date" value="{{ date('d M Y') }}"  data-date-format="dd M yyyy" style="
+                            background: none;
+                        "
+                            data-date-autoclose="true" data-provide="datepicker"></div>
+                     </div>
                 </div>
             </div>
 
@@ -138,11 +163,11 @@
                                 $check_date = isset($_GET['date']) ? date('Y-m-d', strtotime($_GET['date'].' - 1 day')) : date('Y-m-d',strtotime( $currentDate.' - 1 day'));
                                 $check_date2 = isset($_GET['date']) ? date('Y-m-d', strtotime($_GET['date'])) : date('Y-m-d',strtotime( $currentDate));
                                 $check_time1=DB::table('bill_items')->where('medicine_id', $med->id)->whereDate('created_at', $check_date2)->orderBy('id','asc')->first();
-                                
+
                                     $check_time=$check_date2.' 23:59:59';
                                     $open_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<=', $check_time )->orderBy('id','desc')->sum('stock');
 
-                               
+
        $open_sold = DB::table('bill_items')->where('medicine_id', $med->id)->where('created_at','<=', $check_date.' 23:59:59')->orderBy('id','desc')->sum('qty');
                                     $opening_balence = $open_stock - $open_sold;
                                     $close_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<=', $check_date2.' 23:59:59')->orderBy('id','desc')->sum('stock');
@@ -199,9 +224,16 @@
 
     @section('customJs')
     <script>
+                   const today = new Date();
+    const formattedToday = today.toLocaleString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+    }).replace(/ /g, ' ');
         var datepicker = $('#datepicker6').datepicker({
             format: 'dd M yyyy',
             autoclose: true
+            defaultViewDate: today
         }).on('changeDate', function(e) {
             // Get the selected date
             var selectedDate = $('#datepicker6').datepicker('getFormattedDate');
@@ -212,5 +244,8 @@
             var newUrl = currentUrl + '?date=' + encodeURIComponent(selectedDate);
             window.location.href = newUrl;
         });
+            // Manually set the datepicker's date to today
+    $('#datepicker6').datepicker('update', today);
+
     </script>
     @endsection

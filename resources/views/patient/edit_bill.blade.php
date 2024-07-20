@@ -48,8 +48,7 @@
         }
     </style>
     <div class="page-content">
-        <form id="createpatientForm" action="" method="Post"
-            enctype="multipart/form-data">
+        <form id="createpatientForm" action="" method="Post" enctype="multipart/form-data">
             @csrf
             <div class="container-fluid">
                 <div class="row">
@@ -68,12 +67,15 @@
                         </div>
                     </div>
                     @php
-                    $patient =  DB::table('patients')->where('id',$bill->patient_id)->whereNull('deleted_at')->first();
-                  @endphp
+                        $patient = DB::table('patients')
+                            ->where('id', $bill->patient_id)
+                            ->whereNull('deleted_at')
+                            ->first();
+                    @endphp
                     <div class="row mt-3">
                         <input type="hidden" value="{{ $uniquePageNumber }}" id="lastPageNumber">
                         <input type="hidden" value="{{ $patient->id }}" id="patient_id">
-                        <input type="hidden" value="{{ $patient->id }}" id="bill_id" name="bill_id">
+                        <input type="hidden" value="{{ $id }}" id="bill_id" name="bill_id">
                         <div class="col-md-3 mb-3">
                             <label class="form-label">File No <span class="text-danger">*</span></label>
                             <input type="text" id="file_no" name="file_no"
@@ -139,7 +141,8 @@
                         <div class="col-md-2 mb-3">
                             <label class="form-label">Moblie No</label>
                             <input type="number" class="form-control @error('mobile_no') is-invalid @enderror"
-                                tabindex="2" name="mobile_no" id="mobile_no" value="{{ $patient->mobile_no }}" disabled>
+                                tabindex="2" name="mobile_no" id="mobile_no" value="{{ $patient->mobile_no }}"
+                                disabled>
                             @error('mobile_no')
                                 <div class=" invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -189,7 +192,7 @@
                             <div class="mb-3">
                                 <label for="exampleFormControlTextarea1" class="form-label">Note</label>
                                 <textarea id="note" name="note" class="form-control" rows="3"></textarea>
-                              </div>
+                            </div>
                         </div>
 
                     </div>
@@ -197,18 +200,24 @@
                         <div class="d-flex justify-content-center align-items-center">
                             <div class="box" id="imagePreview">
                                 @if ($bill->bill_image)
-                                <img src="{{ asset('public/media/photos').'/'.$bill->bill_image }}" alt="{{ $bill->id }}'s image" width="50" height="50" class="rounded photo-thumbnail">
+                                    <img src="{{ asset('public/media/photos') . '/' . $bill->bill_image }}"
+                                        alt="{{ $bill->id }}'s image" width="50" height="50"
+                                        class="rounded photo-thumbnail">
                                 @else
-                                <img src="{{ asset('public/media/photos').'/'.'no-photo.png' }}" alt="{{ $bill->id }}'s image" width="50" height="50" class="rounded photo-thumbnail">
-                                 @endif
+                                    <img src="{{ asset('public/media/photos') . '/' . 'no-photo.png' }}"
+                                        alt="{{ $bill->id }}'s image" width="50" height="50"
+                                        class="rounded photo-thumbnail">
+                                @endif
                             </div>
                         </div>
                         <div class="d-flex justify-content-center">
-                            <button type="button" class="btn btn-primary mt-2 waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#capimage">
+                            <button type="button" class="btn btn-primary mt-2 waves-effect waves-light"
+                                data-bs-toggle="modal" data-bs-target="#capimage">
                                 Capture
-                              </button>
+                            </button>
                         </div>
-                        <input type="file" id="bill_image" name="bill_image" style="display: none;" accept="image/*">
+                        <input type="file" id="bill_image" name="bill_image" style="display: none;"
+                            accept="image/*">
                     </div>
                 </div>
                 <div class="row  mt-4">
@@ -229,24 +238,24 @@
     </div>
     <div class="modal fade" id="capimage" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">Capture photo</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="d-flex justify-content-center">
-                    <canvas id="captured-image" class="d-none"></canvas>
-                    <video id="camera-preview" width="500" height="300" autoplay></video>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Capture photo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-center">
+                        <canvas id="captured-image" class="d-none"></canvas>
+                        <video id="camera-preview" width="500" height="300" autoplay></video>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="captureBtn">Capture</button>
                 </div>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" id="captureBtn">Capture</button>
-            </div>
-          </div>
         </div>
-      </div>
+    </div>
     </div>
     </div>
     <footer class="footer">
@@ -254,7 +263,7 @@
 
             <div class="row">
                 <div class="col-sm-6 btn-font">
-                    Total <span id="total-price">{{$bill->total_amount}}</span>
+                    Total <span id="total-price">{{ $bill->total_amount }}</span>
                 </div>
                 <div class="col-sm-6">
                 </div>
@@ -265,56 +274,62 @@
 @endsection
 @section('customJs')
     <script>
-var imageData = '';
-$('#capimage').on('shown.bs.modal', function () {
-  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(function(stream) {
-        var video = document.getElementById('camera-preview');
-        video.srcObject = stream;
-        video.play();
-      })
-      .catch(function(error) {
-        console.log('Error accessing the camera:', error);
-      });
-  } else {
-    console.log('getUserMedia is not supported');
-  }
-});
+        var imageData = '';
+        $('#capimage').on('shown.bs.modal', function() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({
+                        video: true
+                    })
+                    .then(function(stream) {
+                        var video = document.getElementById('camera-preview');
+                        video.srcObject = stream;
+                        video.play();
+                    })
+                    .catch(function(error) {
+                        console.log('Error accessing the camera:', error);
+                    });
+            } else {
+                console.log('getUserMedia is not supported');
+            }
+        });
 
-$('#captureBtn').on('click', function(e) {
-  e.preventDefault();
+        $('#captureBtn').on('click', function(e) {
+            e.preventDefault();
 
-  var video = document.getElementById('camera-preview');
+            var video = document.getElementById('camera-preview');
 
-  var canvas = document.getElementById('captured-image');
-  var context = canvas.getContext('2d');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            var canvas = document.getElementById('captured-image');
+            var context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  // Save the image data
-  imageData = canvas.toDataURL('image/png');
+            // Save the image data
+            imageData = canvas.toDataURL('image/png');
 
-  // Set the image preview
-  var imagePreview = document.getElementById('imagePreview');
-  imagePreview.innerHTML = '<img src="' + imageData + '" alt="Captured Image">';
-  var byteString = atob(imageData.split(',')[1]);
-  var mimeString = imageData.split(',')[0].split(':')[1].split(';')[0];
-  var ab = new ArrayBuffer(byteString.length);
-  var ia = new Uint8Array(ab);
-  for (var i = 0; i < byteString.length; i++) {
-    ia[i] = byteString.charCodeAt(i);
-  }
-  var blob = new Blob([ab], { type: mimeString });
-  var file = new File([blob], "photo.png", { type: mimeString });
+            // Set the image preview
+            var imagePreview = document.getElementById('imagePreview');
+            imagePreview.innerHTML = '<img src="' + imageData + '" alt="Captured Image">';
+            var byteString = atob(imageData.split(',')[1]);
+            var mimeString = imageData.split(',')[0].split(':')[1].split(';')[0];
+            var ab = new ArrayBuffer(byteString.length);
+            var ia = new Uint8Array(ab);
+            for (var i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            var blob = new Blob([ab], {
+                type: mimeString
+            });
+            var file = new File([blob], "photo.png", {
+                type: mimeString
+            });
 
-  // Set the file input
-  var photoInput = document.getElementById('bill_image');
-  var dataTransfer = new DataTransfer();
-  dataTransfer.items.add(file);
-  photoInput.files = dataTransfer.files;
-});
+            // Set the file input
+            var photoInput = document.getElementById('bill_image');
+            var dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            photoInput.files = dataTransfer.files;
+        });
 
         $("#add").click(function() {
             const page_no = $('#lastPageNumber').val();
@@ -399,9 +414,8 @@ $('#captureBtn').on('click', function(e) {
                     select.empty();
                     select.append('<option value="">Select Medicine</option>');
                     $.each(data, function(key, value) {
-                        // select.append('<option value="' + value.id + '">' + value.name + ' (Stock ' +
-                        //     value.totalQuantity + ') '+ value.totalQuantity <= 0 ? 'disabled' : '' +'</option>');
-                        select.append('<option value="' + value.id + '" ' + (value.totalQuantity <= 0 ? 'disabled' : '') + '>' + value.name + ' (Stock ' + value.totalQuantity + ')</option>');
+                        select.append('<option value="' + value.id + '" ' + (value.totalQuantity <= 0 ?
+                            'disabled' : '') + '>' + value.name + '</option>');
 
                     });
                 }
@@ -409,43 +423,54 @@ $('#captureBtn').on('click', function(e) {
         }
         getDropdown();
 
+        var deleted_array=[]
+
         function fetchRows(page_no) {
-            editRows()
+            // editRows()
             $.ajax({
-                url: "{{ url('/demo/get-row') }}/" + page_no,
+                url: "{{ url('/demo/edit-row') }}/" + page_no,
                 method: 'GET',
                 dataType: 'json',
                 success: function(response) {
                     $("#bill_item .stepinventryRow").remove();
                     response.forEach(function(row) {
                         var newRow = `
-                    <div data-repeater-item="" class="row stepinventryRow" data-ino="${row.ino}">
+                    <div data-repeater-item="" class="row stepinventryRow" data-ino="${row.id}">
                         <div class="mb-3 col-lg-5">
                                 <label for="name">Medicine Name</label>
-                                <select name="medicine" id="medicine-${row.ino}" class="mb-3 form-select" disabled>
+                                <select name="medicine" id="medicine-${row.id}" class="mb-3 form-select">
                                     @foreach ($medicines as $m)
-                                    <option value="{{ $m->id }}" {{ $m->id }}" ${row.medicine_id == {{ $m->id }} ? 'selected' : ''}>{{ $m->name }}</option>
+                                    <option value="{{ $m->id }}" {{ $m->id }}"   data="${row.medicine_id == {{ $m->id }} ?parseInt(row.quantity+row.qty): ''}"  ${row.medicine_id == {{ $m->id }} ? 'selected' : ''}>{{ $m->name }}</option>
                                     @endforeach
                                     </select>
                                     <p></p>
                                     </div>
                                     <div class="mb-3 col-lg-2">
                                 <label>Quantity</label>
-                                <input type="number" id="qty-${row.ino}" name="qty" class="form-control" value="${row.qty}" disabled>
+                                <input type="number" id="qty-${row.id}" name="qty" class="form-control item-qty" data-qty="${parseInt(row.quantity+row.qty)}" data-m_id="${row.medicine_id}" data-row_id="${row.id}" value="${row.qty}" >
                                 <p></p>
                                 </div>
                             <div class="mb-3 col-lg-2">
                                 <label for="email">Dosage</label>
-                                <input type="number" name="dos" id="dos-${row.ino}" class="form-control" value="${row.dos}" disabled>
+                                <input type="number" name="dos" id="dos-${row.ino}" class="form-control" value="${row.dos}">
                                 <p></p>
                                 </div>
                                 <div class="col-lg-2 align-self-center">
                                     <div class="d-grid">
-                                        <input type="button" class="btn btn-primary remove-button" value="Delete" data-id="${row.id}">
+                                        <input type="button" class="btn btn-primary remove-button" data-qty="${row.qty}"  data-batch_no="${row.batch_no}"  data-medicine_id="${row.medicine_id}" value="Delete" data-id="${row.id}">
                                         </div>
                                         </div>
                                         </div>`;
                         $("#bill_item").append(newRow);
+                        $("#medicine-" + row.id).change(function() {
+                             updateRow(row.id);
+                         });
+                        $("#qty-" + row.id).change(function() {
+                            updateRow(row.id);
+                        });
+                    $("#dos-" + row.id).change(function() {
+                        updateRow(row.id);
+                    });
                     });
                     attachDeleteEvent(page_no);
                 },
@@ -456,90 +481,129 @@ $('#captureBtn').on('click', function(e) {
         }
         editRows()
         function editRows() {
-            const bill_id = $('#bill_id').val();
-            $.ajax({
-                url: "{{ url('/bill/get-item') }}/" + bill_id,
-                method: 'GET',
-                dataType: 'json',
-                success: function(response) {
-                    $("#bill_item .editinventryRow").remove();
-                    response.forEach(function(row) {
-                        var newRow = `
-                    <div data-repeater-item="" class="row editinventryRow item-row" data-ino="${row.ino}">
-                        <div class="mb-3 col-lg-5">
-                                <label for="name">Medicine Name</label>
-                                <select name="medicine[]" id="medicine-${row.ino}" class="mb-3 form-select">
-                                    @foreach ($medicines as $m)
-                                    <option value="{{ $m->id }}" {{ $m->id }}" ${row.medicine_id == {{ $m->id }} ? 'selected' : ''}>{{ $m->name }}</option>
-                                    @endforeach
-                                    </select>
-                                    <p></p>
-                                    </div>
-                                    <div class="mb-3 col-lg-2">
-                                <label>Quantity</label>
-                                <input type="number" id="qty-${row.ino}" name="qty[]"  class="form-control item-qty" value="${row.qty}">
-                                <p></p>
-                                </div>
-                            <div class="mb-3 col-lg-2">
-                                <label for="email">Dosage</label>
-                                <input type="number" name="dos" id="dos-${row.ino}" class="form-control" value="${row.dos}">
-                                <p></p>
-                                </div>
-                                <div class="col-lg-2 align-self-center">
-                                    <div class="d-grid">
-                                        <input type="button" class="btn btn-primary remove-button" value="Delete" data-id="${row.id}">
-                                        </div>
-                                        </div>
-                                        </div>`;
-                        $("#bill_item").append(newRow);
-                    });
-                    // attachDeleteEvent(page_no);
-                },
-                error: function(error) {
-                    console.error("There was an error fetching the rows: ", error);
-                }
+    const page_no = $('#lastPageNumber').val();
+    const bill_id = $('#bill_id').val();
+    const items = [];
+
+    $.ajax({
+        url: "{{ url('/bill/get-item') }}/" + bill_id + '/',
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            $("#bill_item .editinventryRow").remove();
+            response.forEach(function(row) {
+                items.push({
+                    page_no: page_no,
+                    medicine_id: row.medicine_id,
+                    bill_id: bill_id,
+                    batch_no: row.batch_no,
+                    qty: row.qty,
+                    dos: row.dos
+                });
             });
-        }
-
-        $(document).ready(function() {
-            $('#bill_item').on('change', '.item-qty', function() {
-            let $row = $(this).closest('.item-row');
-            // let $row = $(this).closest('.item-row');
-            alert($row);
-            let medicineId = $row.find('input[name*="medicine_id"]').val();
-            let qty = $(this).val();
-
             $.ajax({
-                url: "{{url('check/batch-qty')}}",
+                url: "{{ route('bill.updatedDemoItems') }}",
                 method: 'POST',
                 data: {
-                    medicine_id: medicineId,
-                    qty: qty,
-                    _token: '{{ csrf_token() }}'
+                    _token: "{{ csrf_token() }}",
+                    items: items
                 },
-                success: function(response) {
-                    console.log(response);
-                    if (response.status) {
-                        $row.find('.stock-quantity').text('Stock: ' + response.new_stock);
-                    } else {
-                        alert(response.message);
-                    }
+                success: function(insertResponse) {
+                    fetchRows(bill_id)
+                    console.log("Items updated successfully: ", insertResponse);
                 },
-                error: function() {
-                    alert('An error occurred while updating the stock.');
+                error: function(error) {
+                    console.error("There was an error updating the items: ", error);
                 }
             });
+        },
+        error: function(error) {
+            console.error("There was an error fetching the rows: ", error);
+        }
+    });
+}
+function updateRow(rowId) {
+    var medicineId = $("#medicine-" + rowId).val();
+    var qty = $("#qty-" + rowId).val();
+    var dos = $("#dos-" + rowId).val();
+
+    $.ajax({
+        url: "{{ url('/demo/update-row') }}/" + rowId,
+        method: 'POST',
+        data: {
+            _token: "{{ csrf_token() }}",
+            medicine_id: medicineId,
+            qty: qty,
+            dos: dos
+        },
+        success: function(response) {
+            console.log("Row updated successfully:", response);
+        },
+        error: function(error) {
+            console.error("There was an error updating the row:", error);
+        }
+    });
+}
+        $(document).ready(function() {
+            $(document).on('keyup', '.item-qty', function() {
+                var qty = $(this).val();
+                var id = $(this).data('m_id');
+                var totalqty=$(this).attr('data-qty');
+                var check=totalqty-qty;
+                var batch_no = $(this).data('b_no');
+                var row_id = $(this).data('row_id');
+                if(check>=0){
+                    $(`#qty-${row_id}`).removeClass('is-invalid').siblings('p')
+                    .removeClass('invalid-feedback').html('');
+                }else{
+
+                    $(`#qty-${row_id}`).addClass('is-invalid').siblings('p').addClass(
+                        'invalid-feedback').html("Qty Exceeds in Current Batch.Total In Batch "+totalqty);
+                }
+                console.log(check)
+
+                return 1;
+                console.log(id);
+
+                $.ajax({
+                    url: "{{ url('batch_qty/check/') }}/" + id + '/' + qty,
+                    method: 'get',
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === false) {
+                            $(`#qty-${row_id}`).addClass('is-invalid').siblings('p').addClass(
+                                'invalid-feedback').html(response.message);
+
+                        } else {
+                            $(`#qty-${row_id}`).removeClass('is-invalid').siblings('p')
+                                .removeClass('invalid-feedback').html('');
+
+                        }
+                    },
+                    error: function(error) {
+                        console.error("There was an error deleting the row: ", error);
+                    }
+                });
             });
-            });
+        });
 
         function attachDeleteEvent(page_no) {
             $(".remove-button").off('click').on('click', function() {
                 var rowId = $(this).data('id');
-                // alert('ok');
                 var rowElement = $(this).closest('.stepinventryRow');
-
+                const page_no = $('#lastPageNumber').val();
+                const bill_id = $('#bill_id').val();
+                    var qty=$(this).data('qty');
+                    var batch_no=$(this).data('batch_no');
+                    var medicine_id=$(this).data('medicine_id');
+                deleted_array.push({qty:qty,batch_no:batch_no,medicine_id:medicine_id})
+                console.log(deleted_array)
                 $.ajax({
-                    url: "{{ url('/demo/delete-row') }}/" + rowId,
+                    url: "{{ url('/demo/delete-editrow') }}/" + rowId,
+                    data:{
+                        page_no:page_no,
+                        bill_id:bill_id,
+                    },
                     method: 'get',
                     dataType: 'json',
                     success: function(response) {
@@ -556,6 +620,8 @@ $('#captureBtn').on('click', function(e) {
                 });
             });
         }
+
+        // }
         $("#save").click(function() {
             saveBill(false);
         });
@@ -587,29 +653,20 @@ $('#captureBtn').on('click', function(e) {
                 url: "{{ url('bill/create') }}",
                 method: 'POST',
                 dataType: 'json',
-                data:formData,
-                cache:false,
-                processData:false,
-                contentType:false,
+                data: formData,
+                cache: false,
+                processData: false,
+                contentType: false,
                 success: function(response) {
                     if (response.status == true) {
-                        // console.log(response);
                         const print_id = response.id
-                        const printStatus = response.print === "true"; // Convert string "true" or "false" to boolean
-                        // console.log( typeof print_id);
-                        Swal.fire({
-                            title: "Good job!",
-                            text: "Bill created successfully.",
-                            icon: "success"
-                        }).then((result) => {
-                            if (result.isConfirmed  && printStatus) {
-                                // if (print_id) {
-                                    window.location.href = "{{ url('print') }}" + '/'+ print_id;
+                        const printStatus = response.print === "true";
+                        if (printStatus) {
+                            window.location.href = "{{ url('print') }}" + '/' + print_id;
 
-                                }else{
-                                window.location.href = "{{ url('patients') }}";
-                            }
-                        });
+                        } else {
+                            window.location.href = "{{ url('patients') }}";
+                        }
                     } else {
                         var errors = response.message;
                         alert(errors);

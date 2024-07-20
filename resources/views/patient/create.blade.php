@@ -128,12 +128,8 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Date Of Birth <span class="text-danger">*</span></label>
-                        <div class="input-daterange input-group" id="datepicker6"
-                        data-date-format="dd-mm-yyyy"
-                        data-date-autoclose="true"
-                        data-provide="datepicker"
-                        data-date-container="#datepicker6">
-                       <input type="text" class="form-control  @error('date_of_birth') is-invalid @enderror" name="data_of_birth" id="data_of_birth" autocomplete="off" />
+                        <div class="input-daterange input-group" id="datepicker6" data-date-format="dd-mm-yyyy"  data-date-autoclose="true" data-provide="datepicker" data-date-container="#datepicker6">
+                       <input type="text" class="form-control  @error('date_of_birth') is-invalid @enderror" name="data_of_birth" id="data_of_birth" autocomplete="off" value="{{date('d M Y')}}"  tabindex="3"/>
                                 @error('data_of_birth')
                                 <div class=" invalid-feedback">{{ $message }}</div>
                                      @enderror
@@ -143,7 +139,7 @@
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label class="form-label">UID No <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('uid_number') is-invalid @enderror" name="uid_number" id="uid_number" tabindex="1"
+                            <input type="text" class="form-control @error('uid_number') is-invalid @enderror" name="uid_number" id="uid_number" tabindex="4"
                                 value="">
                                 @error('uid_number')
                                 <div class=" invalid-feedback">{{ $message }}</div>
@@ -151,12 +147,12 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Other ID </label>
-                            <input type="number" class="form-control " tabindex="2" name="other_id" id="other_id"
+                            <input type="number" class="form-control " tabindex="5" name="other_id" id="other_id"
                                 value="">
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Mobile No <span class="text-danger">*</span> </label>
-                            <input type="number" class="form-control @error('mobile_no') is-invalid @enderror" tabindex="2" name="mobile_no" id="mobile_no"
+                            <input type="number" class="form-control @error('mobile_no') is-invalid @enderror" tabindex="6" name="mobile_no" id="mobile_no"
                                 value="">
                                 @error('mobile_no')
                                 <div class=" invalid-feedback">{{ $message }}</div>
@@ -166,7 +162,7 @@
                     <div class="row">
                         <div class="col-md-4  mb-3">
                             <label class="form-label">Gender <span class="text-danger">*</span></label>
-                            <select class="form-control @error('gender') is-invalid @enderror" tabindex="9" name="gender" id="gender">
+                            <select class="form-control @error('gender') is-invalid @enderror" tabindex="7" name="gender" id="gender">
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
                                 <option value="Other">Other</option>
@@ -177,14 +173,14 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Alternative No </label>
-                            <input type="text" class="form-control" tabindex="2" name="alternative_no" id="alternative_no"
+                            <input type="text" class="form-control" tabindex="8" name="alternative_no" id="alternative_no"
                                 value="">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-8 mb-3">
                             <label class="form-label">Address <span class="text-danger">*</span></label>
-                            <textarea id="address" name="address" tabindex="10" class="form-control @error('address') is-invalid @enderror" rows="3"></textarea>
+                            <textarea id="address" name="address" tabindex="9" class="form-control @error('address') is-invalid @enderror" rows="3"></textarea>
                         </div>
                         @error('address')
                         <div class=" invalid-feedback">{{ $message }}</div>
@@ -245,6 +241,19 @@
 @endsection
 @section('customJs')
 <script>
+             const today = new Date();
+             const formattedToday = today.toLocaleString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+    }).replace(/ /g, ' ');
+    var datepicker = $('#datepicker6').datepicker({
+        format: 'dd M yyyy',
+        autoclose: true,
+        defaultViewDate: formattedToday
+    })
+    $('#datepicker6').datepicker('update', formattedToday);
+    console.log(formattedToday);
     var imageData = '';
 $('#staticBackdrop').on('shown.bs.modal', function () {
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {

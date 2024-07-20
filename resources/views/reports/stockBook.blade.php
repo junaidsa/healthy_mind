@@ -148,11 +148,11 @@
                                 $check_date = isset($_GET['date']) ? date('Y-m-d', strtotime($_GET['date'].' - 1 day')) : date('Y-m-d',strtotime( $currentDate.' - 1 day'));
                                 $check_date2 = isset($_GET['date']) ? date('Y-m-d', strtotime($_GET['date'])) : date('Y-m-d',strtotime( $currentDate));
                                     $check_time1=DB::table('bill_items')->where('medicine_id', $med->id)->whereDate('created_at', $check_date2)->orderBy('id','asc')->first();
-                             
+
                                     $check_time=$check_date2.' 23:59:59';
                                     $open_stock = DB::table('medicine_history')->where('medicine_id', $med->id)->where('created_at','<=', $check_time )->orderBy('id','desc')->sum('stock');
 
-                              
+
 
 
                                     $open_sold = DB::table('bill_items')->where('medicine_id', $med->id)->where('created_at','<=', $check_date.' 23:59:59')->orderBy('id','desc')->sum('qty');
@@ -262,19 +262,26 @@
 @endsection
 @section('customJs')
     <script>
-        var datepicker = $('#datepicker6').datepicker({
-            format: 'dd M yyyy',
-            autoclose: true
-        }).on('changeDate', function(e) {
-            // Get the selected date
-            var selectedDate = $('#datepicker6').datepicker('getFormattedDate');
-            // Update the displayed date
-            $('#datepicker6').text(selectedDate);
-            // Reload the current URL with the selected date as a query parameter
-            var currentUrl = window.location.href.split('?')[0]; // Remove existing query parameters
-            var newUrl = currentUrl + '?date=' + encodeURIComponent(selectedDate);
-            window.location.href = newUrl;
-        });
+           const today = new Date();
+    const formattedToday = today.toLocaleString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+    }).replace(/ /g, ' ');
+    var datepicker = $('#datepicker6').datepicker({
+        format: 'dd M yyyy',
+        autoclose: true,
+        defaultViewDate: today
+    }).on('changeDate', function(e) {
+        var selectedDate = $('#datepicker6').datepicker('getFormattedDate');
+        $('#datepicker6').text(selectedDate);
+        var currentUrl = window.location.href.split('?')[0];
+        var newUrl = currentUrl + '?date=' + encodeURIComponent(selectedDate);
+        window.location.href = newUrl;
+    });
+
+    // Manually set the datepicker's date to today
+    $('#datepicker6').datepicker('update', today);
 
         function parseQueryString(url) {
             var params = {};

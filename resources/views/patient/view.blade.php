@@ -71,7 +71,7 @@
                                 <button class="search-button">
                                     <i class="fa fa-search" class="search-button"></i>
                                 </button>
-                                <input type="text" placeholder="Search..." class="search-input" id="searchInput" value="{{Request::get('keywords')}}" >
+                                <input type="text" placeholder="Search..." class="search-input" id="search-input">
                             </div>
                         </div>
 
@@ -83,7 +83,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="table-responsive">
-                        <table class="table mb-0">
+                        <table class="table mb-0" id="patients-table">
 
                             <thead class="table-blue">
                                 <tr>
@@ -103,19 +103,21 @@
 
                             </tbody>
                         </table>
-                        <div class="pagination float-end"></div>
-                        {{-- {{ $patients->links('pagination::bootstrap-5') }} --}}
+      <nav aria-label="Page navigation" class="mt-2 text-end">
+    <ul class="pagination" id="pagination-links" style="
+    float: right;
+    text-align: right !imprtant;
+">
+      </ul>
+    </nav>
                     </div>
-                </div> <!-- end col -->
-                <!-- Modal -->
+                </div>
 
 
-            </div> <!-- end row -->
+            </div>
 
-        </div> <!-- container-fluid -->
+        </div>
     </div>
-    <!-- end main content-->
-
     <div class="modal fade" id="modalImg" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
@@ -134,28 +136,69 @@
     @endsection
     @section('customJs')
     <script>
-
-
-   document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('searchInput');
-
-        // Function to fetch and update patient list
-        function fetchPatients(keywords = '') {
-            fetch(`{{ route('search.patients') }}?keywords=${keywords}`)
-                .then(response => response.json())
-                .then(data => {
-                    updatePatientTable(data.patients.data);
-                    document.querySelector('.pagination').innerHTML = data.links;
-                })
-                .catch(error => console.error('Error:', error));
-        }
-
-        // Event listener for search input
-        searchInput.addEventListener('keyup', function() {
-            const keywords = searchInput.value;
-            fetchPatients(keywords);
+    $(document).ready(function() {
+    function fetchPatients(page = 1, search = '') {
+        $.ajax({
+            url: '{{ route("patients.getPatients") }}',
+            method: 'GET',
+            data: {
+                page: page,
+                search: search
+            },
+            success: function(response) {
+                let output = '';
+                $.each(response.data, function(index, patient) {
+                    output += '<tr>';
+                    output += '<td>' + patient.id + '</td>';
+                    output += '<td>' + patient.file_no + '</td>';
+                    output += '<td>';
+                    if (patient.Image) {
+                        output += '<img src="{{ asset('public/media/photos') }}/' + patient.Image + '" alt="' + patient.name + '\'s photo" width="50" height="50" class="rounded photo-thumbnail photoClick" data="{{ asset('public/media/photos') }}/' + patient.Image + '">';
+                    } else {
+                        output += '<img src="{{ asset('public/media/photos/no-photo.png') }}" alt="' + patient.name + '\'s photo" width="50" height="50" class="rounded photo-thumbnail photoClick" data""">';
+                    }
+                    output += '</td>';
+                    output += '<td>' + patient.first_name + '</td>';
+                    output += '<td>' + patient.father_name + '</td>';
+                    output += '<td>' + patient.date_of_birth + '</td>';
+                    output += '<td>' + patient.uid_number + '</td>';
+                    output += '<td>' + patient.mobile_no + '</td>';
+                    output += '<td>' + patient.totalbills + '</td>';
+                    output += '<td>';
+                    output += '<a href="{{ url('patients') }}/' + patient.id + '" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">View Details</a>';
+                    output += '<a href="{{ url('add-bill') }}/' + patient.id + '" class="btn btn-success btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">Add Bill</a>';
+                    output += '</td>';
+                    output += '</tr>';
+                });
+                $('#patients-table tbody').html(output);
+                // Update pagination links
+                let paginationLinks = '';
+                $.each(response.links, function(index, link) {
+                    if (link.url) {
+                    paginationLinks += '<li class="page-item"><a href="' + link.url + '" class="page-link" data-page="' + link.label + '">' + link.label + '</a></li> ';
+                } else {
+                    paginationLinks += '<li class="page-item disabled"><span class="page-link">' + link.label + '</span></li> ';
+                }
+                });
+                $('#pagination-links').html(paginationLinks);
+            },
+            error: function(error) {
+                console.log(error);
+            }
         });
+    }
+        fetchPatients();
 
+        $(document).on('keyup','.search-input', function() {
+    let search = $(this).val();
+    fetchPatients(1, search);
+});
+    $(document).on('click', '.page-link', function(e) {
+        e.preventDefault();
+        let page = $(this).data('page');
+        let search = $('#search-input').val();
+        fetchPatients(page, search);
+    });
         $(document).on('click','.photoClick',function(){
             var data=$(this).attr('data');
             $('#modalImage').attr('src',data);
@@ -164,42 +207,6 @@
         $(document).on('click','.close-model',function(){
             $('#modalImg').modal('hide')
         })
-
-        // Function to update patient table
-        function updatePatientTable(patients) {
-            const tbody = document.querySelector('tbody');
-            tbody.innerHTML = '';
-
-            patients.forEach(patient => {
-                const row = document.createElement('tr');
-
-                row.innerHTML = `
-                    <td>${patient.id}</td>
-                    <td>${patient.file_no}</td>
-                    <td>
-                        <img src="${patient.Image ? '{{ asset('public/media/photos') }}/' + patient.Image : '{{ asset('public/media/photos/no-photo.png') }}'}"
-                             alt="${patient.first_name}'s photo" width="50" height="50"
-                             class="rounded photo-thumbnail photoClick"
-                             data="${patient.Image ? '{{ asset('public/media/photos') }}/' + patient.Image : '{{ asset('public/media/photos/no-photo.png') }}'}">
-                    </td>
-                    <td>${patient.first_name}</td>
-                    <td>${patient.father_name}</td>
-                    <td>${patient.date_of_birth}</td>
-                    <td>${patient.uid_number}</td>
-                    <td>${patient.mobile_no}</td>
-                    <td>${patient.total_bills}</td>
-                    <td>
-                        <a href="{{ url('patients') }}/${patient.id}" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">View Details</a>
-                        <a href="{{ url('add-bill') }}/${patient.id}" class="btn btn-success btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0">Add Bill</a>
-                    </td>
-                `;
-
-                tbody.appendChild(row);
-            });
-        }
-
-        // Fetch patients on page load
-        fetchPatients();
     });
 </script>
 

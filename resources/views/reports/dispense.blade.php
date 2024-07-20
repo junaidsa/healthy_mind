@@ -88,6 +88,20 @@
                 text-align: center;
             }
         }
+        .datediv{
+            cursor: pointer;
+            font-weight: bold;
+            border: none;
+        }
+        .datein{
+            border: none;
+            font-weight: 700;
+            outline: none;
+        }
+        input.datein:focus-visible{
+            border: none;
+            font-weight: 700;
+        }
     </style>
     {{-- @dd($this->request->path()); --}}
     <div class="page-content" style="min-height: 570px;">
@@ -115,12 +129,13 @@
             <!-- end page title -->
             <div class="card" style="border-radius: 20px">
                 <div class="card-body">
+                    {{-- <input type="text" name="" id=""> --}}
                     <div class="row">
                         <div class="col-9 d-flex align-items-center" style="font-size: 16px;">
-                            <b class="mr-4 pb-2">Date</b>&nbsp;&nbsp; &nbsp;<span class="pl-4 pb-2"><b
-                                    style="cursor: pointer;" id="datepicker6" data-date-format="dd M yyyy"
-                                    data-date-autoclose="true" data-provide="datepicker"
-                                    data-date-container="#datepicker6">{{ isset($_GET['date']) ? $_GET['date'] : date('d M Y') }}</b></span>
+                             <div class="d-flex datediv">
+                                <div class="ml-2"><b>Date</b> &nbsp; &nbsp;</div> <div> <input type="text" class="datein" id="datepicker6" name="date" value="{{ date('d M Y') }}"  data-date-format="dd M yyyy"
+                                    data-date-autoclose="true" data-provide="datepicker"></div>
+                             </div>
                         </div>
                         <div class="col-3 text-end mb-2 d-print-none">
                             <a href="{{ url('dispense/pdf') }}@if (isset($_GET['date']))?date={{ $_GET['date'] }} @endif"
@@ -155,9 +170,9 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                    <tbody>
-                                        @php
-                                            $last_batches = []; // Initialize outside the loop to keep track globally
+                                    <tbody id="bill-table-body">
+                                        {{-- @php
+                                            $last_batches = [];
                                         @endphp
                                         @foreach ($data as $row)
                                             @php
@@ -207,7 +222,7 @@
                                             </tr>
                                         @endforeach
 </a></td>
-                                        </tr>
+                                        </tr> --}}
  </div>
                         </div> <!-- end col -->
                     </div> <!-- end row -->
@@ -220,54 +235,73 @@
 @endsection
 @section('customJs')
     <script>
-        var datepicker = $('#datepicker6').datepicker({
-            format: 'dd M yyyy',
-            autoclose: true
-        }).on('changeDate', function(e) {
-            // Get the selected date
-            var selectedDate = $('#datepicker6').datepicker('getFormattedDate');
-            // Update the displayed date
-            $('#datepicker6').text(selectedDate);
-            // Reload the current URL with the selected date as a query parameter
-            var currentUrl = window.location.href.split('?')[0]; // Remove existing query parameters
-            var newUrl = currentUrl + '?date=' + encodeURIComponent(selectedDate);
-            var searchParam = new URLSearchParams(window.location.search).get('search');
-if (searchParam) {
-    newUrl += '&search=' + encodeURIComponent(searchParam);
-}
-            window.location.href = newUrl;
-        });
+        $(document).ready(function() {
+            var datepicker = $('#datepicker6').datepicker({
+                format: 'dd M yyyy',
+                autoclose: true
+            }).on('changeDate', function(e) {
+                // Fetch data when the date is changed
+                fetchBillData();
+            });
+              // Initialize datepicker
+            function fetchBillData(){
+                let search = $('#search').val();
+                let date = $('#datepicker6').datepicker('getFormattedDate', 'yyyy-mm-dd');
+                $.ajax({
+                    url:"{{url('/dispense')}}",
+                    type: 'GET',
+                    data: {
+                        search: search,
+                        date: date
+                    },
+                    success: function(response) {
+                        const tableBody = $('#bill-table-body');
+                        tableBody.empty();
+                    if (response.length > 0) {
+                        for (let index = 0; index < response.length; index++) {
+                             let row = response[index];
+                             if (row.batch_notifications.length > 0) {
+                            for (let i = 0; i < row.batch_notifications.length; i++) {
+                                var bill_id = row.id;
+                                        let notification = row.batch_notifications[i];
+                                        let notificationRow = `<tr class="batch-info">
+                                            <td class="text-center" colspan="8"><b>${notification.medicine_name} Batch Changed: ${notification.batch_no}</b></td>
+                                        </tr>`;
 
-        function parseQueryString(url) {
-            var params = {};
-            var queryString = url.split('?')[1];
-            if (queryString) {
-                queryString.split('&').forEach(function(pair) {
-                    pair = pair.split('=');
-                    params[pair[0]] = decodeURIComponent(pair[1] || '');
-                });
+                                        tableBody.append(notificationRow);
+                                    }
+                                }
+
+                            let billRow = `<tr>
+                                <td class="text-center">${index + 1}</td>
+                                <td class="text-center">${row.bill_no}</td>
+                                <td class="text-center">${row.file_no}</td>
+                                <td class="text-center">${row.first_name}</td>
+                                <td class="text-center">${row.father_name}</td>
+                                <td class="text-center">${row.other_id}</td>
+                                <td class="text-center">${row.med_qty}</td>
+                                <td class="text-center d-print-none"><a href="{{ url('detail-bill') }}/${row.bill_id}?from=dispense"
+                                    class="btn btn-primary d-print-none btn-sm btn-rounded waves-effect waves-light mb-2 mb-md-0"
+                                    data-id="${row.bill_id}">View Details</a></td>
+                            </tr>`;
+                            tableBody.append(billRow);
+                        }
+                        }else{
+             let noDataRow = `<tr>
+        <td class="text-center" colspan="8"><b>No Bill found</b></td>
+    </tr>`;
+    tableBody.append(noDataRow);
+                        }
+
+                    }
+                  })
             }
-            return params;
-        }
-        var baseUrl = "{{ route('patients.index') }}";
-        var currentUrl = window.location.href;
-        var parsedParams = parseQueryString(currentUrl);
-        var url = new URL(baseUrl);
-        Object.keys(parsedParams).forEach(function(key) {
-            url.searchParams.append(key, parsedParams[key]);
-        });
-        const searchInput = document.getElementById('searchInput');
-        searchInput.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                var params = url.searchParams;
-                var keywords = $("#searchInput").val();
-                params.set("keywords", keywords);
-                if (keywords) {} else {
-                    url.search = '';
-                }
-                url.search = params.toString();
-                window.location.href = url.toString();
-            }
-        });
+            fetchBillData()
+            $(document).on('keyup', '#search', function() {
+                fetchBillData();
+            });
+        })
+
+
     </script>
 @endsection

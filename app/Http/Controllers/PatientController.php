@@ -20,27 +20,30 @@ use Illuminate\Support\Facades\Validator;
 
 class PatientController extends Controller
 {
+    private function htmltable(){
+
+    }
     public function index()
     {
         return view('patient.view');
     }
+
+
     public function search(Request $request)
     {
-        $keywords = $request->input('keywords');
-        $patients = Patient::select('patients.*', DB::raw('COUNT(patient_bills.id) as total_bills'))
-        ->leftJoin('patient_bills', 'patients.id', '=', 'patient_bills.patient_id')
-        ->where('first_name', 'like', "%$keywords%")
-        ->orWhere('father_name', 'like', "%$keywords%")
-        ->orWhere('uid_number', 'like', "%$keywords%")
-        ->orWhere('file_no', 'like', "%$keywords%")
-        ->orWhere('mobile_no', 'like', "%$keywords%")
-                ->groupBy('patients.id')
-                ->orderBy('patients.id', 'desc')
-            ->paginate(10);
-            return response()->json([
-                'patients' => $patients,
-                'links' => (string) $patients->links('pagination::bootstrap-5')
-            ]);
+        $search = $request->input('search');
+        $patients = Patient::leftJoin('patient_bills', 'patients.id', '=', 'patient_bills.patient_id')
+        ->select('patients.*', DB::raw('COUNT(patient_bills.id) as totalbills'))
+        ->groupBy('patients.id')
+        ->where(function($query) use ($search) {
+            $query->where('patients.first_name', 'like', "%{$search}%")
+                  ->orWhere('patients.father_name', 'like', "%{$search}%")
+                  ->orWhere('patients.file_no', 'like', "%{$search}%")
+                  ->orWhere('patients.uid_number', 'like', "%{$search}%")
+                  ->orWhere('patients.mobile_no', 'like', "%{$search}%");
+        })
+        ->paginate(30);
+        return response()->json($patients);
 }
 
     public function create()
@@ -405,6 +408,16 @@ class PatientController extends Controller
         $rows = DemoItem::where('page_id', $id)->get();
         return response()->json($rows);
     }
+    public function getEditRow($id)
+    {
+       // $rows = DemoItem::where('page_id', $id)->where('is_deleted',0)->get();
+
+       $qry=DB::table('bill_items as b')->select('b.*','bc.quantity')->where('bill_id',$id)->leftjoin('medicines as m','m.id','=','b.medicine_id')->leftjoin('batches as bc',function($query){
+            $query->on('bc.batch_no','=','b.batch_no');
+            $query->on('bc.medicine_id','=','b.medicine_id');
+       })->get();
+        return response()->json($qry);
+    }
     public function store_bill(Request $request)
     {
         try {
@@ -490,6 +503,118 @@ class PatientController extends Controller
         }
     }
 
+
+// update bill
+public function update_bill(Request $request,$id){
+    try {
+        $rules = [
+            'page_no' => 'required|integer',
+            'bill_no' => 'required',
+            'bill_date' => 'required',
+            'patient_id' => 'required|integer',
+            'photo' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ]);
+        }
+
+        $print = $request->input('print');
+        $pageNo = $request->input('page_no');
+        $bill_No = $request->input('bill_no');
+        $patientId = $request->input('patient_id');
+        $note = $request->input('note');
+        $bill_date = $request->input('bill_date');
+        $total = $request->input('totalPrice');
+        $demoItems = DemoItem::where('page_id', $pageNo)->get();
+
+        // if ($demoItems->isEmpty()) {
+        //     return response()->json([
+        //         'status' => false,
+        //         'message' => 'No item added',
+        //     ]);
+        // }
+
+        $file = null;
+        if ($request->hasFile('bill_image')) {
+            $document = $request->file('bill_image');
+            $name = now()->format('Y-m-d_H-i-s') . '-bill';
+            $file = $name . '.' . $document->getClientOriginalExtension();
+            $targetDir = public_path('./media/photos');
+            $document->move($targetDir, $file);
+        }
+
+        DB::beginTransaction();
+
+        $patientBill = PatientBills::findOrFail($id);
+        $previousBillItems = $patientBill->billItems;
+        foreach ($previousBillItems as $item) {
+            DB::table('batches')
+                ->where('batch_no', $item->batch_no)
+                ->increment('quantity', $item->qty);
+        }
+        DB::table('bill_items')->where('bill_id', $id)->delete();
+        $patientBill->update([
+            'bill_no' => $bill_No,
+            'patient_id' => $patientId,
+            'bill_date' => $bill_date,
+            'bill_image' => $file,
+            'total_amount' => $total,
+            'note' => $note,
+            'updated_at' => now(),
+        ]);
+
+        foreach ($demoItems as $item) {
+            DB::table('bill_items')->insert([
+                'bill_id' => $patientBill->id,
+                'medicine_id' => $item->medicine_id,
+                'batch_no' => $item->batch_no,
+                'qty' => $item->qty,
+                'dos' => $item->dos,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            DB::table('batches')
+                ->where('batch_no', $item->batch_no)
+                ->decrement('quantity', $item->qty);
+        }
+
+        DemoItem::where('page_id', $pageNo)->delete();
+        DB::table('temp_stock_reservations')->where('page_id', $pageNo)->delete();
+
+        DB::commit();
+
+        return response()->json([
+            'status' => true,
+            'id' => $patientBill->id,
+            'print' => $print,
+            'message' => 'Bill updated successfully',
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'status' => false,
+            'message' => 'Failed to update bill. Please try again.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+
+}
+
+
+
+// end update
+
+
+
+
+
+
     public function showPrint($id)
     {
         $bill =   PatientBills::find($id);
@@ -524,7 +649,6 @@ class PatientController extends Controller
 
         $bill = PatientBills::find($id);
         if($bill){
-            // dd($bill);
             $medicines = Medicine::all();
             $uniquePageNumber = mt_rand(10000000, 99999999);
             return view('patient.edit_bill', compact('id','bill','uniquePageNumber','medicines'));
@@ -533,128 +657,138 @@ class PatientController extends Controller
         }
 
     }
-
-
-    public function update_bill(Request $request){
-        try {
-            $rules = [
-                'bill_id' => 'required|integer',
-                'page_no' => 'required|integer',
-                'bill_no' => 'required',
-                'bill_date' => 'required',
-                'patient_id' => 'required|integer|exists:patients,id',
-                'photo' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-
-            ];
-            $validator = Validator::make($request->all(), $rules);
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => false,
-                    'errors' => $validator->errors(),
-                ]);
-            }
-            $id = $request->input('bill_id');
-            $print = $request->input('print');
-            $pageNo = $request->input('page_no');
-            $bill_No = $request->input('bill_no');
-            $patientId = $request->input('patient_id');
-            $note = $request->input('note');
-            $bill_date = $request->input('bill_date');
-            $total = $request->input('totalPrice');
-            $demoItems = DB::table('bill_items')->where('bill_id', $id)->get();
-            if ($demoItems->isEmpty()) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'NO item Add',
-                ]);
-            }
-            $file = null;
-            if ($request->hasFile('bill_image')) {
-                $document = $request->file('bill_image');
-                $name = now()->format('Y-m-d_H-i-s') . '-bill';
-                $file = $name . '.' . $document->getClientOriginalExtension();
-                $targetDir = public_path('./media/photos');
-                $document->move($targetDir, $file);
-            }
-            DB::beginTransaction();
-            $patientBill = PatientBills::find($id);
-            if($patientBill){
-            $patientBill->update([
-                'bill_no' => $bill_No,
-                'patient_id' => $patientId,
-                'bill_date' => $bill_date,
-                'bill_image' => $file ?? $patientBill->bill_image,
-                'total_amount' => $total,
-                'note' => $note,
-                'updated_at' => now(),
-            ]);
-
-            $newlyCreatedId = $patientBill->id;
-            foreach ($demoItems as $item) {
-                DB::table('bill_items')->insert([
-                    'bill_id' => $patientBill->id,
-                    'medicine_id' => $item->medicine_id,
-                    'batch_no' => $item->batch_no,
-                    'qty' => $item->qty,
-                    'dos' => $item->dos,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-                DB::table('batches')
-                    ->where('batch_no', $item->batch_no)
-                    ->decrement('quantity', $item->qty);
-            }
-            DemoItem::where('page_id', $pageNo)->delete();
-            DB::table('temp_stock_reservations')->where('page_id', $pageNo)->delete();
-            DB::commit();
-            return response()->json([
-                'status' => true,
-                'id' => $newlyCreatedId,
-                'print' => $print,
-                'message' => 'Bill created successfully',
-            ]);
-        }
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'status' => false,
-                'message' => 'Failed to create bill. Please try again.',
-                'error' => $e->getMessage(),
-            ]);
-        }
-    }
-    public function batchQty(Request $request){
-
-        $rules = [
-            'medicine_id' => 'required|integer',
-            'qty' => 'required|integer',
-    ];
-    $validator = Validator::make($request->all(), $rules);
-    if ($validator->fails()) {
-        return response()->json([
-            'status' => false,
-            'errors' => $validator->errors(),
-        ]);
-    }
-    $medicineId = $request->input('medicine_id');
-    $qty = $request->input('qty');
+    public function batchQty($id,$qty){
      $oldestBatch = DB::table('batches')
-     ->where('medicine_id', $medicineId)
+     ->where('medicine_id', $id)
+     ->where('quantity','!=','0')
      ->orderBy('created_at', 'asc')
      ->first();
 
  if (!$oldestBatch) {
      return response()->json([
          'status' => false,
-         'errors' => 'No batches found for the specified medicine.'
+         'message' => 'No batches found for the specified medicine.'
      ]);
  }
  if ($qty > $oldestBatch->quantity) {
      return response()->json([
          'status' => false,
-         'errors' => 'exceeds batch quantity add new row.'
+         'message' => 'exceeds batch quantity add new row.'
+        ]);
+    }else{
+     return response()->json([
+         'status' => true,
+         'message' => 'qty update.'
      ]);
+
  }
     }
 
+
+
+
+
+
+
+    public function deleteitem($id,$page_no)
+    {
+        $row = DB::table('bill_items')->where('id', $id)->first();
+
+        if ($row) {
+            DB::table('bill_items')->where('id', $id)->update(
+                [
+                    'page_no' => $page_no,
+                    'is_deleted' => $page_no,
+                ]
+            );
+            return response()->json([
+                'status' => true,
+                'successfully' => 'successfully',
+            ]);
+        } else {
+            return response()->json([
+                'status' => true,
+                'errors' => 'eroor',
+            ]);
+        }
+    }
+
+public function updateDemoItems(Request $request)
+{
+    $items = $request->items;
+    foreach ($items as $item) {
+            DemoItem::create([
+                'page_id' => $item['page_no'],
+                'bill_id' => $item['bill_id'],
+                'medicine_id' => $item['medicine_id'],
+                'batch_no' => $item['batch_no'],
+                'qty' => $item['qty'],
+                'dos' => $item['dos'],
+            ]);
+        }
+    return response()->json(['status' => 'success', 'message' => 'Items inserted/updated successfully']);
+}
+
+//
+public function editrowdelete(Request $request,$id)
+{
+    $row = DB::table('demo_items')->where('id', $id)->first();
+    if ($row) {
+        DB::table('demo_items')->where('id', $id)->update([
+            'is_deleted' => $id,
+            'bill_id' => $request->input('bill_id'),
+            'page_id' => $request->input('page_no'),
+
+        ]);
+        return response()->json([
+            'status' => true,
+            'successfully' => 'successfully',
+        ]);
+    } else {
+        return response()->json([
+            'status' => true,
+            'errors' => 'eroor',
+        ]);
+    }
+}
+
+public function updateDemoRows(Request $request, $id){
+    $demoItems = DemoItem::find($id);
+    if($demoItems){
+        $oldestBatch = DB::table('batches')
+        ->where('medicine_id', $request->input('medicineId'))
+        ->where('quantity','!=','0')
+        ->orderBy('created_at', 'asc')
+        ->first();
+
+    // if (!$oldestBatch) {
+    //     return response()->json([
+    //         'status' => false,
+    //         'message' => 'No batches found for the specified medicine.'
+    //     ]);
+    // }
+    if ($request->input('qty') > $oldestBatch->quantity) {
+        return response()->json([
+            'status' => false,
+            'message' => 'exceeds batch quantity add new row.'
+           ]);
+        }
+        $demoItems->update([
+            'medicine_id' => $request->input('medicineId'),
+            'qty' => $request->input('qty'),
+            'dos' => $request->input('dos'),
+        ]);
+        return response()->json([
+            'status' => true,
+            'successfully' => 'successfully',
+        ]);
+    }else{
+        return response()->json([
+            'status' => false,
+            'errors' => 'error',
+        ]);
+
+    }
+
+}
 }
