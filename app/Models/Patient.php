@@ -28,4 +28,8 @@ class Patient extends Model
     {
         return $this->belongsTo(Documents::class);
     }
+    public function bills()
+    {
+        return $this->hasMany(PatientBills::class);
+    }
 }

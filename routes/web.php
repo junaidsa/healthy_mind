@@ -73,10 +73,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/batch_qty/check/{id}/{qty}', [PatientController::class,'batchQty']);
     Route::get('/patient/get', [PatientController::class, 'search'])->name('patients.getPatients');
     Route::get('/bill/delete-item/{id}/{page_no}', [PatientController::class, 'deleteitem']);
-    Route::post('/bills/{id}',[PatientController::class,'update_bill'])->name('bills.update');
+    Route::post('/bill/update',[PatientController::class,'update_bill'])->name('bills.update');
     Route::get('/demo/delete-editrow/{id}', [PatientController::class, 'editrowdelete']);
-    Route::get('/demo/edit-row/{id}', [PatientController::class, 'getEditRow']);
+    Route::get('/demo/edit-row/{page_no}/{id}', [PatientController::class, 'getEditRow']);
     Route::post('/demo/update-row/{id}', [PatientController::class, 'updateDemoRows']);
+    Route::get('/demo/total_amount/{page_no}', [PatientController::class, 'gettotal_amount']);
+    Route::get('/patient/export', [PatientController::class, 'export'])->name('patients.export');
 
 });
 require __DIR__.'/auth.php';

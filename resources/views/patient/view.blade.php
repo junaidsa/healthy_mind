@@ -59,11 +59,11 @@
                         </div>
                         <div class="page-title-right">
                             <div class="m-4 mb-2">
-                                <button class="btn-sm btn btn-success">
+                                <a href="javascript: void(0);" class="btn-sm btn btn-success">
                                     Import
-                                </button>
+                                </a>
 
-                                <a href="javascript: void(0);" class="btn-sm btn btn-danger has-arrow waves-effect">
+                                <a href="{{url('patient/export')}}" class="btn-sm btn btn-danger has-arrow waves-effect">
                                     Export
                                 </a>
                             </div>

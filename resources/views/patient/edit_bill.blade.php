@@ -303,11 +303,7 @@
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            // Save the image data
             imageData = canvas.toDataURL('image/png');
-
-            // Set the image preview
             var imagePreview = document.getElementById('imagePreview');
             imagePreview.innerHTML = '<img src="' + imageData + '" alt="Captured Image">';
             var byteString = atob(imageData.split(',')[1]);
@@ -331,12 +327,32 @@
             photoInput.files = dataTransfer.files;
         });
 
+
+
+
+
+        function getTotal() {
+            const page_no = $('#lastPageNumber').val();
+            $.ajax({
+                url: "{{ url('demo/total_amount') }}/" + page_no,
+                type: 'GET',
+                success: function(data) {
+        if (data.total_price !== undefined) {
+            $("#total-price").text(data.total_price);
+        } else {
+            $("#total-price").text("0.00");
+        }
+                }
+            });
+        }
+
         $("#add").click(function() {
             const page_no = $('#lastPageNumber').val();
             const medicineString = $('#medicine').val();
             const medicine = parseInt(medicineString, 10);
             const qty = $('#qty').val();
             const dos = $('#dos').val();
+            const bill_id = $('#bill_id').val();
             $.ajax({
                 url: "{{ url('demo/create') }}",
                 method: 'POST',
@@ -346,21 +362,21 @@
                     medicine: medicine,
                     qty: qty,
                     dos: dos,
+                    bill_id: bill_id,
                     _token: '{{ csrf_token() }}'
                 },
                 success: function(response) {
                     if (response.status == true) {
+                        getTotal()
                         let total = response.total_price.total_price
-                        $("#total-price").text(total);
-
                         $("#medicine").removeClass('is-invalid').siblings('p').removeClass(
                             'invalid-feedback').html('');
                         $("#qty").removeClass('is-invalid').siblings('p').removeClass(
                             'invalid-feedback').html('');
                         $("#dos").removeClass('is-invalid').siblings('p').removeClass(
                             'invalid-feedback').html('');
-                        getDropdown();
-                        fetchRows(page_no)
+                        // getDropdown();
+                        fetchRows()
                         $('#qty').val('')
                         $('#dos').val('')
 
@@ -421,24 +437,23 @@
                 }
             });
         }
+
         getDropdown();
-
-        var deleted_array=[]
-
-        function fetchRows(page_no) {
-            // editRows()
+        function fetchRows() {
+            const bill_id = $('#bill_id').val();
+            const page_id = $('#lastPageNumber').val();
             $.ajax({
-                url: "{{ url('/demo/edit-row') }}/" + page_no,
+                url: "{{ url('/demo/edit-row') }}/" + page_id +'/'+bill_id,
                 method: 'GET',
                 dataType: 'json',
                 success: function(response) {
                     $("#bill_item .stepinventryRow").remove();
                     response.forEach(function(row) {
                         var newRow = `
-                    <div data-repeater-item="" class="row stepinventryRow" data-ino="${row.id}">
+                    <div data-repeater-item="" class="row stepinventryRow" data-ino="${row.item_id}">
                         <div class="mb-3 col-lg-5">
                                 <label for="name">Medicine Name</label>
-                                <select name="medicine" id="medicine-${row.id}" class="mb-3 form-select">
+                                <select name="medicine" id="medicine-${row.item_id}" class="mb-3 form-select" disabled>
                                     @foreach ($medicines as $m)
                                     <option value="{{ $m->id }}" {{ $m->id }}"   data="${row.medicine_id == {{ $m->id }} ?parseInt(row.quantity+row.qty): ''}"  ${row.medicine_id == {{ $m->id }} ? 'selected' : ''}>{{ $m->name }}</option>
                                     @endforeach
@@ -447,32 +462,36 @@
                                     </div>
                                     <div class="mb-3 col-lg-2">
                                 <label>Quantity</label>
-                                <input type="number" id="qty-${row.id}" name="qty" class="form-control item-qty" data-qty="${parseInt(row.quantity+row.qty)}" data-m_id="${row.medicine_id}" data-row_id="${row.id}" value="${row.qty}" >
+                                <input type="number" id="qty-${row.item_id}" name="qty" class="form-control item-qty" data-qty="${parseInt(row.quantity+row.qty)}" data-m_id="${row.medicine_id}" data-row_id="${row.id}" data-price="${row.rate}" value="${row.qty}" >
                                 <p></p>
                                 </div>
                             <div class="mb-3 col-lg-2">
                                 <label for="email">Dosage</label>
-                                <input type="number" name="dos" id="dos-${row.ino}" class="form-control" value="${row.dos}">
+                                <input type="number" name="dos" id="dos-${row.item_id}" class="form-control" value="${row.dos}">
                                 <p></p>
                                 </div>
                                 <div class="col-lg-2 align-self-center">
                                     <div class="d-grid">
-                                        <input type="button" class="btn btn-primary remove-button" data-qty="${row.qty}"  data-batch_no="${row.batch_no}"  data-medicine_id="${row.medicine_id}" value="Delete" data-id="${row.id}">
+                                        <input type="button" class="btn btn-primary remove-button" data-qty="${row.qty}"  data-batch_no="${row.batch_no}"  data-medicine_id="${row.medicine_id}" value="Delete" data-id="${row.item_id}">
                                         </div>
                                         </div>
                                         </div>`;
-                        $("#bill_item").append(newRow);
-                        $("#medicine-" + row.id).change(function() {
-                             updateRow(row.id);
-                         });
-                        $("#qty-" + row.id).change(function() {
-                            updateRow(row.id);
-                        });
-                    $("#dos-" + row.id).change(function() {
-                        updateRow(row.id);
-                    });
-                    });
-                    attachDeleteEvent(page_no);
+                                            $("#bill_item").append(newRow);
+                                            getTotal()
+                                            $("#medicine-" + row.id).focusout(function() {
+                                                updateRow(row.id);
+                                                getTotal()
+                                            });
+                                            $("#qty-" + row.id).focusout(function() {
+                                                updateRow(row.id);
+                                                getTotal()
+                                            });
+                                        $("#dos-" + row.id).focusout(function() {
+                                            updateRow(row.id);
+                                            getTotal()
+                                        });
+                                    });
+                    attachDeleteEvent();
                 },
                 error: function(error) {
                     console.error("There was an error fetching the rows: ", error);
@@ -509,7 +528,7 @@
                     items: items
                 },
                 success: function(insertResponse) {
-                    fetchRows(bill_id)
+                    fetchRows()
                     console.log("Items updated successfully: ", insertResponse);
                 },
                 error: function(error) {
@@ -523,10 +542,15 @@
     });
 }
 function updateRow(rowId) {
+    console.log(rowId);
+    var qtyElement = $("#qty-" + rowId);
+
+if (qtyElement.hasClass('is-invalid')) {
+    return;
+}
     var medicineId = $("#medicine-" + rowId).val();
     var qty = $("#qty-" + rowId).val();
     var dos = $("#dos-" + rowId).val();
-
     $.ajax({
         url: "{{ url('/demo/update-row') }}/" + rowId,
         method: 'POST',
@@ -538,6 +562,7 @@ function updateRow(rowId) {
         },
         success: function(response) {
             console.log("Row updated successfully:", response);
+            getTotal()
         },
         error: function(error) {
             console.error("There was an error updating the row:", error);
@@ -560,34 +585,11 @@ function updateRow(rowId) {
                     $(`#qty-${row_id}`).addClass('is-invalid').siblings('p').addClass(
                         'invalid-feedback').html("Qty Exceeds in Current Batch.Total In Batch "+totalqty);
                 }
-                console.log(check)
-
                 return 1;
-                console.log(id);
-
-                $.ajax({
-                    url: "{{ url('batch_qty/check/') }}/" + id + '/' + qty,
-                    method: 'get',
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.status === false) {
-                            $(`#qty-${row_id}`).addClass('is-invalid').siblings('p').addClass(
-                                'invalid-feedback').html(response.message);
-
-                        } else {
-                            $(`#qty-${row_id}`).removeClass('is-invalid').siblings('p')
-                                .removeClass('invalid-feedback').html('');
-
-                        }
-                    },
-                    error: function(error) {
-                        console.error("There was an error deleting the row: ", error);
-                    }
-                });
             });
         });
 
-        function attachDeleteEvent(page_no) {
+        function attachDeleteEvent() {
             $(".remove-button").off('click').on('click', function() {
                 var rowId = $(this).data('id');
                 var rowElement = $(this).closest('.stepinventryRow');
@@ -596,8 +598,6 @@ function updateRow(rowId) {
                     var qty=$(this).data('qty');
                     var batch_no=$(this).data('batch_no');
                     var medicine_id=$(this).data('medicine_id');
-                deleted_array.push({qty:qty,batch_no:batch_no,medicine_id:medicine_id})
-                console.log(deleted_array)
                 $.ajax({
                     url: "{{ url('/demo/delete-editrow') }}/" + rowId,
                     data:{
@@ -608,7 +608,7 @@ function updateRow(rowId) {
                     dataType: 'json',
                     success: function(response) {
                         if (response.status = true) {
-                            fetchRows(page_no);
+                            fetchRows();
                             getDropdown();
                         } else {
                             console.error("There was an error deleting the row: ", response.message);
@@ -634,12 +634,14 @@ function updateRow(rowId) {
             const page_no = $('#lastPageNumber').val();
             const note = $('#note').val();
             const bill_date = $('#bill_date').val();
+            const bill_id = $('#bill_id').val();
             const bill_no = $('#bill_no').val();
             const patient_id = $('#patient_id').val();
             var totalPrice = $('#total-price').text();
             const bill_image = $('#bill_image')[0].files[0];
             var formData = new FormData();
             formData.append('bill_date', bill_date);
+            formData.append('bill_id', bill_id);
             formData.append('page_no', page_no);
             formData.append('note', note);
             formData.append('bill_no', bill_no);
@@ -650,7 +652,7 @@ function updateRow(rowId) {
             formData.append('bill_image', bill_image);
 
             $.ajax({
-                url: "{{ url('bill/create') }}",
+                url: "{{ url('bill/update') }}",
                 method: 'POST',
                 dataType: 'json',
                 data: formData,
@@ -658,6 +660,7 @@ function updateRow(rowId) {
                 processData: false,
                 contentType: false,
                 success: function(response) {
+                    console.log(response);
                     if (response.status == true) {
                         const print_id = response.id
                         const printStatus = response.print === "true";

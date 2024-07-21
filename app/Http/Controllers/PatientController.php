@@ -15,20 +15,49 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use League\CommonMark\Node\Block\Document;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Response;
 
 
 
 class PatientController extends Controller
 {
-    private function htmltable(){
-
-    }
     public function index()
     {
         return view('patient.view');
     }
 
 
+
+    private function convertToCsv($patients)
+    {
+        $csv = '';
+
+        // Define the CSV headers
+        $headers = [
+            'ID', 'File No', 'Name', 'Father Name',
+             'Age', 'Aadhar Number', 'Mobile No',
+            'Address','Totol Bill'
+        ];
+        $csv .= implode(',', $headers) . "\n";
+
+        // Add data rows
+        foreach ($patients as $patient) {
+            $csv .= implode(',', [
+                $patient->id,
+                $patient->file_no,
+                // $patient->image,
+                $patient->first_name,
+                $patient->father_name,
+                $patient->date_of_birth,
+                $patient->uid_number,
+                $patient->mobile_no,
+                $patient->address,
+                $patient->total_bills,
+            ]) . "\n";
+        }
+
+        return $csv;
+    }
     public function search(Request $request)
     {
         $search = $request->input('search');
@@ -114,7 +143,6 @@ class PatientController extends Controller
             'file_no' => 'required',
             'registration_date' => 'required',
             'first_name' => 'required',
-            // 'files' => 'required',
             'gender' => 'required',
             'uid_number' => 'required',
             // 'files' => 'required',
@@ -173,15 +201,12 @@ class PatientController extends Controller
     }
     public function create_demo(Request $request)
     {
-        // Validation rules
         $rules = [
             'page_no' => 'required|integer',
             'medicine' => 'required|integer|exists:medicines,id',
             'qty' => 'required|integer|min:1',
             'dos' => 'required|integer',
         ];
-
-        // Validate the request
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return response()->json([
@@ -207,7 +232,6 @@ class PatientController extends Controller
                 }
                 $r_quantity2 = $batch->quantity - $total_qty;
             }
-            // dd($r_quantity2);
             if(isset($r_quantity2) && $r_quantity2 <= 0){
                 $pre_id = $batch->id;
                 $r_quantity = 0;
@@ -248,7 +272,6 @@ class PatientController extends Controller
                     'errors' => $validator->errors(),
                 ]);
             } else {
-                // $reservedQty = min($batchQty, $requestedQty);
                 $tempReservations[] = [
                     'page_id' => $request->page_no,
                     'medicine_id' => $medicineId,
@@ -259,10 +282,11 @@ class PatientController extends Controller
                 ];
                 DB::table('temp_stock_reservations')->insert($tempReservations);
                 $idd=DB::getPdo()->lastInsertId();
-                // dd($idd);
                 $demoItems[] = [
                     'page_id' => $request->page_no,
+                    'bill_id' => $request->bill_id,
                     'medicine_id' => $medicineId,
+                    'page_id' => $request->page_no,
                     'batch_no' => $batch->batch_no,
                     'qty' => $requestedQty,
                     'dos' => $request->dos,
@@ -277,6 +301,7 @@ class PatientController extends Controller
         $totalPrice = DB::table('demo_items as di')
             ->join('medicines as m', 'di.medicine_id', '=', 'm.id')
             ->where('di.page_id', $idPage)
+            ->where('di.is_deleted',0)
             ->select(DB::raw('SUM(m.rate * di.qty) as total_price'))
             ->first();
         return response()->json([
@@ -408,13 +433,18 @@ class PatientController extends Controller
         $rows = DemoItem::where('page_id', $id)->get();
         return response()->json($rows);
     }
-    public function getEditRow($id)
+    public function getEditRow($page_no,$id)
     {
        // $rows = DemoItem::where('page_id', $id)->where('is_deleted',0)->get();
 
-       $qry=DB::table('bill_items as b')->select('b.*','bc.quantity')->where('bill_id',$id)->leftjoin('medicines as m','m.id','=','b.medicine_id')->leftjoin('batches as bc',function($query){
+    //    $qry=DB::table('bill_items as b')->select('b.*','bc.quantity')->where('bill_id',$id)->leftjoin('medicines as m','m.id','=','b.medicine_id')->leftjoin('batches as bc',function($query){
+    //         $query->on('bc.batch_no','=','b.batch_no');
+    //         $query->on('bc.medicine_id','=','b.medicine_id');
+    //    })->get();
+       $qry=DB::table('demo_items as b')->select('b.*','bc.quantity','b.id as item_id','m.rate')->where('bill_id',$id)->where('page_id',$page_no)->where('is_deleted',0)->leftjoin('medicines as m','m.id','=','b.medicine_id')->leftjoin('batches as bc',function($query){
             $query->on('bc.batch_no','=','b.batch_no');
             $query->on('bc.medicine_id','=','b.medicine_id');
+
        })->get();
         return response()->json($qry);
     }
@@ -505,11 +535,12 @@ class PatientController extends Controller
 
 
 // update bill
-public function update_bill(Request $request,$id){
+public function update_bill(Request $request){
     try {
         $rules = [
             'page_no' => 'required|integer',
             'bill_no' => 'required',
+            'bill_id' => 'required',
             'bill_date' => 'required',
             'patient_id' => 'required|integer',
             'photo' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -523,6 +554,7 @@ public function update_bill(Request $request,$id){
             ]);
         }
 
+        $id = $request->input('bill_id');
         $print = $request->input('print');
         $pageNo = $request->input('page_no');
         $bill_No = $request->input('bill_no');
@@ -530,15 +562,14 @@ public function update_bill(Request $request,$id){
         $note = $request->input('note');
         $bill_date = $request->input('bill_date');
         $total = $request->input('totalPrice');
-        $demoItems = DemoItem::where('page_id', $pageNo)->get();
+        $demoItems = DemoItem::where('page_id', $pageNo)->where('is_deleted',0)->get();
 
-        // if ($demoItems->isEmpty()) {
-        //     return response()->json([
-        //         'status' => false,
-        //         'message' => 'No item added',
-        //     ]);
-        // }
-
+        if ($demoItems->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No item added',
+            ]);
+        }
         $file = null;
         if ($request->hasFile('bill_image')) {
             $document = $request->file('bill_image');
@@ -551,11 +582,11 @@ public function update_bill(Request $request,$id){
         DB::beginTransaction();
 
         $patientBill = PatientBills::findOrFail($id);
-        $previousBillItems = $patientBill->billItems;
+        $previousBillItems = DB::table('bill_items')->where('bill_id',$id)->get();
         foreach ($previousBillItems as $item) {
             DB::table('batches')
-                ->where('batch_no', $item->batch_no)
-                ->increment('quantity', $item->qty);
+            ->where('batch_no', $item->batch_no)
+            ->increment('quantity', $item->qty);
         }
         DB::table('bill_items')->where('bill_id', $id)->delete();
         $patientBill->update([
@@ -701,9 +732,16 @@ public function update_bill(Request $request,$id){
                     'is_deleted' => $page_no,
                 ]
             );
+            $totalPrice = DB::table('demo_items as di')
+            ->join('medicines as m', 'di.medicine_id', '=', 'm.id')
+            ->where('di.page_id', $page_no)
+            ->where('di.is_deleted',0)
+            ->select(DB::raw('SUM(m.rate * di.qty) as total_price'))
+            ->first();
             return response()->json([
                 'status' => true,
                 'successfully' => 'successfully',
+                'total_amount' => $totalPrice,
             ]);
         } else {
             return response()->json([
@@ -716,6 +754,7 @@ public function update_bill(Request $request,$id){
 public function updateDemoItems(Request $request)
 {
     $items = $request->items;
+    $totalPrice = 0;
     foreach ($items as $item) {
             DemoItem::create([
                 'page_id' => $item['page_no'],
@@ -725,8 +764,19 @@ public function updateDemoItems(Request $request)
                 'qty' => $item['qty'],
                 'dos' => $item['dos'],
             ]);
+            $totalPrice = DB::table('demo_items as di')
+            ->join('medicines as m', 'di.medicine_id', '=', 'm.id')
+            ->where('di.page_id', $item['page_no'])
+            ->where('di.is_deleted',0)
+            ->select(DB::raw('SUM(m.rate * di.qty) as total_price'))
+            ->first();
         }
-    return response()->json(['status' => 'success', 'message' => 'Items inserted/updated successfully']);
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Items inserted/updated successfully',
+        'total_amount' => $totalPrice,
+
+    ]);
 }
 
 //
@@ -735,14 +785,21 @@ public function editrowdelete(Request $request,$id)
     $row = DB::table('demo_items')->where('id', $id)->first();
     if ($row) {
         DB::table('demo_items')->where('id', $id)->update([
-            'is_deleted' => $id,
+            'is_deleted' => $request->input('page_no'),
             'bill_id' => $request->input('bill_id'),
             'page_id' => $request->input('page_no'),
 
         ]);
+        $totalPrice = DB::table('demo_items as di')
+        ->join('medicines as m', 'di.medicine_id', '=', 'm.id')
+        ->where('di.page_id', $request->input('page_no'))
+        ->where('di.is_deleted',0)
+        ->select(DB::raw('SUM(m.rate * di.qty) as total_price'))
+        ->first();
         return response()->json([
             'status' => true,
             'successfully' => 'successfully',
+            'total_amount' => $totalPrice,
         ]);
     } else {
         return response()->json([
@@ -755,32 +812,15 @@ public function editrowdelete(Request $request,$id)
 public function updateDemoRows(Request $request, $id){
     $demoItems = DemoItem::find($id);
     if($demoItems){
-        $oldestBatch = DB::table('batches')
-        ->where('medicine_id', $request->input('medicineId'))
-        ->where('quantity','!=','0')
-        ->orderBy('created_at', 'asc')
-        ->first();
-
-    // if (!$oldestBatch) {
-    //     return response()->json([
-    //         'status' => false,
-    //         'message' => 'No batches found for the specified medicine.'
-    //     ]);
-    // }
-    if ($request->input('qty') > $oldestBatch->quantity) {
-        return response()->json([
-            'status' => false,
-            'message' => 'exceeds batch quantity add new row.'
-           ]);
-        }
         $demoItems->update([
-            'medicine_id' => $request->input('medicineId'),
+            // 'medicine_id' => $request->input('medicineId'),
             'qty' => $request->input('qty'),
             'dos' => $request->input('dos'),
         ]);
         return response()->json([
             'status' => true,
             'successfully' => 'successfully',
+            'data' =>$demoItems,
         ]);
     }else{
         return response()->json([
@@ -790,5 +830,31 @@ public function updateDemoRows(Request $request, $id){
 
     }
 
+}
+
+public function gettotal_amount($page_no){
+    $qry = DB::table('demo_items as di')
+    ->join('medicines as m', 'di.medicine_id', '=', 'm.id')
+    ->where('di.page_id',$page_no)
+    ->where('di.is_deleted',0)
+    ->select(DB::raw('SUM(m.rate * di.qty) as total_price'))
+    ->first();
+    return response()->json($qry);
+}
+public function export()
+{
+    // $patients = Patient::all();
+    $patients = DB::table('patients')
+    ->leftJoin('patient_bills', 'patients.id', '=', 'patient_bills.patient_id')
+    ->select('patients.*', DB::raw('COUNT(patient_bills.id) as total_bills'))
+    ->groupBy('patients.id')
+    ->get();
+    $csvData = $this->convertToCsv($patients);
+
+    $fileName = 'patients_' . date('Y-m-d_H-i-s') . '.csv';
+    return Response::make($csvData, 200, [
+        'Content-Type' => 'text/csv',
+        'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+    ]);
 }
 }
