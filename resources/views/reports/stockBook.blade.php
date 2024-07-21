@@ -104,7 +104,7 @@
                     </a> --}}
                     <a href="{{ url('stock/pdf') }}@if(request()->has('date'))?date={{ request()->get('date') }}@endif
                         @if(request()->has('search')){{ request()->has('date') ? '&' : '?' }}search={{ request()->get('search') }}@endif"
-                        class="btn btn-success">
+                        class="btn btn-success" target="_blank">
                         PDF
                     </a>
                     {{-- <a href="{{ url('stock/excel') }}@if(isset($_GET['date']))?date={{ $_GET['date'] }}@endif" class="btn btn btn-success">
@@ -112,7 +112,7 @@
                     </a> --}}
                     <a href="{{ url('stock/excel') }}@if(request()->has('date'))?date={{ request()->get('date') }}@endif
                         @if(request()->has('search')){{ request()->has('date') ? '&' : '?' }}search={{ request()->get('search') }}@endif"
-                        class="btn btn-success">
+                        class="btn btn-success" target="_blank">
                         Excel
                     </a>
                     {{-- <a href="{{ url('stock/print') }}@if(isset($_GET['date']))?date={{ $_GET['date'] }}@endif" class="btn btn btn-success">
@@ -120,7 +120,7 @@
                     </a> --}}
                     <a href="javascript: void(0);"
                     onclick="window.print()"
-                        class="btn btn-success">
+                        class="btn btn-success" >
                         Print
                     </a>
                 </div>

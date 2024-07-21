@@ -71,11 +71,11 @@
             <div class="card" style="border-radius: 20px">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <form id="range-form" action="{{ url()->current() }}">
-                            <input type="hidden" name="search" value="{{ @$_GET['search'] }}">
+                        {{-- <form id="range-form" action="{{ url()->current() }}"> --}}
+                            {{-- <input type="hidden" name="search" value=""> --}}
                             <input type="text" class="form-control form-control-sm" id="date_range" name="date"
                                 value="{{ date('d M Y') }}" style="width: 200px">
-                        </form>
+                        {{-- </form> --}}
                         <div class="d-flex align-items-center fw-bold">
                             PRINT BILL <input type="text" class="form-control form-control-sm ms-2 me-2"
                                 name="start_bill" id="start_bill" style="width: 100px"> TO <input type="text"
@@ -85,8 +85,8 @@
 
                                 <input type="checkbox" id="duplicateCheck" class="float-end ms-2 me-2" />
                                 <span class="fw-bold">DUPLICATE</span>
-                            </label> <button class="btn btn-primary btn-sm btn-print  ms-2 me-2">Print</button> <button
-                                class="ms-2 me-2 btn btn-primary btn-sm btn-download">Download</button>
+                            </label> <button class="btn btn-primary btn-sm btn-print  ms-2 me-2" target="_blank">Print</button> <button
+                                class="ms-2 me-2 btn btn-primary btn-sm btn-download" target="_blank">Download</button>
                         </div>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
@@ -104,18 +104,15 @@
                             <div class="mt-6">
 
                             </div>
-
-                            <form action="{{ url()->current() }}" method="get">
                                 <input type="hidden" name="date" value="{{ @$_GET['date'] }}">
                                 <div class="search-container">
                                     <button class="search-a">
                                         <i class="fa fa-search" class="search-a"></i>
                                     </button>
                                     <input type="text" placeholder="Search..." class="search-input" id="search"
-                                        name="search" value="{{ Request::get('search') }}">
+                                        name="search" value="">
 
                                 </div>
-                            </form>
                         </div>
                     </div>
 
@@ -241,7 +238,24 @@
 
 
 $(document).ready(function() {
-    function fetchBills(search = '', date = '') {
+
+    $('#date_range').change();
+    $('#date_range').on('change', function() {
+
+        if($(this).val()==undefined){
+        fetchBills($('#search').val(),"<?php echo date('Y-m-d') ?>");
+        }else{
+        fetchBills($('#search').val(), $(this).val());
+        }
+    });
+    function fetchBills(search = '', date) {
+        console.log('Search value:', search);
+        console.log('Date value:', date);
+    console.log(date);
+
+    if(date==undefined){
+date="<?php echo date('Y-m-d') ?>";
+    }
         $.ajax({
             url: '{{ url('/billbook') }}',
             type: 'GET',
@@ -261,7 +275,7 @@ $(document).ready(function() {
                         <td class="text-center">${row.first_name}</td>
                         <td class="text-center">${row.father_name}</td>
                         <td class="text-center">${row.date_of_birth}</td>
-                        <td class="text-center">${row.other_id}</td>
+                        <td class="text-center">${row.uid_number}</td>
                         <td class="text-center">${row.med_qty}</td>
                         <td class="text-center">${row.total_amount} ₹</td>
                         <td class="text-center">
@@ -289,12 +303,12 @@ $(document).ready(function() {
          $('#date_range').val());
     });
 
-    $('#date_range').on('change', function() {
-        fetchBills($('#search').val(), $(this).val());
-    });
     fetchBills();
     $('#pdfView').click(function(){
-        $('#pdf_view')[0].submit();
+        var form = $('#pdf_view');
+        form.attr('target', '_blank');
+        form.submit();
+        form.removeAttr('target');
     })
     $('#exlView').click(function(){
         $('#exl_view')[0].submit();
@@ -309,6 +323,7 @@ const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()
                 defaultDate: [today, endOfDay], // Set default dates to today
                 onClose: function(selectedDates, dateStr, instance) {
                     if (selectedDates.length === 2) {
+                        console.log('s')
                         const endDate = new Date();
                         selectedDates[1] = endDate;
                         instance.setDate(selectedDates, false);

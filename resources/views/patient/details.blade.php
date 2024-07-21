@@ -258,12 +258,12 @@ $total_doc = DB::table('documents')
                                                                 }}</td>
                                                             <td>
                                                                 <a href="{{ url('print').'/'.$bill->id}}">
-                                                                    <button type="button" class="btn btn-success btn-sm btn-rounded waves-effect waves-light">
+                                                                    <button type="button" class="btn btn-success btn-sm btn-rounded waves-effect waves-light"target="_blank" >
                                                                         Print
                                                                     </button>
                                                                 </a>
                                                                 <a href="{{ url('print').'/'.$bill->id}}">
-                                                                    <button type="button" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light">
+                                                                    <button type="button" class="btn btn-primary btn-sm btn-rounded waves-effect waves-light" target="_blank">
                                                                         View Details
                                                                     </button>
                                                                 </a>

@@ -139,15 +139,15 @@
                         </div>
                         <div class="col-3 text-end mb-2 d-print-none">
                             <a href="{{ url('dispense/pdf') }}@if (isset($_GET['date']))?date={{ $_GET['date'] }} @endif"
-                                class="btn btn btn-success">
+                                class="btn btn btn-success" target="_blank" >
                                 PDF
                             </a>
                             <a href="{{ url('dispense/excel') }}@if (isset($_GET['date']))?date={{ $_GET['date'] }} @endif"
-                                class="btn btn btn-success">
+                                class="btn btn btn-success" target="_blank">
                                 Excel
                             </a>
                             <a href="javascript: void(0);" onclick="window. print()"
-                                class="btn btn btn-success">
+                                class="btn btn btn-success" target="_blank">
                                 Print
                             </a>
                         </div>

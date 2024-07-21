@@ -113,51 +113,13 @@ class HomeController extends Controller
     // }
     public function billbook_view(Request $request)
     {
-    //     $start_date = '';
-    //     $end_date = '';
-    //     $search = @$_GET['search'];
 
-    //     $date = @$_GET['date'];
-    //     if (isset($date)) {
-    //         $date_part = explode(' to ', $date);
-
-    //         $start_date = date('Y-m-d', strtotime($date_part[0]));
-    //         $end_date = isset($date_part[1]) ? date('Y-m-d', strtotime($date_part[1])) : '';
-    //         if(empty($end_date)){
-    //             $end_date =  $start_date;
-    //         }
-    //     }
-
-    //     $data = DB::table('patient_bills as pb')
-    //         ->select('pb.*', 'p.file_no', 'p.first_name', 'p.father_name', 'p.other_id', 'p.Image', 'p.date_of_birth')
-    //         ->join('patients as p', function ($join) {
-    //             $join->on('p.id', 'pb.patient_id');
-    //         })
-    //         ->where(function ($q) use ($search) {
-    //             if (!empty($search)) {
-    //                 $q->where('pb.bill_no', 'like', '%' . $search . '%')
-    //                     ->orWhere('p.first_name', 'like', '%' . $search . '%')
-    //                     ->orWhere('p.father_name', 'like', '%' . $search . '%')
-    //                     ->orWhere('p.other_id', 'like', '%' . $search . '%')
-    //                     ->orWhere('p.date_of_birth', 'like', '%' . $search . '%')
-    //                     ->orWhere('pb.total_amount', 'like', '%' . $search . '%')
-    //                     ->orWhere('p.file_no', 'like', '%' . $search . '%');
-    //             }
-    //         })
-    //         ->where(function ($q) use ($date, $start_date, $end_date) {
-    //             if (!empty($date)) {
-    //                 $q->where('pb.updated_at', '>=', $start_date . ' 00:00:00')
-    //                     ->where('pb.updated_at', '<=', $end_date . ' 23:59:59');
-    //             }
-    //         })
-    //         ->orderBy('pb.id', 'desc')
-    //         ->get();
-
-    //     return view('reports.billbook', compact('data'));    $start_date = '';
+    if ($request->ajax()) {
     $start_date = '';
     $end_date = '';
     $search = $request->input('search', '');
     $date = $request->input('date', '');
+    // dd($date);
 
     if (!empty($date)) {
         $date_part = explode(' to ', $date);
@@ -166,7 +128,7 @@ class HomeController extends Controller
     }
 
     $query = DB::table('patient_bills as pb')
-    ->select('pb.*', 'p.file_no', 'p.first_name', 'p.father_name', 'p.other_id', 'p.Image', 'p.date_of_birth',
+    ->select('pb.*', 'p.file_no', 'p.first_name', 'p.father_name', 'p.uid_number', 'p.Image', 'p.date_of_birth',
     DB::raw('(SELECT SUM(bi.qty) FROM bill_items as bi WHERE bi.bill_id = pb.id) as med_qty'))
         ->join('patients as p', 'p.id', '=', 'pb.patient_id')
         ->where(function ($q) use ($search) {
@@ -174,7 +136,7 @@ class HomeController extends Controller
                 $q->where('pb.bill_no', 'like', '%' . $search . '%')
                   ->orWhere('p.first_name', 'like', '%' . $search . '%')
                   ->orWhere('p.father_name', 'like', '%' . $search . '%')
-                  ->orWhere('p.other_id', 'like', '%' . $search . '%')
+                  ->orWhere('p.uid_number', 'like', '%' . $search . '%')
                   ->orWhere('p.date_of_birth', 'like', '%' . $search . '%')
                   ->orWhere('pb.total_amount', 'like', '%' . $search . '%')
                   ->orWhere('p.file_no', 'like', '%' . $search . '%');
@@ -187,18 +149,11 @@ class HomeController extends Controller
             }
         })
         ->orderBy('pb.id', 'desc');
-
-    if ($request->ajax()) {
         $data = $query->get();
+        // dd($data);
         return response()->json($data);
     }
-
-    $data = $query->get();
-    return view('reports.billbook', compact('data'));
-
-
-
-
+    return view('reports.billbook');
     }
     public function stockBook_view()
     {
