@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\PatientsImport;
 use App\Models\DemoItem;
 use App\Models\Batche;
 use App\Models\Medicine;
@@ -16,8 +17,7 @@ use Illuminate\Support\Facades\DB;
 use League\CommonMark\Node\Block\Document;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Response;
-
-
+use Maatwebsite\Excel\Facades\Excel;
 
 class PatientController extends Controller
 {
@@ -856,5 +856,24 @@ public function export()
         'Content-Type' => 'text/csv',
         'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
     ]);
+}
+
+public function import(Request $request)
+{
+    $request->validate([
+        'file_no' => 'required',
+        'registration_date' => 'required',
+        'first_name' => 'required',
+        'father_name' => 'required',
+        'gender' => 'required',
+        'uid_number' => 'required',
+        'date_of_birth' => 'required',
+        'mobile_no' => 'required',
+        'address' => 'required',
+    ]);
+
+    Excel::import(new PatientsImport, $request->file('file'));
+
+    return redirect()->back()->with('success', 'Patients imported successfully.');
 }
 }

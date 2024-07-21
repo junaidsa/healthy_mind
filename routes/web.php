@@ -78,7 +78,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/demo/edit-row/{page_no}/{id}', [PatientController::class, 'getEditRow']);
     Route::post('/demo/update-row/{id}', [PatientController::class, 'updateDemoRows']);
     Route::get('/demo/total_amount/{page_no}', [PatientController::class, 'gettotal_amount']);
-    Route::get('/patient/export', [PatientController::class, 'export'])->name('patients.export');
+    Route::get('/patient/export', [PatientController::class, 'export']);
+    Route::post('/patient/import', [PatientController::class, 'import']);
 
 });
 require __DIR__.'/auth.php';
