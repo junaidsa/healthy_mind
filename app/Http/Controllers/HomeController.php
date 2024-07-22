@@ -583,12 +583,14 @@ class HomeController extends Controller
     public function deleteBill($id)
     {
         $bill_items = DB::table('bill_items')->where('bill_id', $id)->get();
+
         // dd($bill_items);
         if (count($bill_items) > 0) {
             foreach ($bill_items as $item) {
-                DB::table('batches')->where('medicine_id', $item->medicine_id)->where('quantity', '>', '0')->increment('quantity', $item->qty);
+                DB::table('batches')->where('medicine_id', $item->medicine_id)->where('batch_no', $item->batch_no)->increment('quantity', $item->qty);
             }
         }
+        DB::table('bill_items')->where('bill_id', $id)->delete();
         DB::table('patient_bills')->where('id', $id)->delete();
         return redirect()->back()->with('success', 'Bill Deleted');
     }

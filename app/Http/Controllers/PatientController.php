@@ -860,16 +860,9 @@ public function export()
 
 public function import(Request $request)
 {
+    // dd($request->all());
     $request->validate([
-        'file_no' => 'required',
-        'registration_date' => 'required',
-        'first_name' => 'required',
-        'father_name' => 'required',
-        'gender' => 'required',
-        'uid_number' => 'required',
-        'date_of_birth' => 'required',
-        'mobile_no' => 'required',
-        'address' => 'required',
+        'file' => 'required',
     ]);
 
     Excel::import(new PatientsImport, $request->file('file'));

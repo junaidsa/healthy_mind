@@ -59,7 +59,7 @@
                         </div>
                         <div class="page-title-right">
                             <div class="m-4 mb-2">
-                                <a href="javascript: void(0);" class="btn-sm btn btn-success">
+                                <a href="javascript: void(0);" class="btn-sm btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
                                     Import
                                 </a>
 
@@ -118,6 +118,36 @@
 
         </div>
     </div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Import Patients</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form action="{{  route('patients.import') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="mb-3">
+                    <label for="file">Choose CSV File</label>
+                    <input type="file" name="file"  class="form-control" id="file" required>
+                </div>
+                <div>
+                    {{-- <button type="submit" class="btn btn btn-primary">Import</button> --}}
+                </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Import</button>
+        </form>
+        </div>
+      </div>
+    </div>
+  </div>
     <div class="modal fade" id="modalImg" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
