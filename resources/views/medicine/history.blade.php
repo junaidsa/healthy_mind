@@ -75,10 +75,11 @@
                     </div>
                 </div>
                 <div class="row">
+
                     <div class="col-12">
+                        <h2 class="mb-4">{{$medicine->name}}</h2>
                         <div class="table-responsive">
                             <table class="table mb-0">
-
                                 <thead class="table-blue">
                                     <tr>
                                         <th>S.No.</th>
@@ -86,6 +87,8 @@
                                         <th>Batch No</th>
                                         <th>Time</th>
                                         <th>Status</th>
+                                        <th>Stock Left<span>
+                                            </span></th>
                                     </tr>
                                      <thead>
                                 <tbody>
@@ -96,6 +99,7 @@
                                             <td>{{ $his->batch_no }}</td>
                                             <td>{{ $his->time }}</td>
                                             <td>{{ $his->status }}</td>
+                                            <td>{{ $his->left_stock }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>

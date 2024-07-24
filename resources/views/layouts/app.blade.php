@@ -35,7 +35,10 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
     <link href="{{asset('public') }}/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
     <link href="{{asset('public') }}/assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
     <link href="{{asset('public') }}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+         --}}
+           <!-- JAVASCRIPT -->
+        <script src="{{asset('public') }}/assets/libs/jquery/jquery.min.js"></script>
         <link rel="stylesheet" type="text/css" href="{{asset('public') }}/assets/libs/toastr/build/toastr.min.css">
             <script src="{{asset('public') }}/assets/libs/toastr/build/toastr.min.js"></script>
             <script src="{{asset('public') }}/assets/js/pages/toastr.init.js"></script>
@@ -205,6 +208,11 @@ $medicne = DB::table('medicines')->whereNull('deleted_at')->get();
                 @if(session('success'))
                 <script>
                   toastr["success"]("{{ session('success') }}");
+                </script>
+              @endif
+                @if(session('error'))
+                <script>
+                  toastr["error"]("{{ session('error') }}");
                 </script>
               @endif
                 <!-- ========== Left Sidebar Start ========== -->

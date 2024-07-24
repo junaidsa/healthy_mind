@@ -70,7 +70,7 @@ class PatientController extends Controller
                   ->orWhere('patients.file_no', 'like', "%{$search}%")
                   ->orWhere('patients.uid_number', 'like', "%{$search}%")
                   ->orWhere('patients.mobile_no', 'like', "%{$search}%");
-        })
+        })->orderBy('patients.id', 'desc')
         ->paginate(30);
         return response()->json($patients);
 }
@@ -140,12 +140,11 @@ class PatientController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'file_no' => 'required',
+            'file_no' => 'required|unique:patients,file_no',
             'registration_date' => 'required',
             'first_name' => 'required',
             'gender' => 'required',
-            'uid_number' => 'required',
-            // 'files' => 'required',
+            'uid_number' => 'required|digits:12',
             'mobile_no' => 'required',
             'address' => 'required',
             'photo' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -205,7 +204,7 @@ class PatientController extends Controller
             'page_no' => 'required|integer',
             'medicine' => 'required|integer|exists:medicines,id',
             'qty' => 'required|integer|min:1',
-            'dos' => 'required|integer',
+            'dos' => 'required',
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -327,26 +326,26 @@ class PatientController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $validated = $request->validate([
-            'file_no' => 'required',
-            'registration_date' => 'required',
-            'first_name' => 'required',
-            'data_of_birth' => 'required',
-            'gender' => 'required',
-            'uid_number' => 'required',
-            'mobile_no' => 'required',
-            'address' => 'required',
-            'photo' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
+        // $validated = $request->validate([
+        //     'file_no' => 'required',
+        //     'registration_date' => 'required',
+        //     'first_name' => 'required',
+        //     'data_of_birth' => 'required',
+        //     'gender' => 'required',
+        //     'uid_number' => 'required',
+        //     'mobile_no' => 'required',
+        //     'address' => 'required',
+        //     'photo' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        // ]);
         $patient = Patient::findOrFail($id);
         if ($patient) {
             $file = $patient->Image;
             if ($request->hasFile('photo')) {
-                $document = $request->file('photo');
-                $name = now()->format('Y-m-d_H-i-s') . '-Photo';
-                $file = $name . '.' . $document->getClientOriginalExtension();
-                $targetDir = public_path('./media/photos');
-                $document->move($targetDir, $file);
+            $document = $request->file('photo');
+            $name = now()->format('Y-m-d_H-i-s') . '-Photo';
+            $file = $name . '.' . $document->getClientOriginalExtension();
+            $targetDir = public_path('./media/photos');
+            $document->move($targetDir, $file);
             }
             $patient->file_no = $request->input('file_no');
             $patient->registration_date = $request->input('registration_date');
@@ -378,6 +377,7 @@ class PatientController extends Controller
         if ($validated) {
         if ($request->hasFile('file')) {
             $document = $request->file('file');
+            $extension = $document->getClientOriginalExtension();
             $patient_id = $request->input('patient_id');
             $file = $document->getClientOriginalName();
             $targetDir =  public_path('./media/photos');
@@ -386,11 +386,12 @@ class PatientController extends Controller
                 'user_id' => Auth::id(),
                 'patient_id' => $patient_id,
                 'file_name' => $file,
+                'type' =>  $extension,
                 'created_at' => now(),
                 'updated_at' => now(),
                 'deleted_at' => null,
             ]);
-            return back()->with('success', 'Document Upload Successfully.');
+            return redirect('patients/'.$patient_id.'?doc')->with('success', 'Document Upload Successfully.');
         } else {
             return back()->with('error', 'Document not upload.');
         }
@@ -435,12 +436,6 @@ class PatientController extends Controller
     }
     public function getEditRow($page_no,$id)
     {
-       // $rows = DemoItem::where('page_id', $id)->where('is_deleted',0)->get();
-
-    //    $qry=DB::table('bill_items as b')->select('b.*','bc.quantity')->where('bill_id',$id)->leftjoin('medicines as m','m.id','=','b.medicine_id')->leftjoin('batches as bc',function($query){
-    //         $query->on('bc.batch_no','=','b.batch_no');
-    //         $query->on('bc.medicine_id','=','b.medicine_id');
-    //    })->get();
        $qry=DB::table('demo_items as b')->select('b.*','bc.quantity','b.id as item_id','m.rate')->where('bill_id',$id)->where('page_id',$page_no)->where('is_deleted',0)->leftjoin('medicines as m','m.id','=','b.medicine_id')->leftjoin('batches as bc',function($query){
             $query->on('bc.batch_no','=','b.batch_no');
             $query->on('bc.medicine_id','=','b.medicine_id');

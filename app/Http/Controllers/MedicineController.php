@@ -62,18 +62,9 @@ class MedicineController extends Controller
         $medicine = Medicine::find($id);
 
         if($medicine){
-            $monthlyData = DB::table('bill_items')
-            ->select(DB::raw('SUM(qty) as total_qty'), DB::raw('MONTH(created_at) as month'))
-            ->where('medicine_id', $id)
-            ->groupBy(DB::raw('MONTH(created_at)'))
-            ->get();
-            $monthlyDataArray = [];
-            foreach ($monthlyData as $data) {
-                $monthName = Carbon::create()->month($data->month)->format('F');
-                $monthlyDataArray[$monthName] = $data->total_qty;
-            }
+
         $history =  DB::table('medicine_history')->where('medicine_id',$id)->whereNull('deleted_at')->paginate('10');
-            return view('medicine.history',compact('history','id','monthlyDataArray'));
+            return view('medicine.history',compact('history','id','medicine'));
         }
         abort('404');
     }
@@ -128,6 +119,11 @@ class MedicineController extends Controller
 
 
         if ($validated) {
+            $qty = $request->input('quantity');
+            $leftstock = DB::table('batches')
+            ->where('medicine_id', $request->input('medicine'))
+            ->sum('quantity');
+            $left = $leftstock + $qty;
 
             $existingBatch = Batche::where('medicine_id', $request->input('medicine'))
                                 ->where('batch_no', $request->input('batch_no'))
@@ -135,16 +131,17 @@ class MedicineController extends Controller
                                 $currentDateTime = Date::now()->format('h:i A');
 
             if ($existingBatch) {
-                $existingBatch->quantity += $request->input('quantity');
+                $existingBatch->quantity += $qty;
                 $existingBatch->save();
 
                 DB::table('medicine_history')->insert([
                     'batch_id' =>  $existingBatch->id,
                     'medicine_id' => $existingBatch->medicine_id,
-                    'stock' => $request->input('quantity'),
-                    'status' => 'Adding Stock'.' '.$request->input('quantity'),
+                    'stock' => $qty,
+                    'status' => 'Adding Stock'.' '.$qty,
                     'time' => $currentDateTime,
                     'batch_no' => $existingBatch->batch_no,
+                    'left_stock' => $left,
                 ]);
                 return redirect('medicines')->with('success', 'Stock updated successfully.');
 
@@ -160,9 +157,10 @@ class MedicineController extends Controller
                     'batch_id' =>  $batch->id,
                     'medicine_id' => $batch->medicine_id,
                     'stock' => $request->input('quantity'),
-                    'status' => 'Adding Stock'.' '.$request->input('quantity'),
+                    'status' => 'Adding Stock'.' '.$qty,
                     'time' => $currentDateTime,
                     'batch_no' => $batch->batch_no,
+                    'left_stock' => $left,
                 ]);
                 return redirect('medicines')->with('success', 'Stock added successfully');
         } else {

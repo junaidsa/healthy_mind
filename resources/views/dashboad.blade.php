@@ -53,39 +53,7 @@
     <div class="page-content">
         <div class="container-fluid">
             <div class="row">
-                {{-- <div class="col-sm-3"> --}}
-                {{-- <div class="card mini-stats-wid">
-                            <div class="card-body sm-card">
-                                <div class="d-flex">
-                                    <div class="flex-grow-1">
-                                        <p><strong style="font-size: larger;">Add Bill</strong></p>
-                                    </div>
-                                    <div class="flex-shrink-0">
-                                        <span class="icon">
-                                            {{-- <simg src="{{ asset('public') }}/assets/images/tag.png" class="w-50"> --}}
-                {{-- </span>
-                                    </div>
-                                </div>
-                            </div> --}}
-                {{-- </div> --}}
-                {{-- <div class="card mini-stats-wid">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="flex justy">
-                                        <p class="text-muted fw-medium">Add Bill</p>
-                                    </div>
 
-                                    <div class="flex-shrink-0 align-self-center">
-                                        <div class="avatar-sm rounded-circle bg-primary mini-stat-icon">
-                                            <span class="avatar-title rounded-circle bg-primary">
-                                                <i class="bx bx-purchase-tag-alt font-size-20"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> --}}
-                {{-- </div> --}}
                 <div class="col-sm-3" style="cursor: pointer;">
                     <div class="card mini-stats-wid" onclick="window.location = '{{ url('add-bill') }}'">
                         <div class="card-body">
@@ -133,14 +101,12 @@
                     <p style="font-weight: bold; font-size: 1rem;">Select Date</p>
                     {{-- <p style="font-weight: bold;font-size: 1rem;margin-top: -12px;" style="cursor: pointer !important;" id="datepicker6" data-date-format="dd M yyyy"
                     data-date-autoclose="true" data-provide="datepicker"
-                    data-date-container="#datepicker6">{{ isset($_GET['date']) ? $_GET['date'] : date('d M Y') }}</p> --}}
+                    data-date-container="#datepicker6"></p> --}}
                     <div class="datediv">
-                        <div style="font-size: 1.3rem"><b>Date</b></div>
-                        <div>
-                        <input type="text" class="datein" id="datepicker6" name="date" value="{{ date('d M Y') }}"  data-date-format="dd M yyyy" style="
-                            background: none;
-                        "
-                            data-date-autoclose="true" data-provide="datepicker"></div>
+                        <input type="text" class="datein" id="data_dash" name="data_dash" value="{{ isset($_GET['date']) ? $_GET['date'] : date('d M Y') }}"  data-date-format="dd M yyyy" style="
+                            background: none;"
+                            data-date-autoclose="true" data-provide="datepicker">
+                        </div>
                      </div>
                 </div>
             </div>
@@ -230,22 +196,16 @@
         month: 'short',
         year: 'numeric'
     }).replace(/ /g, ' ');
-        var datepicker = $('#datepicker6').datepicker({
+        var datepicker = $('#data_dash').datepicker({
             format: 'dd M yyyy',
             autoclose: true
-            defaultViewDate: today
         }).on('changeDate', function(e) {
-            // Get the selected date
-            var selectedDate = $('#datepicker6').datepicker('getFormattedDate');
-            // Update the displayed date
-            $('#datepicker6').text(selectedDate);
+            var selectedDate = $('#data_dash').datepicker('getFormattedDate');
+            $('#data_dash').text(selectedDate);
             // Reload the current URL with the selected date as a query parameter
             var currentUrl = window.location.href.split('?')[0]; // Remove existing query parameters
             var newUrl = currentUrl + '?date=' + encodeURIComponent(selectedDate);
             window.location.href = newUrl;
         });
-            // Manually set the datepicker's date to today
-    $('#datepicker6').datepicker('update', today);
-
     </script>
     @endsection

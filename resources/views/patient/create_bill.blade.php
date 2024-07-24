@@ -75,23 +75,23 @@
                             <label class="form-label">File No <span class="text-danger">*</span></label>
                             <input type="text" id="file_no" name="file_no"
                                 class="form-control @error('file_no') is-invalid @enderror" value="{{ $patient->file_no }}"
-                                disabled>
+                                readonly tabindex="1">
                             @error('file_no')
                                 <div class=" invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label">Bill No. <span class="text-danger">*</span></label>
-                            <input type="text" disabled class="form-control @error('bill_no') is-invalid @enderror"
-                                name="bill_no" id="bill_no" tabindex="1" value="{{ $bill_No }}" disabled>
+                            <input type="text" readonly class="form-control @error('bill_no') is-invalid @enderror"
+                                name="bill_no" id="bill_no" tabindex="2" value="{{ $bill_No }}" readonly>
                             @error('bill_no')
                                 <div class=" invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label">Bill Date & Time</label>
-                            <input type="text" disabled class="form-control @error('uid_number') is-invalid @enderror"
-                                name="bill_date" id="bill_date" tabindex="1" value="{{ $formattedDateTime }}" disabled>
+                            <input type="text" readonly class="form-control @error('uid_number') is-invalid @enderror"
+                                name="bill_date" id="bill_date" tabindex="3" value="{{ $formattedDateTime }}" readonly>
                             @error('uid_number')
                                 <div class=" invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -101,16 +101,16 @@
                         <div class="col-md-3 mb-2">
                             <label class="form-label">Patient Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control  @error('first_name') is-invalid @enderror "
-                                name="first_name" id="first_name" tabindex="1" value="{{ $patient->first_name }}"
-                                disabled>
+                                name="first_name" id="first_name" tabindex="4" value="{{ $patient->first_name }}"
+                                readonly>
                             @error('first_name')
                                 <div class=" invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="col-md-2 mb-2">
                             <label class="form-label">Father's Name.</label>
-                            <input type="text" class="form-control " tabindex="2" name="father_name" id="father_name"
-                                value="{{ $patient->father_name }}" disabled>
+                            <input type="text" class="form-control " tabindex="5" name="father_name" id="father_name"
+                                value="{{ $patient->father_name }}" readonly>
                         </div>
                         <div class="col-md-2 mb-3">
                             <label class="form-label">Date of Birth <span class="text-danger">*</span></label>
@@ -118,16 +118,16 @@
                                 data-date-format="dd M, yyyy" data-date-autoclose="true" data-provide="datepicker"
                                 data-date-container="#datepicker6">
                                 <input type="text" class="form-control" name="data_of_birth"
-                                    value="{{ $patient->date_of_birth }}" disabled>
+                                    value="{{ $patient->date_of_birth }}" tabindex="6" readonly>
                                 @error('date_of_birth')
                                     <div class=" invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
                         <div class="col-md-2 mb-3">
-                            <label class="form-label">Gender</label>
+                            <label class="form-label">Aadhar Number</label>
                             <input type="text" class="form-control @error('uid_number') is-invalid @enderror"
-                                name="uid_number" disabled id="uid_number" tabindex="1"
+                                name="uid_number" readonly id="uid_number" tabindex="7"
                                 value="{{ $patient->uid_number }}">
                             @error('uid_number')
                                 <div class=" invalid-feedback">{{ $message }}</div>
@@ -136,7 +136,7 @@
                         <div class="col-md-2 mb-3">
                             <label class="form-label">Moblie No</label>
                             <input type="number" class="form-control @error('mobile_no') is-invalid @enderror"
-                                tabindex="2" name="mobile_no" id="mobile_no" value="{{ $patient->mobile_no }}" disabled>
+                                tabindex="2" name="mobile_no" id="mobile_no" value="{{ $patient->mobile_no }}" readonly tabindex="8">
                             @error('mobile_no')
                                 <div class=" invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -214,7 +214,7 @@
                                 <div data-repeater-item="" class="row stepinventryRow" data-ino="${ino}">
                                     <div class="mb-3 col-lg-5">
                                         <label for="name">Medicine Name</label>
-                                        <select name="medicine" id="medicine" class="mb-3 form-select">
+                                        <select name="medicine" id="medicine" tabindex="9" class="mb-3 form-select">
                                             <option value="">Select Medicine</option>
                                         </select>
                                         <p></p>
@@ -222,23 +222,23 @@
 
                                     <div class="mb-3 col-lg-2">
                                         <label>Quantity</label>
-                                        <input type="number" id="qty" name="qty" class="form-control">
+                                        <input type="number" id="qty" name="qty"  tabindex="10"class="form-control">
                                         <p></p>
                                     </div>
                                     <div class="mb-3 col-lg-2">
                                         <label for="email">Dosage</label>
-                                        <input type="number" name="dos" id="dos" class="form-control">
+                                        <input type="text" name="dos" id="dos" tabindex="11" class="form-control">
                                         <p></p>
                                     </div>
                                 </div>
-                                <input type="button" class="btn btn-success mt-3 mt-lg-0 add-button2" value="Add"
+                                <input type="button" class="btn btn-success mt-3 mt-lg-0 add-button2" tabindex="12" value="Add"
                                     id="add">
                             </form>
                         </div>
                         <div class="col-lg-12">
                             <div class="mb-3">
                                 <label for="exampleFormControlTextarea1" class="form-label">Note</label>
-                                <textarea id="note" name="note" class="form-control" rows="3"></textarea>
+                                <textarea id="note" name="note" class="form-control" tabindex="13" rows="3"></textarea>
                               </div>
                         </div>
 
@@ -249,7 +249,7 @@
                             </div>
                         </div>
                         <div class="d-flex justify-content-center">
-                            <button type="button" class="btn btn-primary mt-2 waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#capimage">
+                            <button type="button" class="btn btn-primary mt-2 waves-effect waves-light" tabindex="14" data-bs-toggle="modal" data-bs-target="#capimage">
                                 Capture
                               </button>
                         </div>
@@ -259,10 +259,10 @@
                 <div class="row  mt-4" style="position: relative;left: 49px;">
                     <div class="col-md-3  offset-md-8 pl-2">
                         <div class="d-flex justify-content-center align-items-center ">
-                            <button type="button" class="btn btn-primary btn-font" id="save">
+                            <button type="button" class="btn btn-primary btn-font" id="save" tabindex="15">
                                 Save
                             </button>
-                            <button class="btn btn-success mf-1 btn-font " type="button" id="saveAndPrint">Save &
+                            <button class="btn btn-success mf-1 btn-font " type="button" id="saveAndPrint" tabindex="16">Save &
                                 Print</button>
                         </div>
                     </div>
@@ -475,7 +475,7 @@ $('#captureBtn').on('click', function(e) {
                                 </div>
                             <div class="mb-3 col-lg-2">
                                 <label for="email">Dosage</label>
-                                <input type="number" name="dos" id="dos-${row.ino}" class="form-control" value="${row.dos}" disabled>
+                                <input type="text" name="dos" id="dos-${row.ino}" class="form-control" value="${row.dos}" disabled>
                                 <p></p>
                                 </div>
                                 <div class="col-lg-2 align-self-center">

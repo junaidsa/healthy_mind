@@ -47,7 +47,7 @@
         }
     </style>
     <div class="page-content">
-    <form id="createpatientForm" action="{{ route('patients.update', $patient->id) }}" method="Post" enctype="multipart/form-data">
+    <form id="EditpatientForm" action="{{ route('patients.update', $patient->id) }}" method="Post" enctype="multipart/form-data">
         @csrf
         <div class="container-fluid">
             <div class="row">
@@ -65,21 +65,23 @@
             </div>
             <div class="row">
                 <div class="mb-3 mt-4 col-md-2">
-                    <label for="disabledTextInput" class="form-label">File No. <span class="text-danger">*</span></label>
-                    <input type="text" id="file_no" name="file_no" class="form-control @error('file_no') is-invalid @enderror" value="{{$patient->file_no}}" readonly>
+                    <label for="" class="form-label">File No. <span class="text-danger">*</span></label>
+                    <input type="text" id="file_no" name="file_no"
+                           class="form-control @error('file_no') is-invalid @enderror"
+                           value="{{ old('file_no', $patient->file_no) }}" tabindex="1">
                     @error('file_no')
-                    <div class=" invalid-feedback">{{ $message }}</div>
-                         @enderror
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="col-md-3 mb-3 mt-4 offset-md-7">
                     <label for="disabledTextInput" class="form-label"style=" position: relative; left: 29px;">Registration
                         Date & Time <span class="text-danger">*</span></label>
-                    <input type="text" id="registration_date" name="registration_date" class="form-control @error('registration_date') is-invalid @enderror" tabindex="1" value="{{$patient->registration_date}}"
+                    <input type="text" id="registration_date" name="registration_date" class="form-control @error('registration_date') is-invalid @enderror"   value="{{$patient->registration_date}}"
                         style="
                         margin-left: 20px;
                         width: 85%;
-                    " readonly>
+                    " readonly tabindex="2">
                             @error('registration_date')
                             <div class=" invalid-feedback">{{ $message }}</div>
                                  @enderror
@@ -88,21 +90,23 @@
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label class="form-label">First Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control  @error('first_name') is-invalid @enderror " name="first_name" id="first_name" tabindex="1"
-                                value="{{$patient->first_name}}">
+                            <input type="text" class="form-control  @error('first_name') is-invalid @enderror" tabindex="2" name="first_name" id="first_name" value="{{ old('first_name', $patient->first_name) }}">
+                            <p></p>
                                 @error('first_name')
                             <div class=" invalid-feedback">{{ $message }}</div>
                                     @enderror
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Father Name</label>
-                            <input type="text" class="form-control" tabindex="2" name="father_name" id="father_name"
-                                value="{{$patient->father_name}}">
+                            <input type="text" class="form-control" tabindex="3" name="father_name" id="father_name"
+                                value="{{ old('father_name', $patient->father_name) }}" >
+                                <p></p>
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Date Of Birth <span class="text-danger">*</span></label>
-                        <div class="input-daterange input-group @error('date_of_birth') is-invalid @enderror"id="datepicker6" data-date-format="dd M, yyyy" data-date-autoclose="true" data-provide="datepicker" data-date-container="#datepicker6" tabindex="3">
-                             <input type="text" class="form-control" name="data_of_birth" value="{{$patient->date_of_birth}}">
+                        <div class="input-daterange input-group @error('date_of_birth') is-invalid @enderror"id="datepicker6" data-date-format="dd M, yyyy" data-date-autoclose="true" data-provide="datepicker" data-date-container="#datepicker6" tabindex="4">
+                             <input type="text" class="form-control" name="data_of_birth" autocomplete="off" value="{{ old('data_of_birth', $patient->data_of_birth) }}">
+                             <p></p>
                                 @error('date_of_birth')
                                 <div class=" invalid-feedback">{{ $message }}</div>
                                      @enderror
@@ -112,21 +116,22 @@
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label class="form-label">UID No <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('uid_number') is-invalid @enderror" name="uid_number" id="uid_number" tabindex="4"
-                                value="{{$patient->uid_number}}">
-                                @error('uid_number')
-                                <div class=" invalid-feedback">{{ $message }}</div>
+                            <input type="text" class="form-control @error('uid_number') is-invalid @enderror" name="uid_number" id="uid_number" tabindex="5"  value="{{ old('uid_number', $patient->uid_number) }}">
+                            <p></p>
+                            @error('uid_number')
+                            <div class=" invalid-feedback">{{ $message }}</div>
                                      @enderror
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Other ID </label>
-                            <input type="number" class="form-control " tabindex="5" name="other_id" id="other_id"
-                                value="{{$patient->other_id}}">
+                            <input type="number" class="form-control " tabindex="6" name="other_id" id="other_id"
+                                value="{{ old('other_id', $patient->other_id) }}">
+                                <p></p>
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Mobile No <span class="text-danger">*</span> </label>
-                            <input type="number" class="form-control @error('mobile_no') is-invalid @enderror" tabindex="6" name="mobile_no" id="mobile_no"
-                                value="{{$patient->mobile_no}}">
+                            <input type="number" class="form-control @error('mobile_no') is-invalid @enderror"  tabindex="7" name="mobile_no" id="mobile_no"   value="{{ old('mobile_no', $patient->mobile_no) }}">
+                            <p></p>
                                 @error('mobile_no')
                                 <div class=" invalid-feedback">{{ $message }}</div>
                                      @enderror
@@ -135,7 +140,7 @@
                     <div class="row">
                         <div class="col-md-4  mb-3">
                             <label class="form-label">Gender <span class="text-danger">*</span></label>
-                            <select class="form-control @error('gender') is-invalid @enderror" tabindex="7" name="gender" id="gender">
+                            <select class="form-control @error('gender') is-invalid @enderror" tabindex="8" name="gender" id="gender">
                                 <option value="Male" {{($patient->gender == 'Male') ? 'selected' : ''}}>Male</option>
                                 <option value="Female" {{($patient->gender == 'Female') ? 'selected' : ''}}>Female</option>
                                 <option value="Other" {{($patient->gender == 'Other') ? 'selected' : ''}}>Other</option>
@@ -147,14 +152,16 @@
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Alternative No </label>
                             <input type="text" class="form-control" tabindex="8" name="alternative_no" id="alternative_no"
-                                value="{{$patient->alternative_no}}">
+                                value="{{ old('alternative_no', $patient->alternative_no) }}">
+                                <p></p>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-8 mb-3">
                             <label class="form-label">Address <span class="text-danger">*</span></label>
-                            <textarea id="address" name="address" tabindex="10" class="form-control @error('address') is-invalid @enderror" rows="3" tabindex="9">{{$patient->address}}</textarea>
+                            <textarea id="address" name="address" tabindex="9" class="form-control @error('address') is-invalid @enderror" rows="3" tabindex="9">{{ old('address', $patient->address) }}</textarea>
                         </div>
+                        <p></p>
                         @error('address')
                         <div class=" invalid-feedback">{{ $message }}</div>
                              @enderror
@@ -171,7 +178,7 @@
                         </div>
                     </div>
                     <div class="d-flex justify-content-center">
-                        <button type="button" class="btn btn-primary mt-2 waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#capimage">
+                        <button type="button" class="btn btn-primary mt-2 waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#capimage" tabindex="10">
                             Capture
                           </button>
                     </div>
@@ -181,10 +188,10 @@
             <div class="row  mb-3" style="position: relative;left: 49px;">
                 <div class="col-md-3  offset-md-8 pl-2">
                     <div class="d-flex justify-content-center align-items-center ">
-                        <button type="button" class="btn btn-primary btn-font" data-bs-toggle="modal" data-bs-target=".transaction-detailModal">
+                        <button type="button" class="btn btn-primary btn-font" tabindex="12" data-bs-toggle="modal" data-bs-target=".transaction-detailModal">
                             Upload Docs
                         </button>
-                        <button class="btn btn-primary mf-1 btn-font " type="submit">Save</button>
+                        <button class="btn btn-primary mf-1 btn-font " type="submit" tabindex="11">Save</button>
                     </div>
                 </div>
             </div>
@@ -283,75 +290,80 @@ $('#captureBtn').on('click', function(e) {
                 reader.readAsDataURL(file);
             }
         });
-    //     $(document).ready(function() {
-    //     $('#createpatientForm').submit(function(event) {
-    //         $(".is-invalid").removeClass('is-invalid');
-    //         $(".invalid-feedback").html('');
-    //         var file_no = $("#file_no").val()
-    //         var registration_date = $("#registration_date").val()
-    //         var first_name = $("#first_name").val().trim();
-    //         var uid_number = $("#uid_number").val().trim();
-    //         var mobile_no = $("#mobile_no").val().trim();
-    //         var address = $("#address").val().trim();
-    //         var gender = document.getElementById("gender").value.trim();
-    //         var photo = $("#photo").prop('files')[0]; // Get the file object
+        $(document).ready(function() {
+            $('#EditpatientForm').submit(function(event) {
+                var file_no = $("#file_no").val().trim();
+                var registration_date = $("#registration_date").val().trim();
+                var first_name = $("#first_name").val().trim();
+                var uid_number = $("#uid_number").val();
+                var mobile_no = $("#mobile_no").val().trim();
+                var address = $("#address").val().trim();
+                var data_of_birth = $("#data_of_birth").val()
+                var gender = document.getElementById("gender").value.trim();
+                var photo = $("#photo").prop('files')[0];
+                var isValid = true;
+                if (file_no === '') {
+                    $("#file_no").addClass('is-invalid').siblings('.invalid-feedback').html(
+                        'File No. is required.');
+                    isValid = false;
+                }
+                if (registration_date === '') {
+                    $("#registration_date").addClass('is-invalid').siblings('.invalid-feedback').html(
+                        'Registration Date & Time is required.');
+                    isValid = false;
+                }
+                if (data_of_birth === '') {
+                    $("#data_of_birth").addClass('is-invalid').siblings('.invalid-feedback').html(
+                        'Date of Birth is required.');
+                    isValid = false;
+                }
 
-    //         // var isValid = true;
-    //         if (file_no === '') {
-    //             $("#file_no").addClass('is-invalid').siblings('.invalid-feedback').html('File No. is required.');
-    //             isValid = false;
-    //         }
-    //         if (registration_date === '') {
-    //             $("#registration_date").addClass('is-invalid').siblings('.invalid-feedback').html('Registration Date & Time is required.');
-    //             isValid = false;
-    //         }
+                if (first_name === '') {
+                    $("#first_name").addClass('is-invalid').siblings('p').addClass(
+                        'invalid-feedback').html('First Name is required.');
+                    isValid = false;
+                } else {
+                    $("#first_name").removeClass('is-invalid').siblings('p').removeClass(
+                        'invalid-feedback').html('');
+                }
+                if (uid_number === '') {
+                    $("#uid_number").addClass('is-invalid').siblings('p').addClass(
+                        'invalid-feedback').html('Addhar Number is required.');
+                    isValid = false;
+                } else if (uid_number.length !== 12 || !/^\d{12}$/.test(uid_number)) {
+                    $("#uid_number").addClass('is-invalid').siblings('p').addClass('invalid-feedback').html(
+                        'UID No. must be exactly 12 digits.');
+                    isValid = false;
+                } else {
+                    $("#uid_number").removeClass('is-invalid').siblings('p').removeClass(
+                        'invalid-feedback').html('');
+                }
+                if (mobile_no === '') {
+                    $("#mobile_no").addClass('is-invalid').siblings('p').addClass(
+                        'invalid-feedback').html('Mobile No. is required.');
+                        isValid = false;
+                     }else{
+                        $("#mobile_no").removeClass('is-invalid').siblings('p').removeClass(
+                            'invalid-feedback').html('');
+                     }
+                if (gender === '') {
+                    $("#gender").addClass('is-invalid').siblings('.invalid-feedback').html(
+                        'Gender is required.');
+                    isValid = false;
+                }
+                if (address === '') {
+                    $("#address").addClass('is-invalid').siblings('p').addClass(
+                        'invalid-feedback').html('Address is required.');
+                    isValid = false;
+                }else{
+                    $("#address").removeClass('is-invalid').siblings('p').removeClass(
+                        'invalid-feedback').html('');
+                }
 
-    //         if (first_name === '') {
-    //             $("#first_name").addClass('is-invalid').siblings('.invalid-feedback').html('First Name is required.');
-    //             isValid = false;
-    //         }
-
-    //         if (uid_number === '') {
-    //             $("#uid_number").addClass('is-invalid').siblings('.invalid-feedback').html('UID No. is required.');
-    //             isValid = false;
-    //         }
-    //         if (uid_number === '') {
-    //             $("#uid_number").addClass('is-invalid').siblings('.invalid-feedback').html('UID No. is required.');
-    //             isValid = false;
-    //         }
-    //         if (mobile_no === '') {
-    //             $("#mobile_no").addClass('is-invalid').siblings('.invalid-feedback').html('Mobile No. is required.');
-    //             isValid = false;
-    //         }
-    //         if (gender === '') {
-    //             $("#gender").addClass('is-invalid').siblings('.invalid-feedback').html('Gender is required.');
-    //             isValid = false;
-    //         }
-
-    //         if (address === '') {
-    //             $("#address").addClass('is-invalid').siblings('.invalid-feedback').html('Address is required.');
-    //             isValid = false;
-    //         }
-    //         if (photo) {
-    //             var fileSize = photo.size;
-    //             var fileType = photo.type;
-    //             var validExtensions = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/svg'];
-
-    //             if ($.inArray(fileType, validExtensions) == -1) {
-    //                 $("#photo").addClass('is-invalid').siblings('.invalid-feedback').html('Invalid file type. Please upload an image file.');
-    //                 isValid = false;
-    //             }
-
-    //             if (fileSize > 2048000) { // Max size in bytes (2MB)
-    //                 $("#photo").addClass('is-invalid').siblings('.invalid-feedback').html('File size exceeds the limit of 2MB.');
-    //                 isValid = false;
-    //             }
-    //         }
-    //         if (!isValid) {
-    //             event.preventDefault(); // Prevent form submission
-    //         }
-    //     });
-    // });
-
+                if (!isValid) {
+                    event.preventDefault();
+                }
+            });
+        });
 </script>
 @endsection

@@ -271,6 +271,7 @@
     var datepicker = $('#datepicker6').datepicker({
         format: 'dd M yyyy',
         autoclose: true,
+         orientation: 'left',
         defaultViewDate: today
     }).on('changeDate', function(e) {
         var selectedDate = $('#datepicker6').datepicker('getFormattedDate');
@@ -280,9 +281,12 @@
         window.location.href = newUrl;
     });
 
-    // Manually set the datepicker's date to today
+    <?php if(isset($_GET['date'])){ ?>
+            // Manually set the datepicker's date to today
+    $('#datepicker6').datepicker('update', '<?php echo $_GET['date'] ?>');
+<?php }else{ ?>
     $('#datepicker6').datepicker('update', today);
-
+    <?php }?>
         function parseQueryString(url) {
             var params = {};
             var queryString = url.split('?')[1];

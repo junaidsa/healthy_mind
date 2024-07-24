@@ -70,8 +70,8 @@
                         <input type="hidden" value="" id="patient_id">
                         <div class="col-md-3 mb-3">
                             <label class="form-label">File No <span class="text-danger">*</span></label>
-                            <input type="text" id="file_no" name="file_no" disabled
-                                class="form-control @error('file_no') is-invalid @enderror" value="">
+                            <input type="text" id="file_no" name="file_no"
+                                class="form-control @error('file_no') is-invalid @enderror" tabindex="1">
                             @error('file_no')
                                 <div class=" invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -79,7 +79,7 @@
                         <div class="col-md-3 mb-3">
                             <label class="form-label">Bill No. <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('bill_no') is-invalid @enderror" name="bill_no"
-                                id="bill_no" tabindex="1" value="{{ $bill_No }}" disabled>
+                                id="bill_no" tabindex="2" value="{{ $bill_No }}">
                             @error('bill_no')
                                 <div class=" invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -87,7 +87,7 @@
                         <div class="col-md-3 mb-3">
                             <label class="form-label">Bill Date & Time</label>
                             <input type="text" class="form-control @error('uid_number') is-invalid @enderror"
-                                name="bill_date" id="bill_date" tabindex="1" value="" disabled>
+                                name="bill_date" id="bill_date" tabindex="3" value="">
                             @error('uid_number')
                                 <div class=" invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -96,7 +96,7 @@
                     <div class="row mt-3">
                         <div class="col-md-3 mb-2">
                             <label class="form-label">Patient Name <span class="text-danger">*</span></label>
-                                <select class="form-control select2 @error('first_name') is-invalid @enderror" style="padding: .47rem .75rem !important;" name="first_name" id="first_name">
+                                <select class="form-control select2 @error('first_name') is-invalid @enderror" style="padding: .47rem .75rem !important;" name="first_name" id="first_name"  tabindex="4">
                                     <option>Select</option>
                                     @foreach ($patient as $p)
                                     <option value="{{ $p->id }}">{{ $p->first_name }}</option>
@@ -108,35 +108,37 @@
                         </div>
                         <div class="col-md-2 mb-2">
                             <label class="form-label">Father's Name.</label>
-                            <input type="text" class="form-control " tabindex="2" name="father_name" id="father_name"
-                                value="" disabled>
+                            <input type="text" class="form-control " tabindex="5" name="father_name" id="father_name"
+                                value="">
                         </div>
                         <div class="col-md-2 mb-3">
                             <label class="form-label">Date of Birth <span class="text-danger">*</span></label>
                             <div class="input-daterange input-group @error('date_of_birth') is-invalid @enderror"id="datepicker6"
                                 data-date-format="dd M, yyyy" data-date-autoclose="true" data-provide="datepicker"
                                 data-date-container="#datepicker6">
-                                <input type="text" class="form-control" name="data_of_birth" value="" disabled>
+                                <input type="text" class="form-control" name="data_of_birth" value="" tabindex="6">
                                 @error('date_of_birth')
                                     <div class=" invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
                         <div class="col-md-2 mb-3">
-                            <label class="form-label">Gender</label>
-                            <input type="text" class="form-control @error('uid_number') is-invalid @enderror"
-                                name="uid_number" id="uid_number" tabindex="1" value="" disabled>
-                            @error('uid_number')
-                                <div class=" invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <label class="form-label">Aadhar Number</label>
+                                <select class="form-control select2-adar"  name="uid_number" id="uid_number" tabindex="7">
+                                    <option>Select</option>
+                                    @foreach ($patient as $p)
+                                    <option value="{{ $p->id }}">{{ $p->uid_number }}</option>
+                                @endforeach
+                                </select>
                         </div>
                         <div class="col-md-2 mb-3">
                             <label class="form-label">Moblie No</label>
-                            <input type="number" class="form-control @error('mobile_no') is-invalid @enderror"
-                                tabindex="2" name="mobile_no" id="mobile_no" value="" disabled>
-                            @error('mobile_no')
-                                <div class=" invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <select class="form-control select2-mobile" name="mobile" id="mobile_no" tabindex="8">
+                                <option>Select</option>
+                                @foreach ($patient as $p)
+                                <option value="{{ $p->id }}">{{ $p->mobile_no }}</option>
+                            @endforeach
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -253,6 +255,28 @@
 @section('customJs')
     <script>
         $('.select2').select2()
+        $('.select2-mobile').select2()
+        $('.select2-adar').select2()
+        $(document).on('change', '#first_name', function(){
+            var patient_id = $(this).val();
+            console.log(patient_id);
+            if(patient_id != "" && patient_id > 0){
+                window.location = '{{ url("add-bill") }}' + '/' + patient_id;
+            }
+        })
+        $(document).on('change', '#uid_number', function(){
+            var patient_id = $(this).val();
+            console.log(patient_id);
+            if(patient_id != "" && patient_id > 0){
+                window.location = '{{ url("add-bill") }}' + '/' + patient_id;
+            }
+        })
+        $(document).on('change', '#mobile_no', function(){
+            var patient_id = $(this).val();
+            if(patient_id != "" && patient_id > 0){
+                window.location = '{{ url("add-bill") }}' + '/' + patient_id;
+            }
+        })
         $(document).on('change', '#first_name', function(){
             var patient_id = $(this).val();
             console.log(patient_id);

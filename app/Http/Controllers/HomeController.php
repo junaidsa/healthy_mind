@@ -165,7 +165,7 @@ class HomeController extends Controller
         }
 
         $data = DB::table('patient_bills as pb')
-            ->select('pb.*', 'p.file_no', 'p.first_name', 'p.father_name', 'p.other_id')
+            ->select('pb.*', 'p.file_no', 'p.first_name', 'p.father_name', 'p.uid_number')
             ->join('patients as p', function ($join) {
                 $join->on('p.id', 'pb.patient_id');
             })
