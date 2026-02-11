@@ -35,6 +35,7 @@ return array(
     'App\\Http\\Middleware\\VerifyCsrfToken' => $baseDir . '/app/Http/Middleware/VerifyCsrfToken.php',
     'App\\Http\\Requests\\Auth\\LoginRequest' => $baseDir . '/app/Http/Requests/Auth/LoginRequest.php',
     'App\\Http\\Requests\\ProfileUpdateRequest' => $baseDir . '/app/Http/Requests/ProfileUpdateRequest.php',
+    'App\\Imports\\PatientsImport' => $baseDir . '/app/Imports/PatientsImport.php',
     'App\\Models\\Batche' => $baseDir . '/app/Models/Batche.php',
     'App\\Models\\DemoItem' => $baseDir . '/app/Models/DemoItem.php',
     'App\\Models\\Documents' => $baseDir . '/app/Models/Documents.php',
